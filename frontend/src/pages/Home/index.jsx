@@ -1,9 +1,16 @@
-import React from 'react'
+import React from "react";
+import ButtonComponent from "../../components/Button";
+import Avatar from "../../components/Avatar";
+import InputComponent from "../../components/Input";
 
 const Home = () => {
   return (
-    <div>Home</div>
-  )
-}
+    <div>
+      <ButtonComponent />
+      <Avatar />
+      <InputComponent />
+    </div>
+  );
+};
 
-export default Home
+export default Home;
