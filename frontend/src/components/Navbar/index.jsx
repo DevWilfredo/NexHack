@@ -1,3 +1,6 @@
+import ThemeToggler from "../ThemeToogler";
+
+
 const Navbar = () => {
     return (
         <div className="navbar bg-base-200 shadow-md px-4">
@@ -11,6 +14,7 @@ const Navbar = () => {
                     <li><a href="/dashboard">Dashboard</a></li>
                 </ul>
             </div>
+            <div><ThemeToggler/></div>
         </div>
     );
 };
