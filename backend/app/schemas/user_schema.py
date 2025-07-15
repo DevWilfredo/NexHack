@@ -9,4 +9,10 @@ class UserRegisterSchema(Schema):
 class UserLoginSchema(Schema):
     email = fields.Email(required=True)
     password = fields.String(required=True, validate=validate.Length(min=6))
+
+class UserUpdateSchema(Schema):
+    firstname = fields.String(validate=validate.Length(min=2))
+    lastname = fields.String(validate=validate.Length(min=2))
+    email=fields.Email()
+    password = fields.String(validate=validate.Length(min=6))
     

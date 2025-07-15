@@ -1,17 +1,13 @@
 from flask import Flask
-from dotenv import load_dotenv
-import os
 from .extensions import db, migrate, bcrypt, jwt, cors
 from .routes.auth import auth_bp
+from .routes.users import user_bp
+from .config import Config
 
 
 def create_app():
-    load_dotenv()
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
+    app.config.from_object(Config)  
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -19,7 +15,8 @@ def create_app():
     jwt.init_app(app)
     cors.init_app(app)
 
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    api_prefix = app.config["API_PREFIX"]
+    app.register_blueprint(auth_bp, url_prefix=f"{api_prefix}/auth")
+    app.register_blueprint(user_bp, url_prefix=f"{api_prefix}/users")
 
     return app
-
