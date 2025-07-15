@@ -1,7 +1,12 @@
 import React from "react";
+import ProfileComponent from "../../components/Profile";
 
 const Dashboard = () => {
-  return <div>Dashboard</div>;
+  return (
+    <div>
+      <ProfileComponent />
+    </div>
+  );
 };
 
 export default Dashboard;
