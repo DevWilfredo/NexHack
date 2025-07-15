@@ -18,6 +18,9 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+    
+    def isModerator(self):
+        return self.role == 'moderator'
 
     def to_dict(self):
         return {

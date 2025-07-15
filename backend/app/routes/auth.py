@@ -38,7 +38,7 @@ def login_user():
         if not matching_user or not matching_user.check_password(password):
             return jsonify({'error': 'Invalid Credentials'}), 401
         access_token = create_access_token(identity=str(matching_user.id))
-        return jsonify({'token': access_token, 'user': matching_user.to_dict()})
+        return jsonify({'token': access_token, 'user_id': matching_user.id})
     except ValidationError as err:
         return jsonify({'errors': err.messages}), 400
     except Exception as e:
