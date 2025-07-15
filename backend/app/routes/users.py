@@ -12,7 +12,7 @@ user_bp = Blueprint("users", __name__)
 def get_users():
     try:
         user_id = get_jwt_identity()
-        requesting_user = User.query.get(user_id)
+        requesting_user = User.query.get_or_404(user_id)
         if not requesting_user.isModerator():
             return jsonify({'error':'You have not the required Permissions'}), 403
         users = User.query.all()
@@ -28,7 +28,7 @@ def get_single_user(user_id):
         jwt_id = get_jwt_identity()
         if not str(user_id) == jwt_id:
             return jsonify({'error':'You have not the required Permissions'}), 403
-        user = User.query.get(user_id)
+        user = User.query.get_or_404(user_id)
         return jsonify(user.to_dict()), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -41,7 +41,7 @@ def update_user(user_id):
         jwt_id = get_jwt_identity()
         if not str(user_id) == jwt_id:
             return jsonify({'error':'You have not the required Permissions'}), 403
-        user = User.query.get(user_id)
+        user = User.query.get_or_404(user_id)
         data = schema.load(request.get_json())
         if 'firstname' in data:
             user.firstname = data['firstname']
