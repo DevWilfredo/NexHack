@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
-const ProfileComponent = () => {
+const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   return (
@@ -36,23 +36,35 @@ const ProfileComponent = () => {
           </div>
         </div>
         {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {[
-            "React",
-            "Flask",
-            "Django",
-            "Python",
-            "Javascript",
-            "C#",
-            "C++",
-            "Typescript",
-            "Vue",
-            "Angular",
-          ].map((tag) => (
-            <button key={tag} className="btn btn-sm btn-outline rounded-full">
-              {tag}
-            </button>
-          ))}
+        <div className=" overflow-x-auto h-20">
+          <div className="flex gap-2">
+            {[
+              "React",
+              "Flask",
+              "Django",
+              "Python",
+              "Javascript",
+              "C#",
+              "C++",
+              "Typescript",
+              "Vue",
+              "Angular",
+              "React",
+              "Flask",
+              "Django",
+              "Python",
+              "Javascript",
+              "C#",
+              "C++",
+              "Typescript",
+              "Vue",
+              "Angular",
+            ].map((tag) => (
+              <button key={tag} className="btn btn-sm btn-outline rounded-full">
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
         {/* Lista de hackatones */}
         <div className="bg-base-200 rounded-box p-4 flex flex-col gap-4 h-full">
@@ -108,4 +120,4 @@ const ProfileComponent = () => {
   );
 };
 
-export default ProfileComponent;
+export default DashboardComponent;
