@@ -1,12 +1,10 @@
-import { use, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [tags, setTags] = useState([]);
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MjY3MDY0NywianRpIjoiM2FlMDQxODktZWRjOC00N2ZhLWI1MTctNjBjMGU1NzU1MWEwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTI2NzA2NDcsImNzcmYiOiJjMjkzZmQwNC02ZGY3LTQ2Y2UtODQzOC1iZDAxNWE5NDIyODQiLCJleHAiOjE3NTI2NzE1NDd9.HC2pU5wmeWqJcRfLgHujGoJd9GjCQWE1vaj3fjRlbWE";
 
   useEffect(() => {
     // Simulate fetching tags data from an API
