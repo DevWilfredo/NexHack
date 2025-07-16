@@ -1,10 +1,10 @@
 import React from "react";
-import ProfileComponent from "../../components/Profile";
+import DashboardComponent from "../../components/Dashboard";
 
 const Dashboard = () => {
   return (
     <div>
-      <ProfileComponent />
+      <DashboardComponent />
     </div>
   );
 };
