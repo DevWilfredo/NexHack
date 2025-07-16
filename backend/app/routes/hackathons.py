@@ -13,7 +13,7 @@ hackathon_bp = Blueprint('hackathons', __name__)
 
 
 @hackathon_bp.route('/', methods=['GET'])
-@jwt_required()
+
 def get_hackatons():
     try:
         hackatons = Hackathon.query.all()

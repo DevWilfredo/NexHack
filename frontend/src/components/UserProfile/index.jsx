@@ -1,6 +1,7 @@
 import { HeartPlus, ThumbsUp } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChartComponent from "../chartComponent";
+import { GetUserProfile } from "../../services";
 
 function UserProfileComponent() {
   // Simula la información del usuario
@@ -40,10 +41,20 @@ function UserProfileComponent() {
     { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
   ]);
 
+  //prueba de conseguir el perffil del usuario
+  const [userProfile, setUserProfile] = useState(null);
+  useEffect(() => {
+    const userId = 1; // Simula un ID de usuario
+    GetUserProfile(userId).then((data) => {
+      setUserProfile(data);
+    });
+  }, []);
+
   return (
     <div className="flex">
       {/* Img de perfil, followers, me gustas. */}
       <div className="basis-64 items-center gap-4">
+        {console.log(userProfile)}
         <img
           src={userInfo.avatarUrl}
           alt="Avatar"
