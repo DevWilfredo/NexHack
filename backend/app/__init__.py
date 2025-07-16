@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from .extensions import db, migrate, bcrypt, jwt, cors
 from .routes.auth import auth_bp
@@ -23,5 +24,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix=f"{api_prefix}/users")
     app.register_blueprint(hackathon_bp, url_prefix=f"{api_prefix}/hackathons")
     app.register_blueprint(tags_bp, url_prefix=f"{api_prefix}/tags")
+    
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
     return app

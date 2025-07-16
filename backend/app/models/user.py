@@ -10,6 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="user")
+    profile_picture = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -29,4 +30,5 @@ class User(db.Model):
             "lastname": self.lastname,
             "email": self.email,
             "role": self.role,
+            'profile_picture': self.profile_picture
         }
