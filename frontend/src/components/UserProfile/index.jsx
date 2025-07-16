@@ -9,7 +9,7 @@ function UserProfileComponent() {
     username: "octocat",
     name: "The Octocat",
     bio: "Just a friendly feline coding across the galaxy.",
-    avatarUrl: "https://github.com/octocat.png",
+    avatarUrl: `http://localhost:5000/api/v1/users/profile_pictures/user_1.png`,
     followers: 120,
     following: 42,
   });
@@ -42,19 +42,18 @@ function UserProfileComponent() {
   ]);
 
   //prueba de conseguir el perffil del usuario
-  const [userProfile, setUserProfile] = useState(null);
-  useEffect(() => {
-    const userId = 1; // Simula un ID de usuario
-    GetUserProfile(userId).then((data) => {
-      setUserProfile(data);
-    });
-  }, []);
+  // const [userProfile, setUserProfile] = useState(null);
+  // useEffect(() => {
+  //   const userId = 1; // Simula un ID de usuario
+  //   GetUserProfile(userId).then((data) => {
+  //     setUserProfile(data);
+  //   });
+  // }, []);
 
   return (
     <div className="flex">
       {/* Img de perfil, followers, me gustas. */}
       <div className="basis-64 items-center gap-4">
-        {console.log(userProfile)}
         <img
           src={userInfo.avatarUrl}
           alt="Avatar"
