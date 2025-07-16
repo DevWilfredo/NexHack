@@ -1,9 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    // Simulate fetching tags data from an API
+    fetch("http://127.0.0.1:5000/api/v1/tags")
+      .then((res) => res.json())
+      .then((data) => {
+        setTags(data);
+      })
+
+      .catch((error) => {
+        console.error("Error fetching tags:", error);
+      });
+  }, []);
 
   return (
     <div className="flex h-screen">
@@ -21,9 +35,9 @@ const DashboardComponent = () => {
       </div>
 
       {/* Zona central (60%) */}
-      <div className="basis-3/5 p-4 flex flex-col gap-4 overflow-y-auto">
+      <div className="basis-3/5 pt-4 flexgap-4">
         {/* Zona superior con imágenes (como leetcode) */}
-        <div className="overflow-x-auto overflow-y-hidden h-60">
+        <div className="overflow-x-auto overflow-y-hidden">
           <div className="flex gap-4 ">
             {Array.from({ length: 10 }).map((_, idx) => (
               <img
@@ -36,32 +50,14 @@ const DashboardComponent = () => {
           </div>
         </div>
         {/* Tags */}
-        <div className=" overflow-x-auto h-20">
-          <div className="flex gap-2">
-            {[
-              "React",
-              "Flask",
-              "Django",
-              "Python",
-              "Javascript",
-              "C#",
-              "C++",
-              "Typescript",
-              "Vue",
-              "Angular",
-              "React",
-              "Flask",
-              "Django",
-              "Python",
-              "Javascript",
-              "C#",
-              "C++",
-              "Typescript",
-              "Vue",
-              "Angular",
-            ].map((tag) => (
-              <button key={tag} className="btn btn-sm btn-outline rounded-full">
-                {tag}
+        <div className=" h-20">
+          <div className="flex gap-2 pt-2 collapse">
+            {tags.map((tag) => (
+              <button
+                key={tag.id}
+                className="btn  btn-primary text-success shadow-sm shadow-accent"
+              >
+                {tag.name}
               </button>
             ))}
           </div>

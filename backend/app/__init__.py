@@ -3,6 +3,7 @@ from .extensions import db, migrate, bcrypt, jwt, cors
 from .routes.auth import auth_bp
 from .routes.users import user_bp
 from .routes.hackathons import hackathon_bp
+from .routes.tags import tags_bp
 from .config import Config
 from .models import hackathon, user
 
@@ -21,5 +22,6 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix=f"{api_prefix}/auth")
     app.register_blueprint(user_bp, url_prefix=f"{api_prefix}/users")
     app.register_blueprint(hackathon_bp, url_prefix=f"{api_prefix}/hackathons")
+    app.register_blueprint(tags_bp, url_prefix=f"{api_prefix}/tags")
 
     return app
