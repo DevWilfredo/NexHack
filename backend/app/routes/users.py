@@ -1,6 +1,6 @@
 import os
 from werkzeug.utils import secure_filename
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app.models.user import User
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -85,3 +85,6 @@ def update_user(user_id):
         return jsonify({'error': str(e)}), 500
 
 
+@user_bp.route('/profile_pictures/<filename>', methods=['GET'])
+def serve_profile_picture(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
