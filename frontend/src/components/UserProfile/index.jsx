@@ -1,6 +1,7 @@
 import { HeartPlus, ThumbsUp } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChartComponent from "../chartComponent";
+import { GetUserProfile } from "../../services";
 
 function UserProfileComponent() {
   // Simula la información del usuario
@@ -8,7 +9,7 @@ function UserProfileComponent() {
     username: "octocat",
     name: "The Octocat",
     bio: "Just a friendly feline coding across the galaxy.",
-    avatarUrl: "https://github.com/octocat.png",
+    avatarUrl: `http://localhost:5000/api/v1/users/profile_pictures/user_1.png`,
     followers: 120,
     following: 42,
   });
@@ -39,6 +40,15 @@ function UserProfileComponent() {
     { hackname: "Angular solodev", timeLimit: "24 hours", ranked: "1st place" },
     { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
   ]);
+
+  //prueba de conseguir el perffil del usuario
+  // const [userProfile, setUserProfile] = useState(null);
+  // useEffect(() => {
+  //   const userId = 1; // Simula un ID de usuario
+  //   GetUserProfile(userId).then((data) => {
+  //     setUserProfile(data);
+  //   });
+  // }, []);
 
   return (
     <div className="flex">
