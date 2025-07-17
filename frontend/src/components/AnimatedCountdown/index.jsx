@@ -17,7 +17,7 @@ const ShiftingCountdown = () => {
     <section className="min-h-screen flex flex-col justify-center items-center bg-[#010515]">
       <img src={logo} alt="NexHack Logo" className="w-auto h-20 mb-4 drop-shadow-lg" />
       <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">Proximamente</h1>
-      <p className="mb-8 text-base-content/70 text-lg md:text-xl">¡Estamos preparando algo increíble!</p>
+      <p className="mb-8 text-white text-lg md:text-xl">¡Estamos preparando algo increíble!</p>
       <div className="w-full max-w-3xl flex items-center justify-center bg-[#9a031e] rounded-xl shadow-xl p-4">
         <CountdownItem unit="Day" text="días" />
         <CountdownItem unit="Hour" text="horas" />
