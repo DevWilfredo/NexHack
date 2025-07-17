@@ -3,35 +3,21 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { GetHackathons, GetTags } from "../../services";
 import TagsComponent from "../TagsComponent";
-
-const formatoFecha = (fechaString) => {
-  const fecha = new Date(fechaString);
-  const dia = String(fecha.getDate()).padStart(2, "0");
-  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-  const año = fecha.getFullYear();
-
-  return `${dia}-${mes}-${año}`;
-};
-
-// Función para calcular la duración en horas entre dos fechas
-// Asumiendo que las fechas están en formato ISO 8601 (YYYY-MM-DDTH
-const calcularHoras = (inicio, fin) => {
-  const fechaInicioDate = new Date(inicio);
-  const fechaFinDate = new Date(fin);
-
-  // Diferencia en milisegundos
-  const diffMs = fechaFinDate - fechaInicioDate;
-
-  // Convertir milisegundos a horas (1 hora = 3600000 ms)
-  const diffHoras = diffMs / (1000 * 60 * 60);
-
-  return diffHoras;
-};
+import {
+  calcularHoras,
+  formatDateToISOShort,
+  formatoFecha,
+  mapFechasAHackathones,
+  todasLasFechas,
+} from "../../utilities/dateUtils";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [tags, setTags] = useState([]);
   const [hackathons, setHackathons] = useState([]);
+  const [datesToShow, setDatesToShow] = useState([]);
+  const [mapHackathons, setMapHackathons] = useState({});
+
   useEffect(() => {
     // Simulate fetching tags data from an API
     GetTags().then((data) => {
@@ -40,6 +26,12 @@ const DashboardComponent = () => {
 
     GetHackathons().then((data) => {
       setHackathons(data);
+      const fechas = todasLasFechas(data);
+      setDatesToShow(fechas);
+      const mapa = mapFechasAHackathones(data);
+      setMapHackathons(mapa);
+      console.log(mapa);
+      console.log(fechas);
     });
   }, []);
 
@@ -136,20 +128,47 @@ const DashboardComponent = () => {
       {/* Zona derecha (20%) */}
       <div className="flex-[2] p-4">
         <h2 className="text-lg font-semibold mb-4">Selecciona una fecha:</h2>
-        <div className="border rounded-box p-4 flex justify-center">
+        <div className="border rounded-box p-4 flex justify-center ">
           <DayPicker
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
+            modifiers={{
+              occupied: datesToShow,
+            }}
+            modifiersClassNames={{
+              occupied: "bg-accent text-primary rounded-full scale-90",
+              selected: "bg-primary text-primary-content rounded-full",
+            }}
+            classNames={{
+              table: "w-full border-separate", // espaciado entre días
+              cell: "w-10 h-10", // tamaño de cada celda (ajustable)
+              day: "text-sm hover:bg-gray-200 rounded-full transition-all duration-200",
+            }}
           />
         </div>
         {selectedDate && (
-          <p className="mt-4">
-            Fecha seleccionada:{" "}
-            <span className="font-medium">
-              {selectedDate.toLocaleDateString()}
-            </span>
-          </p>
+          <div>
+            <h2 className="text-lg font-semibold mb-2">
+              Hackathones para {formatoFecha(selectedDate)}
+            </h2>
+            {(mapHackathons[formatDateToISOShort(selectedDate)] || []).length >
+            0 ? (
+              <ul className="list-disc ml-4">
+                {mapHackathons[formatDateToISOShort(selectedDate)].map(
+                  (hack) => (
+                    <li key={hack.id}>
+                      <strong>{hack.title}</strong> —{" "}
+                      {formatoFecha(hack.start_date)} a{" "}
+                      {formatoFecha(hack.end_date)}
+                    </li>
+                  )
+                )}
+              </ul>
+            ) : (
+              <p>No hay hackathones ese día.</p>
+            )}
+          </div>
         )}
       </div>
     </div>
