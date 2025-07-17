@@ -1,11 +1,11 @@
 import { frameworks } from "../../data/Tech";
-import { useTheme } from "../../context/ThemeContext";
-import AstroLight from "../Icons/Astro";
-import AstroDark from "../Icons/AstroDark";
-import ExpressLight from "../Icons/ExpressLight";
-import ExpressDark from "../Icons/ExpressDark";
-import FlaskLight from "../Icons/FlaskLight";
-import FlaskDark from "../Icons/FlaskDark";
+import { useTheme } from "@context/ThemeContext";
+import AstroLight from "@components/Icons/Astro";
+import AstroDark from "@components/Icons/AstroDark";
+import ExpressLight from "@components/Icons/ExpressLight";
+import ExpressDark from "@components/Icons/ExpressDark";
+import FlaskLight from "@components/Icons/FlaskLight";
+import FlaskDark from "@components/Icons/FlaskDark";
 
 const TechGridSection = () => {
   const { isDark } = useTheme();
@@ -28,12 +28,19 @@ const TechGridSection = () => {
       <h2 className="text-3xl md:text-4xl font-bold mb-8">
         Domina las tecnologías que impulsan los proyectos reales
       </h2>
-      <p className="max-w-2xl mx-auto mb-12 text-lg text-gray-500 dark:text-gray-400">
+      <p className="max-w-2xl mx-auto mb-3 text-lg text-gray-500 dark:text-gray-400">
         Aprende construyendo proyectos completos en equipo. Enfréntate a
         desafíos grupales reales usando los frameworks y lenguajes más
         demandados, como lo harías en un hackatón profesional.
       </p>
-      <div className="flex flex-wrap justify-center gap-6">
+      <div className="flex justify-center">
+            <div
+              className={`w-16 h-1 rounded-full ${
+                isDark ? "bg-accent" : "bg-primary"
+              } inline-flex `}
+            ></div>
+          </div>
+      <div className="flex flex-wrap justify-center gap-6 mt-8">
         {themedFrameworks.map(({ name, icon: Icon, neon }) => (
           <div
             key={name}

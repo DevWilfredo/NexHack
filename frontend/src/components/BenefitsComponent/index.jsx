@@ -1,5 +1,5 @@
-import { useTheme } from "../../context/ThemeContext";
-import { benefits } from "../../data/benefits";
+import { useTheme } from "@context/ThemeContext";
+import { benefits } from "@data/benefits";
 import ButtonPrimary from "../ButtonPrimary";
 
 const BenefitsSection = () => {
@@ -28,12 +28,10 @@ const BenefitsSection = () => {
           {benefits.map(({ icon: Icon, title, description }, idx) => (
             <div
               key={idx}
-              className={`p-4 md:w-1/3 flex flex-col text-center items-center`}
+              className={`p-4 md:w-1/3 flex flex-col text-center items-center `}
             >
               <div
-                className={`w-20 h-20 inline-flex items-center justify-center rounded-full bg-${
-                  isDark ? "accent/10" : "primary/30"
-                } text-${isDark ? "accent" : "primary"} mb-5`}
+                className={`w-20 h-20 inline-flex items-center justify-center rounded-full ${isDark ? 'text-accent bg-accent/10' : 'text-primary bg-primary/10'} mb-5`}
               >
                 <Icon className="w-10 h-10" />
               </div>

@@ -1,6 +1,8 @@
-import Hero from "../../components/Hero";
-import BenefitsSection from "../../components/BenefitsComponent";
-import TechGridSection from "../../components/TechGrid";
+import Hero from "@components/Hero";
+import BenefitsSection from "@components/BenefitsComponent";
+import TechGridSection from "@components/TechGrid";
+import Testimonials from "@components/Testimonials";
+import BentoGridSection from "@components/BentoGridSection";
 
 const Home = () => {
   return (
@@ -8,6 +10,8 @@ const Home = () => {
       <Hero />
       <BenefitsSection />
       <TechGridSection />
+      <BentoGridSection/>
+      <Testimonials/>
     </>
   );
 };

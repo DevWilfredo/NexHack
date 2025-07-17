@@ -1,7 +1,7 @@
 import { HeartPlus, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import ChartComponent from "../chartComponent";
-import { GetUserProfile } from "../../services";
+import ChartComponent from "@components/chartComponent";
+import { GetUserProfile } from "@services/";
 
 function UserProfileComponent() {
   // Simula la información del usuario
