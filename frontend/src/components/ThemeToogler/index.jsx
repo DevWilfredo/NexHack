@@ -1,5 +1,5 @@
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@context/ThemeContext";
 const ThemeToggler = () => {
   const { isDark, toggleTheme } = useTheme();
   return (

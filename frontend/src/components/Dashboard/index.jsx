@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { GetHackathons, GetTags } from "../../services";
-import TagsComponent from "../TagsComponent";
+import { GetHackathons, GetTags } from "@services/";
+import TagsComponent from "@components/TagsComponent";
 import {
   calcularHoras,
   formatDateToISOShort,
   formatoFecha,
   mapFechasAHackathones,
   todasLasFechas,
-} from "../../utilities/dateUtils";
+} from "@utilities/dateUtils";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);

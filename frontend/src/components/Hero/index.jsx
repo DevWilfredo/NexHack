@@ -1,8 +1,8 @@
 import React from "react";
 import { ChevronRight, Newspaper } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
-import ButtonPrimary from "../ButtonPrimary";
-import ButtonSecondary from "../ButtonSecondary";
+import { useTheme } from "@context/ThemeContext";
+import ButtonPrimary from "@components/ButtonPrimary";
+import ButtonSecondary from "@components/ButtonSecondary";
 
 const Hero = () => {
   const { isDark } = useTheme();
@@ -11,7 +11,7 @@ const Hero = () => {
       <div className="px-12 mx-auto max-w-7xl">
         <div className="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
           <h1
-            className={`mb-8 text-4xl font-extrabold leading-none tracking-normal text-${isDark ? 'accent' : 'primary'} md:text-6xl md:tracking-tight`}
+            className={`mb-8 text-4xl font-extrabold leading-none tracking-normal ${isDark ? 'text-accent' : 'text-primary'} md:text-6xl md:tracking-tight`}
           >
             <span>¿Listo para</span>{" "}
             <span
@@ -48,11 +48,11 @@ const Hero = () => {
         <div className="w-full mx-auto mt-20 text-center md:w-10/12">
           <div className="relative z-0 w-full mt-8">
             <div className="relative overflow-hidden shadow-2xl">
-              <div className="flex items-center flex-none px-4 bg-primary rounded-b-none h-11 rounded-xl">
+              <div className={`flex items-center flex-none px-4 ${isDark ? 'bg-accent' : 'bg-primary'} rounded-b-none h-11 rounded-xl`}>
                 <div className="flex space-x-1.5">
-                  <div className="w-3 h-3 border-2 border-base-100 rounded-full"></div>
-                  <div className="w-3 h-3 border-2 border-base-100 rounded-full"></div>
-                  <div className="w-3 h-3 border-2 border-base-100 rounded-full"></div>
+                  <div className="w-3 h-3 border-2 border-white rounded-full"></div>
+                  <div className="w-3 h-3 border-2 border-white rounded-full"></div>
+                  <div className="w-3 h-3 border-2 border-white rounded-full"></div>
                 </div>
               </div>
               <img

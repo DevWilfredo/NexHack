@@ -1,4 +1,4 @@
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@context/ThemeContext";
 
 const ButtonPrimary = ({ title, icon: Icon, className = "", type="button", onClick }) => {
   const { isDark } = useTheme();

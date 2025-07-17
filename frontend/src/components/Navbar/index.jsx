@@ -1,7 +1,9 @@
 import { NavLink } from "react-router";
-import Avatar from "../Avatar";
-import ThemeToggler from "../ThemeToogler";
-import { useTheme } from "../../context/ThemeContext";
+import Avatar from "@components/Avatar";
+import ThemeToggler from "@components/ThemeToogler";
+import { useTheme } from "@context/ThemeContext";
+import nexhackLogo from '@assets/nexhack.png'
+import nechackBlue from '@assets/nexhackBlue.png'
 
 const Navbar = () => {
   const { isDark } = useTheme();
@@ -70,7 +72,9 @@ const Navbar = () => {
           </ul>
         </div>
 
-        <a className="btn btn-ghost text-xl">NEXHACK</a>
+        <NavLink to='/' className="text-xl">
+          <img src={isDark ? nexhackLogo : nechackBlue} alt="" className="w-60 h-auto" />
+        </NavLink>
       </div>
 
       {/* <div className="navbar-center hidden md:flex gap-2">
