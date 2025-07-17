@@ -1,5 +1,7 @@
+const API_URL = import.meta.env.VITE_API_URL
+
 export const GetTags=() =>{
-     return fetch("http://127.0.0.1:5000/api/v1/tags")
+     return fetch(`${API_URL}/tags`)
       .then((response) => {
       return response.json();
     })     
@@ -9,7 +11,7 @@ export const GetTags=() =>{
 }
 
 export const GetHackathons=() =>{
-     return fetch("http://127.0.0.1:5000/api/v1/hackathons")
+     return fetch(`${API_URL}/hackathons`)
       .then((response) => {
       return response.json();
     })     
@@ -19,7 +21,7 @@ export const GetHackathons=() =>{
 }
 
 export const GetUserProfile=(id)=>{
-        return fetch(`http://127.0.0.1:5000/api/v1/users/${id}`)
+        return fetch(`${API_URL}/users/${id}`)
         .then((response) => {
         return response.json();
       })
