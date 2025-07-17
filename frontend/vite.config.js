@@ -13,7 +13,7 @@ export default defineConfig({
       '@data' : path.resolve(__dirname, 'src/data'),
       '@assets' : path.resolve(__dirname, 'src/assets'),
       '@services': path.resolve(__dirname, 'src/services'),
-      '@utilities': path.resolve(__dirname, 'src/utilites')
+      '@utilities': path.resolve(__dirname, 'src/utilities')
       // agrega más alias según necesites
     },
   },
