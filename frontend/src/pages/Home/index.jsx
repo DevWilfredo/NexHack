@@ -1,15 +1,14 @@
-import React from "react";
-import ButtonComponent from "../../components/Button";
-import Avatar from "../../components/Avatar";
-import InputComponent from "../../components/Input";
+import Hero from "../../components/Hero";
+import BenefitsSection from "../../components/BenefitsComponent";
+import TechGridSection from "../../components/TechGrid";
 
 const Home = () => {
   return (
-    <div className="flex flex-col items-center gat-4 p-6">
-      <Avatar />
-      <InputComponent />
-      <ButtonComponent />
-    </div>
+    <>
+      <Hero />
+      <BenefitsSection />
+      <TechGridSection />
+    </>
   );
 };
 

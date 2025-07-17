@@ -51,7 +51,7 @@ function UserProfileComponent() {
   // }, []);
 
   return (
-    <div className="flex">
+    <div className="flex justify-center">
       {/* Img de perfil, followers, me gustas. */}
       <div className="basis-64 items-center gap-4">
         <img
