@@ -1,5 +1,3 @@
-# app/routes/hackathons.py
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -11,9 +9,7 @@ from marshmallow import ValidationError
 
 hackathon_bp = Blueprint('hackathons', __name__)
 
-
 @hackathon_bp.route('/', methods=['GET'])
-
 def get_hackatons():
     try:
         hackatons = Hackathon.query.all()
@@ -115,3 +111,11 @@ def update_hackathon(hackathon_id):
         return jsonify(err.messages), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@hackathon_bp.route('/<int:hackathon_id>', methods=['GET'])
+def get_single_hackathon(hackathon_id):
+    try:
+        requested_hackathon = Hackathon.query.get_or_404(hackathon_id)
+        return jsonify(requested_hackathon.to_dict()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
