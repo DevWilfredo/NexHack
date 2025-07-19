@@ -14,6 +14,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
@@ -30,5 +31,6 @@ class User(db.Model):
             "lastname": self.lastname,
             "email": self.email,
             "role": self.role,
-            'profile_picture': self.profile_picture
+            'profile_picture': self.profile_picture,
+            'notifications': [notification.to_dict() for notification in self.notifications]
         }

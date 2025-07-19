@@ -12,6 +12,7 @@ flask-jwt-extended = "*"
 flask-cors = "*"
 python-dotenv = "*"
 marshmallow = "*"
+faker = "*"
 
 [dev-packages]
 
