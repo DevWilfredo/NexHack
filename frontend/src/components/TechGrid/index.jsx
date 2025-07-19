@@ -1,4 +1,7 @@
-import { frameworks } from "../../data/Tech";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
+import { frameworks } from "@data/Tech";
 import { useTheme } from "@context/ThemeContext";
 import AstroLight from "@components/Icons/Astro";
 import AstroDark from "@components/Icons/AstroDark";
@@ -22,9 +25,40 @@ const TechGridSection = () => {
 
     return { ...fw, icon, neon };
   });
+  // Hook para detectar si está en viewport
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.3, // Se activa cuando 30% está visible
+    triggerOnce: true, // Solo una vez
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
+  // Variantes de animación para la sección entera
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  };
 
   return (
-    <section className="py-16 text-center">
+    <motion.section
+      ref={ref}
+      initial="hidden"
+      animate={controls}
+      variants={containerVariants}
+      className="py-16 text-center"
+    >
       <h2 className="text-3xl md:text-4xl font-bold mb-8">
         Domina las tecnologías que impulsan los proyectos reales
       </h2>
@@ -34,12 +68,12 @@ const TechGridSection = () => {
         demandados, como lo harías en un hackatón profesional.
       </p>
       <div className="flex justify-center">
-            <div
-              className={`w-16 h-1 rounded-full ${
-                isDark ? "bg-accent" : "bg-primary"
-              } inline-flex `}
-            ></div>
-          </div>
+        <div
+          className={`w-16 h-1 rounded-full ${
+            isDark ? "bg-accent" : "bg-primary"
+          } inline-flex `}
+        ></div>
+      </div>
       <div className="flex flex-wrap justify-center gap-6 mt-8">
         {themedFrameworks.map(({ name, icon: Icon, neon }) => (
           <div
@@ -63,7 +97,7 @@ const TechGridSection = () => {
           </div>
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 };
 
