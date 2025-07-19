@@ -1,4 +1,7 @@
-import React from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
+
 import { useTheme } from "@context/ThemeContext";
 
 const BentoGridSection = () => {
@@ -6,17 +9,58 @@ const BentoGridSection = () => {
 
   const cardBg = isDark ? "bg-slate-900/80" : "bg-base-100";
 
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.3, triggerOnce: true });
+
+  useEffect(() => {
+    if (inView) controls.start("visible");
+  }, [controls, inView]);
+
+  // Variantes para contenedor con stagger
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  // Variantes para cada card
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div className="py-16 sm:py-24">
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={controls}
+      variants={containerVariants}
+      className="py-16 sm:py-24"
+    >
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         <p className="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-base-content sm:text-5xl">
           Todo lo que necesitas para destacar en tecnología
         </p>
-        <div className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
+
+        <motion.div
+          variants={containerVariants}
+          className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2"
+        >
           {/* CARD 1 */}
-          <div className="relative lg:row-span-2">
-            <div className={`absolute inset-px rounded-lg ${cardBg} border-primary border lg:rounded-l-4xl`}></div>
-            <div className={`relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(2rem+1px)]`}>
+          <motion.div variants={cardVariants} className="relative lg:row-span-2">
+            <div
+              className={`absolute inset-px rounded-lg ${cardBg} border-primary border lg:rounded-l-4xl`}
+            ></div>
+            <div
+              className={`relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(2rem+1px)]`}
+            >
               <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
                 <p className="mt-2 text-lg font-medium tracking-tight text-base-content max-lg:text-center">
                   Adaptado a móviles
@@ -36,11 +80,13 @@ const BentoGridSection = () => {
               </div>
             </div>
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 lg:rounded-l-4xl"></div>
-          </div>
+          </motion.div>
 
           {/* CARD 2 */}
-          <div className="relative max-lg:row-start-1">
-            <div className={`absolute inset-px rounded-lg ${cardBg} border-primary border max-lg:rounded-t-4xl`}></div>
+          <motion.div variants={cardVariants} className="relative max-lg:row-start-1">
+            <div
+              className={`absolute inset-px rounded-lg ${cardBg} border-primary border max-lg:rounded-t-4xl`}
+            ></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)]">
               <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                 <p className="mt-2 text-lg font-medium tracking-tight text-base-content max-lg:text-center">
@@ -59,11 +105,16 @@ const BentoGridSection = () => {
               </div>
             </div>
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 max-lg:rounded-t-4xl"></div>
-          </div>
+          </motion.div>
 
           {/* CARD 3 */}
-          <div className="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2">
-            <div className={`absolute inset-px rounded-lg ${cardBg} border-primary border`}></div>
+          <motion.div
+            variants={cardVariants}
+            className="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2"
+          >
+            <div
+              className={`absolute inset-px rounded-lg ${cardBg} border-primary border`}
+            ></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
               <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                 <p className="mt-2 text-lg font-medium tracking-tight text-base-content max-lg:text-center">
@@ -82,12 +133,16 @@ const BentoGridSection = () => {
               </div>
             </div>
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5"></div>
-          </div>
+          </motion.div>
 
           {/* CARD 4 */}
-          <div className="relative lg:row-span-2">
-            <div className={`absolute inset-px rounded-lg ${cardBg} border-primary border max-lg:rounded-b-4xl lg:rounded-r-4xl`}></div>
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)]">
+          <motion.div variants={cardVariants} className="relative lg:row-span-2">
+            <div
+              className={`absolute inset-px rounded-lg ${cardBg} border-primary border max-lg:rounded-b-4xl lg:rounded-r-4xl`}
+            ></div>
+            <div
+              className={`relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)]`}
+            >
               <div className="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
                 <p className="mt-2 text-lg font-medium tracking-tight text-base-content max-lg:text-center">
                   APIs y herramientas integradas
@@ -107,10 +162,10 @@ const BentoGridSection = () => {
               </div>
             </div>
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 max-lg:rounded-b-4xl lg:rounded-r-4xl"></div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
