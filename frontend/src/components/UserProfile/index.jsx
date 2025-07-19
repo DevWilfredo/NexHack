@@ -13,6 +13,7 @@ function UserProfileComponent() {
     followers: 120,
     following: 42,
   });
+
   // Este estado controla qué sección está activa (repos, followers, etc.)
   const [activeTab, setActiveTab] = useState("global");
 

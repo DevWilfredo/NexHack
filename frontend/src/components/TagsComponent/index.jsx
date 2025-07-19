@@ -3,13 +3,13 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 const TagsComponent = ({ tags }) => {
   const [expanded, setExpanded] = useState(false);
-  const visibleCount = 6; // mostrar 6 tags por defecto
+  const visibleCount = 9; // mostrar 6 tags por defecto
 
   const visibleTags = expanded ? tags : tags.slice(0, visibleCount);
 
   return (
-    <div className=" relative flex justify-center p-3">
-      <div className="flex gap-2 flex-wrap">
+    <div className=" relative flex ">
+      <div className="flex gap-4 flex-wrap  w-full">
         {visibleTags.map((tag) => (
           <button
             key={tag.id}
