@@ -5,8 +5,9 @@ from .routes.auth import auth_bp
 from .routes.users import user_bp
 from .routes.hackathons import hackathon_bp
 from .routes.tags import tags_bp
+from .routes.teams import team_bp
 from .config import Config
-from .models import hackathon, user
+from .models import hackathon, user, evaluation, feedback, notification, points, team
 
 
 def create_app():
@@ -24,6 +25,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix=f"{api_prefix}/users")
     app.register_blueprint(hackathon_bp, url_prefix=f"{api_prefix}/hackathons")
     app.register_blueprint(tags_bp, url_prefix=f"{api_prefix}/tags")
+    app.register_blueprint(team_bp, url_prefix=f"{api_prefix}/teams")
     
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 

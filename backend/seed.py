@@ -1,54 +1,67 @@
 from app import create_app
 from app.extensions import db
 from app.models.user import User
-from app.models.hackathon import Hackathon, Tag, HackathonRule
+from app.models.hackathon import Hackathon, HackathonRule, Tag
+from app.models.notification import Notification
 from datetime import datetime, timedelta
 import random
+from faker import Faker
 
+faker = Faker()
 app = create_app()
 
 with app.app_context():
-    # 👉 Crear moderador si no existe
-    email = "moderator@example.com"
-    existing_user = User.query.filter_by(email=email).first()
+    db.drop_all()
+    db.create_all()
 
-    if not existing_user:
-        user = User(
-            firstname="Moderador",
-            lastname="Inicial",
-            email=email,
-            role="moderator"
-        )
-        user.set_password("mod1234")
-        db.session.add(user)
-        db.session.commit()
-        print("✅ Usuario moderador creado correctamente.")
-    else:
-        print("ℹ️ El usuario moderador ya existe.")
-
-    # 👉 Crear tags si no existen
+    # Crear Tags
     tag_names = [
         "React", "Vue", "Angular", "Node", "Python", "Django", "Flask", "Java", "Spring", "Kotlin",
         "Swift", "iOS", "Android", "Go", "Rust", "C#", "Unity", "Unreal", "PHP", "Laravel",
         "Ruby", "Rails", "TypeScript", "Next.js", "Svelte"
     ]
-
-    tag_map = {}
+    tags = []
     for name in tag_names:
-        tag = Tag.query.filter_by(name=name).first()
-        if not tag:
-            tag = Tag(name=name)
-            db.session.add(tag)
-        tag_map[name] = tag
+        tag = Tag(name=name)
+        db.session.add(tag)
+        tags.append(tag)
     db.session.commit()
 
-    # 👉 Crear 25 hackathones
+    # Crear usuarios
+    users = []
+    for i in range(50):
+        role = "moderator" if i < 5 else "user"
+        user = User(
+            firstname=faker.first_name(),
+            lastname=faker.last_name(),
+            email=faker.unique.email(),
+            role=role,
+            profile_picture=None
+        )
+        user.set_password("password123")
+        db.session.add(user)
+        users.append(user)
+    db.session.commit()
+
+    # Crear notificaciones
+    types = ['hackathon_start', 'invitation', 'evaluation', 'general']
+    for user in users:
+        for _ in range(5):
+            note = Notification(
+                user_id=user.id,
+                type=random.choice(types),
+                message=faker.sentence(),
+                data=None
+            )
+            db.session.add(note)
+    db.session.commit()
+
+    # Crear hackathones
     TITLES = [
         "Reto de Frontend", "Hackathon Express", "Code Challenge", "Weekend Dev Jam",
         "Interfaz Creativa", "Startup Sprint", "Hack4Good", "CSS Battle", "Open Source Push",
         "Clean Code Hack"
     ]
-
     DESCRIPTIONS = [
         "Un reto intensivo para mejorar tus habilidades con frameworks modernos.",
         "Construye algo increíble en solo 48 horas.",
@@ -56,7 +69,6 @@ with app.app_context():
         "Demuestra tus habilidades técnicas resolviendo problemas reales.",
         "Crea algo útil, creativo o divertido en un fin de semana."
     ]
-
     RULES_POOL = [
         "No usar IA generativa",
         "Tiempo límite de entrega: 48h",
@@ -67,35 +79,26 @@ with app.app_context():
     ]
 
     for i in range(25):
+        creator = random.choice(users)
         title = f"{random.choice(TITLES)} #{i + 1}"
         description = random.choice(DESCRIPTIONS)
-        start_date = datetime.strptime(f"2025-08-{(i % 28) + 1:02d}", "%Y-%m-%d")
-        end_date = datetime.strptime(f"2025-09-{(i % 28) + 1:02d}", "%Y-%m-%d")
-        max_teams = 10 + i
-        max_team_members = 5 + (i % 10)
-        creator_id = 1
-
+        start_date = datetime.utcnow() + timedelta(days=random.randint(5, 30))
+        end_date = start_date + timedelta(days=3)
         hackathon = Hackathon(
             title=title,
             description=description,
             start_date=start_date,
             end_date=end_date,
-            max_teams=max_teams,
-            max_team_members=max_team_members,
-            creator_id=creator_id
+            max_teams=random.randint(5, 15),
+            max_team_members=random.randint(3, 6),
+            creator_id=creator.id
         )
 
-        # 👉 Agregar reglas como objetos
-        selected_rules = random.sample(RULES_POOL, k=random.randint(2, 3))
-        for rule_text in selected_rules:
+        for rule_text in random.sample(RULES_POOL, k=random.randint(2, 3)):
             hackathon.add_rule(rule_text)
 
-        # 👉 Agregar tags relacionadas
-        tag_name = tag_names[i]  # usa una diferente por cada uno
-        tag = tag_map[tag_name]
-        hackathon.add_tag(tag)
-
+        hackathon.add_tag(random.choice(tags))
         db.session.add(hackathon)
-
     db.session.commit()
-    print("✅ 25 hackathones creados correctamente con reglas y tags.")
+
+    print("✅ Base de datos poblada con usuarios, notificaciones y hackathones.")
