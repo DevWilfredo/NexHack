@@ -2,17 +2,32 @@ import { HeartPlus, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ChartComponent from "@components/chartComponent";
 import { GetUserProfile } from "@services/";
+import ModalUserUpdateComponent from "../ModalUserUpdate";
 
 function UserProfileComponent() {
+  const [showModal, setShowModal] = useState(false);
   // Simula la información del usuario
   const [userInfo, setUserInfo] = useState({
     username: "octocat",
-    name: "The Octocat",
+    firstname: "The",
+    lastname: "Octocat",
+    email: "octocat@example.com",
     bio: "Just a friendly feline coding across the galaxy.",
     avatarUrl: `http://localhost:5000/api/v1/users/profile_pictures/user_1.png`,
     followers: 120,
     following: 42,
   });
+
+  //Simulacion LOCAL del fetch [PUT] para actualizar el usuario
+  const updateUserInfo = (updatedData) => {
+    setUserInfo((prev) => ({
+      ...prev,
+      ...updatedData,
+      avatarUrl: updatedData.avatarFile
+        ? URL.createObjectURL(updatedData.avatarFile)
+        : prev.avatarUrl,
+    }));
+  };
 
   // Este estado controla qué sección está activa (repos, followers, etc.)
   const [activeTab, setActiveTab] = useState("global");
@@ -51,6 +66,9 @@ function UserProfileComponent() {
   //   });
   // }, []);
 
+  const handleModal = () => {
+    setShowModal((prev) => !prev);
+  };
   return (
     <div className="flex justify-center">
       {/* Img de perfil, followers, me gustas. */}
@@ -61,11 +79,17 @@ function UserProfileComponent() {
           className="w-24 h-24 rounded-full"
         />
         <div>
-          <h1 className="text-2xl font-bold">{userInfo.name}</h1>
+          <h1 className="text-2xl font-bold">
+            {`${userInfo.firstname} ${userInfo.lastname}`}
+          </h1>
           <p className="text-sm text-gray-500">@{userInfo.username}</p>
-          <button className="btn btn-sm mt-2 btn-outline ml-auto">
+          <button
+            className="btn btn-sm mt-2 btn-outline ml-auto"
+            onClick={handleModal}
+          >
             Edit Profile
           </button>
+
           <p className="mt-2">{userInfo.bio}</p>
         </div>
         {/* Seguidores y seguidos */}
@@ -161,6 +185,12 @@ function UserProfileComponent() {
           )}
         </div>
       </div>
+      <ModalUserUpdateComponent
+        showModal={showModal}
+        onClose={handleModal}
+        user={userInfo}
+        onUpdate={updateUserInfo}
+      />
     </div>
   );
 }
