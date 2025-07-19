@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 const TagsComponent = ({ tags }) => {
   const [expanded, setExpanded] = useState(false);
-  const visibleCount = 6; // mostrar 6 tags por defecto
+  const visibleCount = 10; // mostrar 6 tags por defecto
 
   const visibleTags = expanded ? tags : tags.slice(0, visibleCount);
 

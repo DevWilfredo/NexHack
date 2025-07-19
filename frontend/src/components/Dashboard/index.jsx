@@ -10,6 +10,7 @@ import {
   mapFechasAHackathones,
   todasLasFechas,
 } from "@utilities/dateUtils";
+import { NavLink } from "react-router";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -93,7 +94,11 @@ const DashboardComponent = () => {
                         : ""
                     }
                   >
-                    <td>{hackathons.title}</td>
+                    <td>
+                      <NavLink to={`/hackathons/${hackathons.id}`}>
+                        {hackathons.title}{" "}
+                      </NavLink>
+                    </td>
                     <td>Personas</td>
 
                     <td>{formatoFecha(hackathons.start_date)}</td>
