@@ -9,6 +9,8 @@ import UserProfile from "./pages/UserProfile";
 import FaviconUpdater from "./components/FaviconUpdater";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
+import HackathonsPage from "./pages/Hackathons";
+import TeamsPage from "./pages/Teams";
 
 const App = () => {
   return (
@@ -17,6 +19,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
+
+          {/* Rutas protegidas */}
           <Route
             path="/dashboard"
             element={
@@ -33,6 +37,8 @@ const App = () => {
               </PrivateRoute>
             }
           />
+
+          {/* Rutas públicas solo si NO está logueado */}
           <Route
             path="/login"
             element={
@@ -48,6 +54,15 @@ const App = () => {
                 <Register />
               </AuthenticatedRoute>
             }
+          />
+
+          <Route
+            path="/hackathons/:hackathonId"
+            element={<HackathonsPage />}
+          />
+          <Route
+            path="/hackathons/:hackathonId/teams/:teamId"
+            element={<TeamsPage />}
           />
         </Route>
       </Routes>
