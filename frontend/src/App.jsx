@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserProfile from "./pages/UserProfile";
 import FaviconUpdater from "./components/FaviconUpdater";
+import PrivateRoute from "./components/PrivateRoute";
+import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 const App = () => {
   return (
@@ -15,11 +17,39 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<UserProfile />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <UserProfile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <AuthenticatedRoute>
+                <Login />
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <AuthenticatedRoute>
+                <Register />
+              </AuthenticatedRoute>
+            }
+          />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
       </Routes>
     </>
   );
