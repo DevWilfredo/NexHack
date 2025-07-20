@@ -34,3 +34,19 @@ export const LoginUser = (email, password) => {
     body: JSON.stringify({ email, password })
   }).then(res => res.json());
 };
+
+export const RegisterUser = (firstname, lastname, email, password) => {
+  return fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firstname, lastname, email, password }),
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Error en el registro");
+      }
+      return data; 
+    });
+};
+
