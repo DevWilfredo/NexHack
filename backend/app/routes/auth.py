@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.models.user import User
 from app.extensions import db
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.schemas.user_schema import UserLoginSchema, UserRegisterSchema
 from marshmallow import ValidationError
 
@@ -43,3 +43,16 @@ def login_user():
         return jsonify({'errors': err.messages}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@auth_bp.route('/verify-token', methods=['GET'])
+@jwt_required()
+def verify_token():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify({
+        'user': user.to_dict()
+    }), 200

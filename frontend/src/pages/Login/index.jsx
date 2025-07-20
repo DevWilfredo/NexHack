@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import ButtonPrimary from "../../components/ButtonPrimary";
-import Input from "../../components/Input";
+import ButtonPrimary from "@components/ButtonPrimary";
+import Input from "@components/Input";
+import { useAuth } from "@context/AuthContext";
+import { useNavigate } from "react-router";
 
 const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate(); 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -17,7 +21,14 @@ const Login = () => {
       setError("Por favor, completa todos los campos.");
     } else {
       setError("");
-      console.log("Formulario enviado:", form);
+
+      
+      login(
+        form.email,
+        form.password,
+        () => navigate("/dashboard"),
+        (msg) => setError(msg)
+      );
     }
   };
 
@@ -45,7 +56,7 @@ const Login = () => {
           onChange={handleChange}
         />
 
-        {error && <p className="text-sm text-center">{error}</p>}
+        {error && <p className="text-sm text-center text-red-500">{error}</p>}
 
         <ButtonPrimary title="Entrar" type="submit" />
       </form>

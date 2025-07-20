@@ -1,7 +1,14 @@
-import React from "react";
 import { NavLink } from "react-router";
+import { useAuth } from "@context/AuthContext";
 
 const Avatar = () => {
+  const { logout, user } = useAuth();
+  const firstLetter = user?.firstname?.charAt(0)?.toUpperCase() || "U";
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="dropdown dropdown-end">
       <div
@@ -11,8 +18,14 @@ const Avatar = () => {
       >
         <div className="w-10 rounded-full">
           <img
-            alt="Tailwind CSS Navbar component"
-            src="http://localhost:5000/api/v1/users/profile_pictures/user_1.png"
+            alt="Avatar"
+            src={
+              user.profile_picture
+                ? `${
+                    import.meta.env.VITE_API_URL
+                  }/users/profile_pictures/${profile_picture}`
+                : `https://placehold.co/400x400?text=${firstLetter}`
+            }
           />
         </div>
       </div>
@@ -21,12 +34,10 @@ const Avatar = () => {
         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
       >
         <li>
-          <NavLink to='/profile'>
-            Perfil
-          </NavLink>
+          <NavLink to="/profile">Perfil</NavLink>
         </li>
-        <li>
-          <a>Cerrar Sesion</a>
+        <li onClick={handleLogout}>
+          <a>Cerrar Sesión</a>
         </li>
       </ul>
     </div>
