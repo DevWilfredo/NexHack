@@ -3,19 +3,21 @@ import { Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import LoginPage from "./pages/Login";
 import UserProfile from "./pages/UserProfile";
 import FaviconUpdater from "./components/FaviconUpdater";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import HackathonsPage from "./pages/Hackathons";
 import TeamsPage from "./pages/Teams";
+import { Toaster } from "react-hot-toast";
+import RegisterPage from "./pages/Register";
 
 const App = () => {
   return (
     <>
       <FaviconUpdater />
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -43,7 +45,7 @@ const App = () => {
             path="/login"
             element={
               <AuthenticatedRoute>
-                <Login />
+                <LoginPage />
               </AuthenticatedRoute>
             }
           />
@@ -51,15 +53,12 @@ const App = () => {
             path="/register"
             element={
               <AuthenticatedRoute>
-                <Register />
+                <RegisterPage />
               </AuthenticatedRoute>
             }
           />
 
-          <Route
-            path="/hackathons/:hackathonId"
-            element={<HackathonsPage />}
-          />
+          <Route path="/hackathons/:hackathonId" element={<HackathonsPage />} />
           <Route
             path="/hackathons/:hackathonId/teams/:teamId"
             element={<TeamsPage />}
