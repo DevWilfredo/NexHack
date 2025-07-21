@@ -9,8 +9,12 @@ class User(db.Model):
     lastname = db.Column(db.String(255))
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    bio = db.Column(db.Text, nullable=True)
     role = db.Column(db.String(50), default="user")
     profile_picture = db.Column(db.String(255), nullable=True)
+    github_url = db.Column(db.String(255), nullable=True)
+    website_url = db.Column(db.String(255), nullable=True)
+    linkedin_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -30,7 +34,11 @@ class User(db.Model):
             "firstname": self.firstname,
             "lastname": self.lastname,
             "email": self.email,
+            "bio":self.bio,
             "role": self.role,
             'profile_picture': self.profile_picture,
+            "github_url":self.github_url,
+            "linkedin_url":self.linkedin_url,
+            "website_url":self.website_url,
             'notifications': [notification.to_dict() for notification in self.notifications]
         }

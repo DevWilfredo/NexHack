@@ -14,18 +14,55 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    # Crear Tags
+    # Crear Tags con íconos asociados
     tag_names = [
         "React", "Vue", "Angular", "Node", "Python", "Django", "Flask", "Java", "Spring", "Kotlin",
-        "Swift", "iOS", "Android", "Go", "Rust", "C#", "Unity", "Unreal", "PHP", "Laravel",
-        "Ruby", "Rails", "TypeScript", "Next.js", "Svelte"
+        "Swift", "Go", "Rust", "C#", "Unity", "Unreal", "Php", "Laravel",
+        "Ruby", "TypeScript", "Next.js", "Svelte"
     ]
+
+    tag_icon_map = {
+        "React": "React",
+        "Vue": "Vue",
+        "Angular": "Angular",
+        "Python": "Python",
+        "Django": "Django",
+        "Flask": "FlaskLight",
+        "Java": "Java",
+        "Spring": "Spring",
+        "Swift": "Swift",
+        "TypeScript": "TypeScript",
+        "Next.js": "Next",
+        "Tailwind": "Tailwindcss",
+        "Laravel": "Laravel",
+        "Javascript": "Javascript",
+        "Node" : "Node",
+        "Kotlin":"Kotlin",
+        "Go":"Go",
+        "Rust":"Rust",
+        "C#":"Cshare",
+        "Unity":"Unity",
+        "Unreal":"Unreal",
+        "Php":"Php",
+        "Ruby":"Ruby",
+        "Svelte":"Svelte"
+    }
+
+    missing_icons = []
     tags = []
     for name in tag_names:
-        tag = Tag(name=name)
+        icon_name = tag_icon_map.get(name)
+        if not icon_name:
+            missing_icons.append(name)
+        tag = Tag(name=name, icon=icon_name)
         db.session.add(tag)
         tags.append(tag)
     db.session.commit()
+
+    if missing_icons:
+        print("⚠️ Faltan íconos para los siguientes tags, crea los componentes correspondientes:")
+        for missing in missing_icons:
+            print(f" - {missing}")
 
     # Crear usuarios
     users = []

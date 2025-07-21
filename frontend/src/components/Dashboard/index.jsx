@@ -3,6 +3,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { GetHackathons, GetTags } from "@services/";
 import TagsComponent from "@components/TagsComponent";
+import { useTheme } from "@context/ThemeContext";
 import {
   calcularHoras,
   formatDateToISOShort,
@@ -19,6 +20,7 @@ const DashboardComponent = () => {
   const [hackathons, setHackathons] = useState([]);
   const [datesToShow, setDatesToShow] = useState([]);
   const [mapHackathons, setMapHackathons] = useState({});
+  const { isDark } = useTheme();
 
   useEffect(() => {
     // Simulate fetching tags data from an API
@@ -133,10 +135,11 @@ const DashboardComponent = () => {
       </div>
 
       {/* Zona derecha (20%) */}
-      <div className="flex-[2] p-4">
+      <div className="flex-[1] p-4">
         <h2 className="text-lg font-semibold mb-4">Selecciona una fecha:</h2>
-        <div className="border rounded-box p-4 flex justify-center ">
+        <div className={`flex justify-center ${isDark ? 'bg-slate-900/80' : 'bg-base-200'} rounded-xl p-4 shadow-lg w-fit`}>
           <DayPicker
+          animate
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
@@ -144,13 +147,13 @@ const DashboardComponent = () => {
               occupied: datesToShow,
             }}
             modifiersClassNames={{
-              occupied: "bg-accent text-primary rounded-full scale-90",
+              occupied:  `${isDark ? 'bg-accent' : 'bg-primary'} text-white rounded-full scale-90`,
               selected: "bg-primary text-primary-content rounded-full",
             }}
             classNames={{
               table: "w-full border-separate", // espaciado entre días
               cell: "w-10 h-10", // tamaño de cada celda (ajustable)
-              day: "text-sm hover:bg-gray-200 rounded-full transition-all duration-200",
+              day: `text-sm ${isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-400 hover:text-white'} rounded-full transition-all duration-200`,
             }}
           />
         </div>
