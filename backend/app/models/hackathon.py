@@ -75,11 +75,13 @@ class Tag(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
+    icon = db.Column(db.String(100), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "icon":self.icon
         }
 
 class HackathonTag(db.Model):

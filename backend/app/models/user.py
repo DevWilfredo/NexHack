@@ -11,6 +11,9 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="user")
     profile_picture = db.Column(db.String(255), nullable=True)
+    github_url = db.Column(db.String(255), nullable=True)
+    website_url = db.Column(db.String(255), nullable=True)
+    linkedin_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
