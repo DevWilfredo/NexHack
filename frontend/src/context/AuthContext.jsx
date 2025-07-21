@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router";
 import { LoginUser, RegisterUser } from "@services";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -37,7 +38,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (email, password, onSuccess, onError) => {
+  const login = (email, password) => {
+    const loadingToast = toast.loading("Iniciando sesión...");
+
     LoginUser(email, password)
       .then((data) => {
         if (data.token) {
@@ -55,15 +58,20 @@ export const AuthProvider = ({ children }) => {
             })
             .then((res) => {
               setUser(res.user);
-              if (onSuccess) onSuccess();
+              toast.success("Sesión iniciada con éxito", { id: loadingToast });
+              navigate('/dashboard')
+            })
+            .catch((err) => {
+              console.error("Error al verificar token:", err);
+              toast.error("Token inválido", { id: loadingToast });
             });
         } else {
-          if (onError) onError("Credenciales incorrectas");
+          toast.error("Credenciales incorrectas", { id: loadingToast });
         }
       })
       .catch((err) => {
         console.error("Error en login:", err);
-        if (onError) onError("Error al iniciar sesión");
+        toast.error("Error al iniciar sesión", { id: loadingToast });
       });
   };
 
@@ -71,14 +79,22 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     setUser(null);
     setUserToken(null);
+    toast.success("Sesión cerrada correctamente");
   };
 
   const register = (firstname, lastname, email, password) => {
-    return RegisterUser(firstname, lastname, email, password)
-      .then((user) => {
-        navigate("/login");
-      });
-  };
+  const loadingToast = toast.loading("Creando cuenta...");
+
+  return RegisterUser(firstname, lastname, email, password)
+    .then((user) => {
+      toast.success("Cuenta creada con éxito", { id: loadingToast });
+      navigate("/login");
+    })
+    .catch((err) => {
+      console.error("Error en el registro:", err);
+      toast.error("Error al crear la cuenta", { id: loadingToast });
+    });
+};
 
   return (
     <AuthContext.Provider value={{ login, logout, user, userToken, register }}>

@@ -109,7 +109,9 @@ const Navbar = () => {
           <>
             <NavLink
               to="/dashboard"
-              className={({ isActive }) => getBtnClass(isActive)}
+              className={({ isActive }) =>
+                `hidden md:inline-flex ${getBtnClass(isActive)}`
+              }
             >
               Dashboard
             </NavLink>
@@ -121,13 +123,17 @@ const Navbar = () => {
           <>
             <NavLink
               to="/login"
-              className={({ isActive }) => getBtnClass(isActive)}
+              className={({ isActive }) =>
+                `hidden md:inline-flex ${getBtnClass(isActive)}`
+              }
             >
               Login
             </NavLink>
             <NavLink
               to="/register"
-              className={({ isActive }) => getBtnClass(isActive)}
+              className={({ isActive }) =>
+                `hidden md:inline-flex ${getBtnClass(isActive)}`
+              }
             >
               Registro
             </NavLink>
