@@ -2,13 +2,14 @@
 
 import { updateUserProfile } from "@services"; // Asegúrate de que el alias o path sea correcto
 import { useState, useEffect } from "react";
-const hardcodedToken = "";
+import { useAuth } from "@context/AuthContext";
+
 const ModalUserUpdateComponent = ({ showModal, onClose, user, onUpdate }) => {
   const [newdata, setNewData] = useState({ ...user });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState(false);
-
+  const { userToken } = useAuth();
   //validacion con regex ya que daisyUI no tiene uno interno
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,11 +37,7 @@ const ModalUserUpdateComponent = ({ showModal, onClose, user, onUpdate }) => {
     setLoading(true);
     setError("");
     try {
-      const updatedUser = await updateUserProfile(
-        user.id,
-        newdata,
-        hardcodedToken
-      );
+      const updatedUser = await updateUserProfile(user.id, newdata, userToken);
       console.log(updatedUser);
       onUpdate(updatedUser); // Actualiza el padre con la respuesta del backend
     } catch (err) {
@@ -77,9 +74,13 @@ const ModalUserUpdateComponent = ({ showModal, onClose, user, onUpdate }) => {
             <div className="flex flex-col items-center gap-2">
               <img
                 src={
-                  newdata.avatarFile
-                    ? URL.createObjectURL(newdata.avatarFile)
-                    : user.avatarUrl
+                  newdata.profile_picture
+                    ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
+                        newdata.profile_picture
+                      }`
+                    : `https://placehold.co/400x400?text=${
+                        newdata.firstname?.charAt(0)?.toUpperCase() || "U"
+                      }`
                 }
                 alt="Avatar"
                 className="w-32 h-32 rounded-full object-cover"

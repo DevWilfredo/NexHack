@@ -21,9 +21,9 @@ const Avatar = () => {
             alt="Avatar"
             src={
               user.profile_picture
-                ? `${
-                    import.meta.env.VITE_API_URL
-                  }/users/profile_pictures/${profile_picture}`
+                ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
+                    user.profile_picture
+                  }`
                 : `https://placehold.co/400x400?text=${firstLetter}`
             }
           />
