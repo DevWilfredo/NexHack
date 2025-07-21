@@ -35,5 +35,8 @@ class User(db.Model):
             "email": self.email,
             "role": self.role,
             'profile_picture': self.profile_picture,
+            "github_url":self.github_url,
+            "linkedin_url":self.linkedin_url,
+            "website_url":self.website_url,
             'notifications': [notification.to_dict() for notification in self.notifications]
         }
