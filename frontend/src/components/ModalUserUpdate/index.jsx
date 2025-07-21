@@ -4,12 +4,12 @@ import { updateUserProfile } from "@services"; // Asegúrate de que el alias o p
 import { useState, useEffect } from "react";
 import { useAuth } from "@context/AuthContext";
 
-const ModalUserUpdateComponent = ({ showModal, onClose, user, onUpdate }) => {
+const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
+  const { userToken, user } = useAuth();
   const [newdata, setNewData] = useState({ ...user });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState(false);
-  const { userToken } = useAuth();
   //validacion con regex ya que daisyUI no tiene uno interno
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
