@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
             .then((res) => {
               setUser(res.user);
               toast.success("Sesión iniciada con éxito", { id: loadingToast });
-              navigate('/dashboard')
+              navigate("/dashboard");
             })
             .catch((err) => {
               console.error("Error al verificar token:", err);
@@ -83,21 +83,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = (firstname, lastname, email, password) => {
-  const loadingToast = toast.loading("Creando cuenta...");
+    const loadingToast = toast.loading("Creando cuenta...");
 
-  return RegisterUser(firstname, lastname, email, password)
-    .then((user) => {
-      toast.success("Cuenta creada con éxito", { id: loadingToast });
-      navigate("/login");
-    })
-    .catch((err) => {
-      console.error("Error en el registro:", err);
-      toast.error("Error al crear la cuenta", { id: loadingToast });
-    });
-};
+    return RegisterUser(firstname, lastname, email, password)
+      .then((user) => {
+        toast.success("Cuenta creada con éxito", { id: loadingToast });
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.error("Error en el registro:", err);
+        toast.error("Error al crear la cuenta", { id: loadingToast });
+      });
+  };
 
   return (
-    <AuthContext.Provider value={{ login, logout, user, userToken, register }}>
+    <AuthContext.Provider
+      value={{ login, logout, user, userToken, register, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

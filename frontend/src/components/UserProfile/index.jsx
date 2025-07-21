@@ -6,24 +6,15 @@ import { GetUserProfile } from "@services/";
 import ModalUserUpdateComponent from "../ModalUserUpdate";
 
 function UserProfileComponent() {
-  const { user, userToken } = useAuth();
+  const { user, userToken, setUser } = useAuth();
   const [userInfo, setUserInfo] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [userLoaded, setUserLoaded] = useState(false);
 
-  useEffect(() => {
-    if (!userToken || !user?.id) return;
-
-    GetUserProfile(user.id, userToken).then((data) => {
-      setUserInfo(data);
-      setUserLoaded(true);
-    });
-  }, [userToken, user]);
-
   const handleModal = () => setShowModal((prev) => !prev);
 
   const handleUpdate = (updatedData) => {
-    setUserInfo(updatedData);
+    setUser(updatedData);
   };
 
   //info Hardcodeada porque falta informacion en la db
@@ -56,12 +47,12 @@ function UserProfileComponent() {
       <div className="basis-64 items-center gap-4">
         <img
           src={
-            userInfo.profile_picture
+            user.profile_picture
               ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
-                  userInfo.profile_picture
+                  user.profile_picture
                 }`
               : `https://placehold.co/400x400?text=${
-                  userInfo.firstname?.charAt(0)?.toUpperCase() || "U"
+                  user.firstname?.charAt(0)?.toUpperCase() || "U"
                 }`
           }
           alt="Avatar"
@@ -70,7 +61,7 @@ function UserProfileComponent() {
 
         <div>
           <h1 className="text-2xl font-bold">
-            {`${userInfo.firstname} ${userInfo.lastname}`}
+            {`${user.firstname} ${user.lastname}`}
           </h1>
 
           <p className="text-sm text-gray-500">@{userInfo.username}</p>
@@ -178,7 +169,6 @@ function UserProfileComponent() {
       <ModalUserUpdateComponent
         showModal={showModal}
         onClose={handleModal}
-        user={userInfo}
         onUpdate={handleUpdate}
       />
     </div>
