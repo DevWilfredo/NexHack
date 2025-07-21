@@ -11,6 +11,7 @@ import {
   todasLasFechas,
 } from "@utilities/dateUtils";
 import { NavLink } from "react-router";
+import ModalUserUpdateComponent from "../ModalUserUpdate";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -44,6 +45,7 @@ const DashboardComponent = () => {
           <input type="checkbox" />
           <div className="collapse-title font-semibold">
             Esto será una lista
+            <ModalUserUpdateComponent />
           </div>
           <div className="collapse-content text-sm">
             Esto será nuevo contenido en la lista

@@ -72,6 +72,7 @@ function UserProfileComponent() {
           <h1 className="text-2xl font-bold">
             {`${userInfo.firstname} ${userInfo.lastname}`}
           </h1>
+
           <p className="text-sm text-gray-500">@{userInfo.username}</p>
           <button
             className="btn btn-sm mt-2 btn-outline ml-auto"
