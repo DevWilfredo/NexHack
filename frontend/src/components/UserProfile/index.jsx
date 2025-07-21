@@ -1,23 +1,34 @@
 import { HeartPlus, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ChartComponent from "@components/chartComponent";
+import { useAuth } from "@context/AuthContext";
 import { GetUserProfile } from "@services/";
+import ModalUserUpdateComponent from "../ModalUserUpdate";
 
 function UserProfileComponent() {
-  // Simula la información del usuario
-  const [userInfo, setUserInfo] = useState({
-    username: "octocat",
-    name: "The Octocat",
-    bio: "Just a friendly feline coding across the galaxy.",
-    avatarUrl: `http://localhost:5000/api/v1/users/profile_pictures/user_1.png`,
-    followers: 120,
-    following: 42,
-  });
+  const { user, userToken } = useAuth();
+  const [userInfo, setUserInfo] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
 
-  // Este estado controla qué sección está activa (repos, followers, etc.)
+  useEffect(() => {
+    if (!userToken || !user?.id) return;
+
+    GetUserProfile(user.id, userToken).then((data) => {
+      setUserInfo(data);
+      setUserLoaded(true);
+    });
+  }, [userToken, user]);
+
+  const handleModal = () => setShowModal((prev) => !prev);
+
+  const handleUpdate = (updatedData) => {
+    setUserInfo(updatedData);
+  };
+
+  //info Hardcodeada porque falta informacion en la db
   const [activeTab, setActiveTab] = useState("global");
 
-  // Estado para simular la lista de repositorios
   const [repos, setRepos] = useState([
     { name: "React no IA", description: "72hrs project without copilot." },
     {
@@ -30,40 +41,43 @@ function UserProfileComponent() {
     },
   ]);
 
-  // Estado simulado de seguidores (podrías llenarlo con un fetch si quisieras)
   const [followers, setFollowers] = useState([
     { username: "devAlice" },
     { username: "devBob" },
   ]);
 
-  // Estado simulado de seguidos
   const [hacksWins, sethacksWins] = useState([
     { hackname: "Angular solodev", timeLimit: "24 hours", ranked: "1st place" },
     { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
   ]);
 
-  //prueba de conseguir el perffil del usuario
-  // const [userProfile, setUserProfile] = useState(null);
-  // useEffect(() => {
-  //   const userId = 1; // Simula un ID de usuario
-  //   GetUserProfile(userId).then((data) => {
-  //     setUserProfile(data);
-  //   });
-  // }, []);
-
   return (
     <div className="flex justify-center">
-      {/* Img de perfil, followers, me gustas. */}
       <div className="basis-64 items-center gap-4">
         <img
-          src={userInfo.avatarUrl}
+          src={
+            userInfo.profile_picture
+              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
+                  userInfo.profile_picture
+                }`
+              : `https://placehold.co/400x400?text=${
+                  userInfo.firstname?.charAt(0)?.toUpperCase() || "U"
+                }`
+          }
           alt="Avatar"
           className="w-24 h-24 rounded-full"
         />
+
         <div>
-          <h1 className="text-2xl font-bold">{userInfo.name}</h1>
+          <h1 className="text-2xl font-bold">
+            {`${userInfo.firstname} ${userInfo.lastname}`}
+          </h1>
+
           <p className="text-sm text-gray-500">@{userInfo.username}</p>
-          <button className="btn btn-sm mt-2 btn-outline ml-auto">
+          <button
+            className="btn btn-sm mt-2 btn-outline ml-auto"
+            onClick={handleModal}
+          >
             Edit Profile
           </button>
           <p className="mt-2">{userInfo.bio}</p>
@@ -122,7 +136,6 @@ function UserProfileComponent() {
         </div>
 
         {/* Contenido dinámico */}
-
         <div>
           {activeTab === "repos" && (
             <ul className="space-y-4">
@@ -161,6 +174,13 @@ function UserProfileComponent() {
           )}
         </div>
       </div>
+
+      <ModalUserUpdateComponent
+        showModal={showModal}
+        onClose={handleModal}
+        user={userInfo}
+        onUpdate={handleUpdate}
+      />
     </div>
   );
 }
