@@ -37,7 +37,8 @@ class Hackathon(db.Model):
             "updated_at": self.updated_at.isoformat(),
             "rules": [rule.to_dict() for rule in self.rules],
             "tags": [tag.to_dict() for tag in self.tags],
-            "teams": self.get_teams()
+            "teams": self.get_teams(),
+            "judges": [j.judge.to_dict() for j in self.judgeships],
         }
 
     def add_rule(self, text):
@@ -89,3 +90,24 @@ class HackathonTag(db.Model):
 
     hackathon_id = db.Column(db.Integer, db.ForeignKey('hackathons.id'), primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+
+
+class HackathonJudge(db.Model):
+    __tablename__ = 'hackathon_judges'
+
+    id = db.Column(db.Integer, primary_key=True)
+    hackathon_id = db.Column(db.Integer, db.ForeignKey('hackathons.id'), nullable=False)
+    judge_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relaciones
+    hackathon = db.relationship('Hackathon', backref=db.backref('judgeships', cascade='all, delete-orphan'))
+    judge = db.relationship('User', backref=db.backref('judged_hackathons', cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "hackathon_id": self.hackathon_id,
+            "judge_id": self.judge_id,
+            "assigned_at": self.assigned_at.isoformat()
+        }
