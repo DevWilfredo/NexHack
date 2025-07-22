@@ -1,41 +1,107 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import DynamicIcon from "../DynamicIcon";
 import { useTheme } from "@context/ThemeContext";
 
-const TagsComponent = ({ tags }) => {
+const TagsComponent = ({ tags, activeTagId, setActiveTagId }) => {
   const { isDark } = useTheme();
   const [expanded, setExpanded] = useState(false);
-  const visibleCount = 8;
 
+  const visibleCount = 9;
   const visibleTags = expanded ? tags : tags.slice(0, visibleCount);
-  const pillBg = isDark ? "bg-slate-900/80" : "bg-primary";
-  const pillHover = isDark ? 'hover:bg-slate-600' : 'hover:bg-[#015A89]'
 
+  const pillBase = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer`;
+  const lightPill = `bg-white border-base-300 text-base-content`;
+  const darkPill = `bg-slate-900/80 border-slate-700 text-white`;
+  const activePill = isDark
+    ? "bg-accent text-white border-primary"
+    : "bg-primary text-white border-primary";
+
+  const toggleExpanded = () => setExpanded(!expanded);
+
+  const handleTagClick = (id) => setActiveTagId(id);
 
   return (
-    <div className="relative flex">
-      <div className="flex gap-4 flex-wrap w-full py-3">
-        {visibleTags.map((tag) => (
-          <button
-            key={tag.id}
-            className={`flex items-center gap-2 rounded-full ${pillBg} ${pillHover} text-white text-sm px-4 py-2 font-medium duration-200 hover:scale-105 transition-all cursor-pointer `}
+    <div
+      className={`w-full py-4 space-y-4 ${
+        isDark ? "bg-slate-900/80 rounded-full border border-info/20" : ""
+      } `}
+    >
+      {/* Tag pills */}
+      <div className="flex flex-wrap gap-3 justify-center ">
+        <AnimatePresence initial={false}>
+          {/* Static "All" pill */}
+          <motion.div
+            layout
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
           >
-            {tag.icon && <DynamicIcon iconName={tag.icon} />}
-            {tag.name}
-          </button>
-        ))}
+            <span
+              onClick={() => handleTagClick("all")}
+              className={`${pillBase} ${
+                activeTagId === "all"
+                  ? activePill
+                  : isDark
+                  ? darkPill
+                  : lightPill
+              }`}
+            >
+              Todos los tópicos
+            </span>
+          </motion.div>
 
-        {tags.length > visibleCount && (
+          {visibleTags.map((tag) => (
+            <motion.div
+              key={tag.id}
+              layout
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span
+                onClick={() => handleTagClick(tag.id)}
+                className={`${pillBase} ${
+                  activeTagId === tag.id
+                    ? activePill
+                    : isDark
+                    ? darkPill
+                    : lightPill
+                }`}
+              >
+                {tag.icon && (
+                  <DynamicIcon
+                    iconName={tag.icon}
+                    className="w-4 h-4 opacity-80"
+                  />
+                )}
+                {tag.name}
+              </span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Ver más / menos */}
+      {/* {tags.length > visibleCount && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex justify-center"
+        >
           <button
-            onClick={() => setExpanded(!expanded)}
-            className="btn btn-ghost px-2 text-sm"
+            onClick={toggleExpanded}
+            className="p-2 rounded-full shadow-md border border-base-300 
+               hover:scale-110 duration-200 bg-base-100 transition-all"
             title={expanded ? "Ver menos" : "Ver más"}
           >
-            {expanded ? <ChevronUp /> : <ChevronDown />}
+            {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
-        )}
-      </div>
+        </motion.div>
+      )} */}
     </div>
   );
 };

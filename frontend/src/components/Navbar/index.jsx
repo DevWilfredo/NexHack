@@ -16,7 +16,7 @@ const Navbar = () => {
       : "btn btn-ghost btn-sm";
 
   return (
-    <div className="navbar bg-base-300/30 shadow-sm sticky top-0 z-20 backdrop-blur-lg">
+    <div className={`navbar ${isDark ? 'bg-slate-900/80' : 'bg-base-300/30'} shadow-sm sticky top-0 z-20 backdrop-blur-lg`}>
       <div className="navbar-start flex items-center gap-2">
         {/* Mobile Menu */}
         <div className="dropdown md:hidden">
