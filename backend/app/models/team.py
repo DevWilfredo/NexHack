@@ -51,10 +51,10 @@ class TeamMember(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
             "team_id": self.team_id,
             "hackathon_id": self.hackathon_id,
             "joined_at": self.joined_at.isoformat(),
+            "user": self.user.to_dict()
             
         }
 

@@ -2,10 +2,11 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.extensions import db
-from app.models.hackathon import Hackathon, HackathonRule, Tag
+from app.models.hackathon import Hackathon, HackathonRule, Tag, HackathonJudge
 from app.models.user import User
 from app.schemas.hackathon_schema import HackathonCreateSchema, HackathonUpdateSchema
 from marshmallow import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 hackathon_bp = Blueprint('hackathons', __name__)
 
@@ -119,3 +120,45 @@ def get_single_hackathon(hackathon_id):
         return jsonify(requested_hackathon.to_dict()), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@hackathon_bp.route('/add/<int:hackathon_id>/judges', methods=['POST'])
+@jwt_required()
+def add_hackathons_judges(hackathon_id):
+
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    hackathon = Hackathon.query.get_or_404(hackathon_id)
+
+    if not user or (user.id != hackathon.creator_id):
+        return jsonify({'error': 'You do not have the required permissions'}), 403
+
+    data = request.get_json()
+    judge_id = data.get('judge_id')
+
+    if not judge_id:
+        return jsonify({'error': 'Missing judge_id'}), 400
+
+    judge = User.query.get(judge_id)
+    if not judge:
+        return jsonify({'error': 'Judge user not found'}), 404
+
+    existing_judge = HackathonJudge.query.filter_by(
+        hackathon_id=hackathon_id,
+        judge_id=judge_id
+    ).first()
+
+    if existing_judge:
+        return jsonify({'message': 'User is already a judge for this hackathon'}), 200
+
+    try:
+        new_judge = HackathonJudge(hackathon_id=hackathon_id, judge_id=judge_id)
+        db.session.add(new_judge)
+        db.session.commit()
+
+        return jsonify({'message': 'Judge added successfully', 'judge': new_judge.to_dict()}), 201
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({'error': 'Database error', 'details': str(e)}), 500
+
