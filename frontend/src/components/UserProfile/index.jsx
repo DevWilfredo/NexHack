@@ -41,6 +41,7 @@ function UserProfileComponent() {
     { hackname: "Angular solodev", timeLimit: "24 hours", ranked: "1st place" },
     { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
   ]);
+  console.log(user);
 
   return (
     <div className="flex justify-center">

@@ -162,3 +162,16 @@ def handle_team_request(request_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+    # --- Conseguir un equipo en especifico, por hackathon ---
+@team_bp.route('/<int:team_id>/hackathons/<int:hackathon_id>/', methods=['GET'])
+@jwt_required()
+def get_team_by_hackathon(hackathon_id, team_id):
+    try:
+        team = Team.query.filter_by(id=team_id, hackathon_id=hackathon_id).first()
+        if not team:
+            return jsonify({'error': 'No se encontró el equipo en este hackathon'}), 404
+
+        return jsonify(team.to_dict()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

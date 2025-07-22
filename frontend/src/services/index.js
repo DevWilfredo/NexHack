@@ -67,7 +67,7 @@ export const updateUserProfile = async (userId, updatedData, token) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/v1/users/${userId}`, {
+    const response = await fetch(`${API_URL}/users/${userId}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`, // JWT
@@ -85,3 +85,48 @@ export const updateUserProfile = async (userId, updatedData, token) => {
     throw error;
   }
 };
+
+//prueba de conseguir Teams especifico 
+export const getTeamByHackathon = async ({ teamId, hackathonId, token }) => {
+  try {
+    console.log(teamId, hackathonId, token);
+    const response = await fetch(
+      `${API_URL}/teams/${teamId}/hackathons/${hackathonId}`,
+      {
+        method: "GET",
+         headers: {
+        Authorization: `Bearer ${token}`, // JWT
+      },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error al obtener el equipo");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en getTeamByHackathon:", error.message);
+    throw error;
+  }
+};
+
+//postman
+export const postmanTry = (teamId, hackathonId, userToken) => {
+  const myHeaders = new Headers();
+  myHeaders.append(`Authorization`, `Bearer ${userToken}`);
+  
+  const requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow"
+  };
+  
+  fetch(  `${API_URL}/teams/${teamId}/hackathons/${hackathonId}`, requestOptions)
+  .then((response) =>{ return response.json()})
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error));
+  
+}
