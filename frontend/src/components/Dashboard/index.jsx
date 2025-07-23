@@ -11,8 +11,9 @@ import {
   mapFechasAHackathones,
   todasLasFechas,
 } from "@utilities/dateUtils";
-import { NavLink } from "react-router";
 import ModalUserUpdateComponent from "../ModalUserUpdate";
+import DashboardCards from "../DashboardCards";
+import HackathonsTable from "../HackathonsTable";
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -20,6 +21,7 @@ const DashboardComponent = () => {
   const [hackathons, setHackathons] = useState([]);
   const [datesToShow, setDatesToShow] = useState([]);
   const [mapHackathons, setMapHackathons] = useState({});
+  const [activeTagId, setActiveTagId] = useState("all");
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -34,16 +36,18 @@ const DashboardComponent = () => {
       setDatesToShow(fechas);
       const mapa = mapFechasAHackathones(data);
       setMapHackathons(mapa);
-      console.log(mapa);
-      console.log(fechas);
     });
   }, []);
 
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       {/* Sidebar izquierda (20%) */}
       <div className="flex-[2] p-2 ">
-        <div className="collapse collapse-plus menu bg-base-200 rounded-box h-full w-full">
+        <div
+          className={`collapse collapse-plus menu ${
+            isDark ? "bg-slate-900/80" : "bg-base-200"
+          } rounded-box h-full w-full`}
+        >
           <input type="checkbox" />
           <div className="collapse-title font-semibold">
             Esto será una lista
@@ -56,90 +60,41 @@ const DashboardComponent = () => {
       </div>
 
       {/* Zona central (60%) */}
-      <div className="flex-[5] pt-4 w-70">
+      <div className="w-full lg:flex-[5] pt-4">
         {/* Zona superior con imágenes (como leetcode) */}
-        <div className="overflow-x-auto mb-4">
-          <div className="flex gap-4 ">
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <img
-                key={idx}
-                className="w-30 h-30 rounded-box shadow-md shadow-success"
-                src="https://pm1.aminoapps.com/6820/0ea8bb6561df2724541eb2797e09c2fda1ee6baev2_hq.jpg"
-                alt={`img-${idx}`}
-              />
-            ))}
-          </div>
-        </div>
+        <DashboardCards />
         {/* Tags */}
         <div className="bg-base-200 rounded-box mt-2 mb-2 ">
-          <TagsComponent tags={tags} />
+          <TagsComponent
+            tags={tags}
+            activeTagId={activeTagId}
+            setActiveTagId={setActiveTagId}
+          />
         </div>
         {/* Lista de hackatones */}
-        <div className="bg-base-200 rounded-box p-4 ">
-          <table className="table-auto w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Hackathon</th>
-                <th className="text-left">Creador</th>
-
-                <th className="text-left">Status</th>
-                <th className="text-left">Fecha</th>
-                <th className="text-left">Duracion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hackathons.map((hackathons, idx) => {
-                return (
-                  <tr
-                    key={hackathons.id}
-                    className={
-                      idx % 2 === 0
-                        ? "bg-primary text-primary-content rounded-box"
-                        : ""
-                    }
-                  >
-                    <td>
-                      <NavLink to={`/hackathons/${hackathons.id}`}>
-                        {hackathons.title}{" "}
-                      </NavLink>
-                    </td>
-                    <td>Personas</td>
-
-                    <td>{formatoFecha(hackathons.start_date)}</td>
-                    <td>
-                      {calcularHoras(
-                        hackathons.start_date,
-                        hackathons.end_date
-                      )}
-                      horas
-                    </td>
-                    <td className="py-1">
-                      <button
-                        className={`btn btn-xs btn-outline ${
-                          hackathons.status === "pending"
-                            ? "btn-warning"
-                            : hackathons.status === "closed"
-                            ? "btn-error"
-                            : "btn-success"
-                        }`}
-                      >
-                        {hackathons.status}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <HackathonsTable
+          hackathons={
+            activeTagId === "all"
+              ? hackathons
+              : hackathons.filter((h) =>
+                  h.tags?.some((t) => t.id === activeTagId)
+                )
+          }
+          formatoFecha={formatoFecha}
+          calcularHoras={calcularHoras}
+        />
       </div>
 
       {/* Zona derecha (20%) */}
-      <div className="flex-[1] p-4">
+      <div className="w-full lg:flex-[1] p-4">
         <h2 className="text-lg font-semibold mb-4">Selecciona una fecha:</h2>
-        <div className={`flex justify-center ${isDark ? 'bg-slate-900/80' : 'bg-base-200'} rounded-xl p-4 shadow-lg w-fit`}>
+        <div
+          className={`flex justify-center ${
+            isDark ? "bg-slate-900/80" : "bg-base-200"
+          } rounded-xl p-4 shadow-lg w-fit`}
+        >
           <DayPicker
-          animate
+            animate
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
@@ -147,13 +102,19 @@ const DashboardComponent = () => {
               occupied: datesToShow,
             }}
             modifiersClassNames={{
-              occupied:  `${isDark ? 'bg-accent' : 'bg-primary'} text-white rounded-full scale-90`,
+              occupied: `${
+                isDark ? "bg-accent" : "bg-primary"
+              } text-white rounded-full scale-90`,
               selected: "bg-primary text-primary-content rounded-full",
             }}
             classNames={{
               table: "w-full border-separate", // espaciado entre días
               cell: "w-10 h-10", // tamaño de cada celda (ajustable)
-              day: `text-sm ${isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-400 hover:text-white'} rounded-full transition-all duration-200`,
+              day: `text-sm ${
+                isDark
+                  ? "hover:bg-gray-600"
+                  : "hover:bg-gray-400 hover:text-white"
+              } rounded-full transition-all duration-200`,
             }}
           />
         </div>
