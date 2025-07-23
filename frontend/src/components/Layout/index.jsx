@@ -1,14 +1,23 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
+import {useAuth} from '@context/AuthContext'
 import Navbar from "@components/Navbar";
-import Footer from "@components/Footer";
+import Sidebar from "@components/Sidebar";
 
 const Layout = () => {
+  const {user}  = useAuth()
+  const location = useLocation()
+  const isLanding = location.pathname === '/'
   return (
     <div className="flex flex-col min-h-screen bg-base-300">
       <Navbar />
-      <main className="flex-1 flex justify-center p-4 mt-10">
-        <div className="w-full max-w-full">{<Outlet />}</div>
-      </main>
+
+      <div className="flex flex-1">
+        {user && !isLanding && <Sidebar />}
+
+        <main className="flex-1 p-4 mt-4 overflow-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

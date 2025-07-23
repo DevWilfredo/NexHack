@@ -25,7 +25,7 @@ const TagsComponent = ({ tags, activeTagId, setActiveTagId }) => {
   return (
     <div
       className={`w-full py-4 space-y-4 ${
-        isDark ? "bg-slate-900/80 rounded-full border border-info/20" : ""
+        isDark ? "bg-slate-900/80 rounded-xl border border-info/20" : ""
       } `}
     >
       {/* Tag pills */}
