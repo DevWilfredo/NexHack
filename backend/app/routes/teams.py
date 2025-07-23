@@ -164,7 +164,7 @@ def handle_team_request(request_id):
         return jsonify({'error': str(e)}), 500
     
     # --- Conseguir un equipo en especifico, por hackathon ---
-@team_bp.route('/<int:team_id>/hackathons/<int:hackathon_id>/', methods=['GET'])
+@team_bp.route('/<int:team_id>/hackathons/<int:hackathon_id>', methods=['GET'])
 @jwt_required()
 def get_team_by_hackathon(hackathon_id, team_id):
     try:
@@ -174,4 +174,34 @@ def get_team_by_hackathon(hackathon_id, team_id):
 
         return jsonify(team.to_dict()), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    # --- Editar un equipo de un hackathon especifico --- #
+@team_bp.route('/<int:hackathon_id>', methods=['PUT'])
+@jwt_required()
+def update_hackathon_team(hackathon_id):
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+
+        # Buscar el equipo creado por este usuario en este hackathon
+        team = Team.query.filter_by(hackathon_id=hackathon_id, creator_id=user_id).first()
+        if not team:
+            return jsonify({'error': 'No se encontró el equipo o no tienes permisos para editarlo.'}), 403
+
+        # Actualizar los campos que vengan en el request
+        if 'name' in data:
+            team.name = data['name']
+        # si se quiere tener bio en el equipo, esta es la parte se descomenta
+       # if 'bio' in data:
+        #    team.bio = data['bio']
+        if 'github_url' in data:
+            team.github_url = data['github_url']
+        if 'live_preview_url' in data:
+            team.live_preview_url = data['live_preview_url']
+
+        db.session.commit()
+        return jsonify(team.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
