@@ -1,35 +1,31 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { EditTeam, getUsers, SendInvitation } from "../../services";
 import { useAuth } from "@context/AuthContext";
-import {
-  BriefcaseBusiness,
-  FileSliders,
-  Github,
-  UserPlus,
-  Users,
-  UserSearch,
-  X,
-} from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import { BriefcaseBusiness, FileSliders, Github, Users, X } from "lucide-react";
+import toast from "react-hot-toast";
+import SearchBar from "../searchBar";
+import UserToListcomponent from "../UserToList";
+import { useTheme } from "../../context/ThemeContext";
 
 function AddMemberModal({ team, toState, onTeamUpdated }) {
-  const [search, setSearch] = useState("");
   const [user, setUser] = useState([]);
   const { userToken } = useAuth();
   const [newState, setnewState] = useState("editing");
   const [newData, setNewData] = useState({ ...team });
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { isDark } = useTheme();
 
+  //enviar actualizacion de equipo
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const submitToast = toast.loading("Enviando invitación...");
+    const submitToast = toast.loading("Actualizando informacion...");
     try {
       const updateTeam = await EditTeam(newData, userToken);
-      console.log(updateTeam);
 
       toast.success("Equipo actualizado con éxito", { id: submitToast });
-      if (onTeamUpdated) onTeamUpdated(); // <-- AVISA AL PADRE
+      if (updateTeam) onTeamUpdated(); // <-- AVISA AL PADRE
     } catch (err) {
       console.error("Error al actualizar equipo:", err);
       toast.error("Error al actualizar equipo", { id: submitToast });
@@ -39,6 +35,7 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
     }
   };
 
+  //conseguir la info de los usuarios
   useEffect(() => {
     if (!userToken) return;
     getUsers(userToken).then((data) => {
@@ -46,16 +43,18 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
     });
   }, []);
 
+  //para abrir el modal en la version correcta
   useEffect(() => {
     console.log(toState);
     setnewState(toState);
   }, [toState]);
 
+  //editamos el equipo
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewData((prev) => ({ ...prev, [name]: value }));
   };
-
+  // unete a mi equipo
   const HandleInvitation = async (toUserId) => {
     const loadingToast = toast.loading("Enviando invitación...");
     SendInvitation(userToken, team.id, toUserId, team.name)
@@ -86,14 +85,10 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
         className="mt-4 bg-neutral
            p-3 card rounded-box"
       >
-        {/* Input para buscar miembros */}
         <div className="space-y-2 flex align-baseline gap-2 bg-neutral  ps-2 py-2 rounded-box">
-          <UserSearch className=" text-gray-400 w-7 h-7" />
-          <input
-            type="text"
-            placeholder="Buscar usuario"
-            className="input input-bordered"
-            onChange={(e) => setSearch(e.target.value)}
+          <SearchBar
+            placeholder="Buscar usuario..."
+            onSearch={(value) => setSearchQuery(value)}
           />
         </div>
         {user.length === 0 ? (
@@ -106,48 +101,14 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
               .filter((us) => {
                 const fullName = `${us.firstname} ${us.lastname}`.toLowerCase();
                 return (
-                  search.trim() === "" ||
-                  fullName.includes(search.toLowerCase())
+                  searchQuery === "" ||
+                  fullName.includes(searchQuery.toLowerCase())
                 );
               })
-              .map((us, index) => (
-                <div
-                  key={index}
-                  className={` card rounded-box p-3  my-2 ${
-                    index % 2 === 0
-                      ? "shadow-md border-primary border-1 shadow-primary"
-                      : " shadow-md border-accent border-1 shadow-accent"
-                  }     hover:bg-primary cursor-pointer`}
-                >
-                  <div className="flex justify-between  w-full ">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={
-                          us.profile_picture
-                            ? `${
-                                import.meta.env.VITE_API_URL
-                              }/users/profile_pictures/${us.profile_picture}`
-                            : `https://placehold.co/400x400?text=${
-                                us.firstname?.charAt(0)?.toUpperCase() || "U"
-                              }`
-                        }
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <p>
-                        {us.firstname} {us.lastname}
-                      </p>
-                    </div>
-                    <div className=" px-4 hover:text-success">
-                      <button
-                        className="btn btn-ghost"
-                        onClick={() => HandleInvitation(us.id)}
-                      >
-                        <UserPlus />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+              .map((us, index) =>
+                UserToListcomponent(index, us, HandleInvitation)
+              )}
           </div>
         )}
       </div>
@@ -196,7 +157,7 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
                 placeholder="Descripcion del equipo"
                 className="input input-bordered "
                 onChange={handleInputChange}
-                disabled
+                value={newData.bio || ""}
               />
             </div>
             <div className="flex gap-x-3 p-2">

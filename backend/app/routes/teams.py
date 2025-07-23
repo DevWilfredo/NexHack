@@ -195,8 +195,8 @@ def update_hackathon_team(hackathon_id):
         if 'name' in data:
             team.name = data['name']
         # si se quiere tener bio en el equipo, esta es la parte se descomenta
-       # if 'bio' in data:
-        #    team.bio = data['bio']
+        if 'bio' in data:
+           team.bio = data['bio']
         if 'github_url' in data:
             team.github_url = data['github_url']
         if 'live_preview_url' in data:

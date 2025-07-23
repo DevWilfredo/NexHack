@@ -185,7 +185,8 @@ export const EditTeam = async (team, token) =>{
   const toSend = {
     name: team.name,
     github_url: team.github_url,
-    live_preview_url: team.live_preview_url
+    live_preview_url: team.live_preview_url,
+    bio: team.bio
   }
   
   console.log(toSend);
@@ -199,7 +200,7 @@ export const EditTeam = async (team, token) =>{
       body: JSON.stringify(toSend),
     });
     const data = await response.json();
-    console.log(data);
+    
     if (!response.ok) throw new Error("Error al enviar invitación");
     
     return data;

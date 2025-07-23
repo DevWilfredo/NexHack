@@ -3,6 +3,7 @@
 import { updateUserProfile } from "@services"; // Asegúrate de que el alias o path sea correcto
 import { useState, useEffect } from "react";
 import { useAuth } from "@context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
   const { userToken, user } = useAuth();
@@ -10,6 +11,7 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState(false);
+  const { isDark } = useTheme();
   //validacion con regex ya que daisyUI no tiene uno interno
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,7 +67,11 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
 
   return (
     <dialog id="edit_user_modal" className="modal">
-      <div className="modal-box w-full max-w-2xl">
+      <div
+        className={`modal-box w-full max-w-2xl  bg-base-200 shadow-xl/20 ${
+          isDark ? "shadow-accent" : "shadow-primary"
+        } border border-info/1`}
+      >
         <h3 className="font-bold text-lg">Editar perfil de usuario</h3>
         {error && <p className="text-error text-sm">{error}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
