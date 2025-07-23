@@ -5,6 +5,7 @@ import { useTheme } from "@context/ThemeContext";
 import { useAuth } from "@context/AuthContext";
 import nexhackLogo from "@assets/nexhack.png";
 import nechackBlue from "@assets/nexhackBlue.png";
+import { Menu } from "lucide-react";
 
 const Navbar = () => {
   const { isDark } = useTheme();
@@ -21,20 +22,7 @@ const Navbar = () => {
         {/* Mobile Menu */}
         <div className="dropdown md:hidden">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <Menu className='space-5' />
           </div>
 
           <ul
@@ -97,7 +85,7 @@ const Navbar = () => {
           <img
             src={isDark ? nexhackLogo : nechackBlue}
             alt="Nexhack"
-            className="w-60 h-auto"
+            className="w-40 h-auto"
           />
         </NavLink>
       </div>
@@ -107,14 +95,6 @@ const Navbar = () => {
         <ThemeToggler />
         {user ? (
           <>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `hidden md:inline-flex ${getBtnClass(isActive)}`
-              }
-            >
-              Dashboard
-            </NavLink>
             <div className="dropdown dropdown-end">
               <Avatar />
             </div>

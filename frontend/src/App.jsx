@@ -58,10 +58,21 @@ const App = () => {
             }
           />
 
-          <Route path="/hackathons/:hackathonId" element={<HackathonsPage />} />
+          <Route
+            path="/hackathons/:hackathonId"
+            element={
+              <PrivateRoute>
+                <HackathonsPage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/hackathons/:hackathonId/teams/:teamId"
-            element={<TeamsPage />}
+            element={
+              <PrivateRoute>
+                <TeamsPage />
+              </PrivateRoute>
+            }
           />
         </Route>
       </Routes>

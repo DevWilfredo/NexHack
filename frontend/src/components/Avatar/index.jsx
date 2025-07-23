@@ -34,6 +34,11 @@ const Avatar = () => {
         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
       >
         <li>
+          <NavLink to='/dashboard'>
+            Dashboard
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/profile">Perfil</NavLink>
         </li>
         <li onClick={handleLogout}>
