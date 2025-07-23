@@ -1,4 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL
+const headers = {'Content-Type': "application/json"}
 
 export const GetTags = () => {
   return fetch(`${API_URL}/tags`)
@@ -67,12 +68,12 @@ export const updateUserProfile = async (userId, updatedData, token) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/v1/users/${userId}`, {
+    const response = await fetch(`${API_URL}/users/${userId}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`, // JWT
       },
-      body: formData,
+      body: JSON.stringify(formData),
     });
 
     if (!response.ok) {
@@ -85,3 +86,124 @@ export const updateUserProfile = async (userId, updatedData, token) => {
     throw error;
   }
 };
+
+//prueba de conseguir Teams especifico 
+export const getTeamByHackathon = async ({ teamId, hackathonId, token }) => {
+  try {
+   
+    const response = await fetch(
+      `${API_URL}/teams/${teamId}/hackathons/${hackathonId}`,
+      {
+        method: "GET",
+         headers: {
+        Authorization: `Bearer ${token}`, // JWT
+      },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error al obtener el equipo");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en getTeamByHackathon:", error.message);
+    throw error;
+  }
+};
+
+//intento por el camino largo, primero el hackathon, de ahi la info de teams
+export const fetchSingleHackathon = async (hackathonId,token) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/api/v1/hackathons/${hackathonId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Error al obtener hackathon");
+
+    const data = await response.json();
+    
+    return data;
+
+  } catch (error) {
+    console.error("Error al buscar equipo:", error);
+    return null;
+  }
+};
+
+export const getUsers = async (token) => {
+  try {
+    const response = await fetch(`${API_URL}/users/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Error al obtener usuarios");
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al buscar equipo:", error);
+    return null;
+  }
+};
+
+export const SendInvitation = async (userToken, teamId,toUserId, teamName) =>{
+  try{
+   
+    const response = await fetch(`${API_URL}/teams/${teamId}/invite`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        'Content-Type': "application/json",
+      }
+      ,
+       body: JSON.stringify({
+    "user_id": toUserId,
+   
+  }),
+      
+    });
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) throw new Error("Error al enviar invitación");
+    
+    return data;
+  }catch(error){
+    throw new Error("Error al buscar equipo:", error);
+    return null;
+  }
+}
+
+
+export const EditTeam = async (team, token) =>{
+  const toSend = {
+    name: team.name,
+    github_url: team.github_url,
+    live_preview_url: team.live_preview_url
+  }
+  
+  console.log(toSend);
+  try{
+    const response = await fetch(`${API_URL}/teams/${team.hackathon_id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': "application/json",
+      },
+      body: JSON.stringify(toSend),
+    });
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) throw new Error("Error al enviar invitación");
+    
+    return data;
+  }catch(error){
+    throw new Error("Error al buscar equipo:", error);   
+  }
+}

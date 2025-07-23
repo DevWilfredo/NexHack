@@ -14,9 +14,7 @@ user_bp = Blueprint("users", __name__)
 def get_users():
     try:
         user_id = get_jwt_identity()
-        requesting_user = User.query.get_or_404(user_id)
-        if not requesting_user.isModerator():
-            return jsonify({'error':'You have not the required Permissions'}), 403
+          
         users = User.query.all()
         results = list(map(lambda x: x.to_dict(), users))
         return jsonify(results), 200

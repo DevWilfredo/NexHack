@@ -223,7 +223,7 @@ function HackathonsPage() {
         <p className="text-lg">{hackathon.description}</p>
       </div>
 
-      <div className="">
+      <div className="bg-base-200 rounded-box mt-2 mb-2">
         <TagsComponent tags={hackathon.tags} />
       </div>
 
