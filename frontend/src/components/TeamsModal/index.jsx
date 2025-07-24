@@ -45,7 +45,6 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
 
   //para abrir el modal en la version correcta
   useEffect(() => {
-    console.log(toState);
     setnewState(toState);
   }, [toState]);
 
@@ -82,10 +81,10 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
       </div>
       {/* Aquí luego puedes hacer el .map() con los usuarios */}
       <div
-        className="mt-4 bg-neutral
+        className="mt-4 bg-base-200
            p-3 card rounded-box"
       >
-        <div className="space-y-2 flex align-baseline gap-2 bg-neutral  ps-2 py-2 rounded-box">
+        <div className="space-y-2 flex align-baseline gap-2 bg-base-200  ps-2 py-2 rounded-box">
           <SearchBar
             placeholder="Buscar usuario..."
             onSearch={(value) => setSearchQuery(value)}
@@ -96,7 +95,7 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
             Lista de usuarios aparecerá aquí...
           </p>
         ) : (
-          <div className="overflow-y-auto max-h-70">
+          <div className="overflow-y-auto  max-h-70 flex flex-col items-center">
             {user
               .filter((us) => {
                 const fullName = `${us.firstname} ${us.lastname}`.toLowerCase();
@@ -106,9 +105,14 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
                 );
               })
 
-              .map((us, index) =>
-                UserToListcomponent(index, us, HandleInvitation)
-              )}
+              .map((us, index) => (
+                <UserToListcomponent
+                  index={index}
+                  us={us}
+                  viewport="addMember"
+                  HandleInvitation={HandleInvitation}
+                />
+              ))}
           </div>
         )}
       </div>
@@ -129,10 +133,10 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
       </div>
       {/* Aquí luego puedes hacer el .map() con los usuarios */}
       <div
-        className="mt-4 bg-neutral
+        className="mt-4 bg-base-200
            p-3 card rounded-box"
       >
-        <div className="space-y-2  align-baseline gap-2 bg-neutral  ps-2 py-2 rounded-box">
+        <div className="space-y-2  align-baseline gap-2 bg-base-200  ps-2 py-2 rounded-box">
           <form onSubmit={handleSubmit}>
             <div className="flex gap-x-3 p-2">
               <label>
@@ -142,24 +146,12 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
                 type="text"
                 name="name"
                 placeholder="Nombre del equipo"
-                className="input input-bordered"
+                className="input input-bordered bg-base-300"
                 onChange={handleInputChange}
                 value={newData.name || ""}
               />
             </div>
-            <div className="flex gap-x-3 p-2">
-              <label>
-                <FileSliders />
-              </label>
-              <input
-                type="text"
-                name="bio"
-                placeholder="Descripcion del equipo"
-                className="input input-bordered "
-                onChange={handleInputChange}
-                value={newData.bio || ""}
-              />
-            </div>
+
             <div className="flex gap-x-3 p-2">
               <label>
                 <Github />
@@ -168,7 +160,7 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
                 type="text"
                 name="github_url"
                 placeholder="Link del repositorio"
-                className="input input-bordered"
+                className="input input-bordered  bg-base-300"
                 value={newData.github_url || ""}
                 onChange={handleInputChange}
               />
@@ -183,12 +175,24 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
                 onChange={handleInputChange}
                 placeholder="Link al proyecto"
                 value={newData.live_preview_url || ""}
-                className="input input-bordered"
+                className="input input-bordered  bg-base-300"
+              />
+            </div>
+            <div className="flex gap-x-3 p-2">
+              <label>
+                <FileSliders />
+              </label>
+              <textarea
+                name="bio"
+                placeholder="Descripcion del equipo"
+                className="textarea textarea-bordered  bg-base-300"
+                onChange={handleInputChange}
+                value={newData.bio || ""}
               />
             </div>
             <div className="flex justify-end">
               <button
-                className="btn btn-primary mt-4"
+                className={`btn ${isDark ? "btn-accent" : "btn-primary"}`}
                 type="submit"
                 disabled={loading}
               >
@@ -206,7 +210,11 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
       {/* Modal DaisyUI */}
       <input type="checkbox" id="addMemberModal" className="modal-toggle" />
       <div className="modal ">
-        <div className="modal-box w-full max-w-2xl space-y-4 bg-base-100 shadow-xl shadow-primary">
+        <div
+          className={`modal-box w-full max-w-2xl space-y-4 bg-base-300 shadow-xl/40 ${
+            isDark ? "shadow-accent" : "shadow-primary"
+          }`}
+        >
           {newState === "AddingMembers" ? AddToTeamView() : EditTeamView()}
         </div>
       </div>

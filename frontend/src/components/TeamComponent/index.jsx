@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
-import { fetchSingleHackathon, getTeamByHackathon } from "../../services";
+import {
+  fetchSingleHackathon,
+  getTeamByHackathon,
+  HandleInvitation,
+  SendRequest,
+} from "../../services";
 import { BriefcaseBusiness, Github } from "lucide-react";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
 import AddMemberModal from "../TeamsModal";
 import { useTheme } from "../../context/ThemeContext";
+import UserToListcomponent from "../UserToList";
+import CardCarousel from "../Carrousel";
+import toast from "react-hot-toast";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -13,6 +21,10 @@ function TeamsComponent({ hackathonId, teamId }) {
   const [activeSection, setActiveSection] = useState("miembros"); //
   const [activeModal, setActiveModal] = useState(null);
   const { isDark } = useTheme();
+  const [disabledButton, setDisabledButton] = useState({
+    disable: false,
+    message: "Solicitar unirse",
+  });
 
   useEffect(() => {
     if (hackathonId && teamId && userToken) {
@@ -29,6 +41,29 @@ function TeamsComponent({ hackathonId, teamId }) {
         .catch((error) => console.error("Error fetching team:", error));
     }
   }, [hackathonId, teamId, userToken]);
+  //aceptar o negar
+  const handleAccept = (action, requestID) => {
+    HandleInvitation(userToken, requestID, action).then(() => {
+      refreshTeamData();
+      if (action.trim().toLowerCase() === "accept") {
+        toast.success("Invitación aceptada");
+      } else {
+        toast.error("Invitación rechazada");
+      }
+    });
+  };
+
+  //solicitar entrar
+  const JoinTeam = () => {
+    SendRequest(userToken, teamId).then(() => {
+      console.log("sended!");
+      setDisabledButton((disabledButton) => ({
+        ...disabledButton,
+        disable: true,
+        message: "Solicitud enviada",
+      }));
+    });
+  };
 
   const refreshTeamData = () => {
     if (hackathonId && teamId && userToken) {
@@ -54,6 +89,22 @@ function TeamsComponent({ hackathonId, teamId }) {
       teamData.members.find((member) => member.user?.id === teamData.creator_id)
         ?.user.lastname || "Desconocido";
 
+  //verificar Si tienes solicitud Pendiente
+  const hasPendingRequest = teamData.requests.some(
+    (req) =>
+      req.type === "application" &&
+      req.status === "pending" &&
+      req.user.id === user.id
+  );
+  //estas dentro de un hackathon?
+  const isInHackathon = hackathonData.teams.some((teams) =>
+    teams.members.some((member) => member.id === user.id)
+  );
+  //sacamos del array de array de array a los usuarios y lo enviamos al carrousel
+  const teamMembers = teamData?.members.map((member) => member.user) || [];
+  const solicitudesPendientes = teamData.requests.filter(
+    (req) => req.type === "application" && req.status === "pending"
+  );
   return (
     <div
       className={`rounded-xl p-6 w-full mx-auto space-y-6 bg-base-200 shadow-xl/20 ${
@@ -81,7 +132,11 @@ function TeamsComponent({ hackathonId, teamId }) {
         </div>
 
         <div className="text-right">
-          <span className="badge badge-primary p-3 text-lg">
+          <span
+            className={`p-3 text-lg ${
+              isDark ? "badge badge-accent" : "badge badge-primary "
+            }`}
+          >
             {hackathonData.title}
           </span>
           <p className="text-md text-gray-500 mt-1">
@@ -96,16 +151,27 @@ function TeamsComponent({ hackathonId, teamId }) {
       <div className="flex flex-col md:flex-row gap-4">
         {/* Izquierda: Enlaces */}
         <div className="md:w-1/3 w-full">
-          <div className="card bg-neutral text-neutral-content p-4 h-full">
-            <h2 className="text-xl font-semibold mb-4">Enlaces del Proyecto</h2>
+          <div className="card bg-base-300 text-neutral-content p-4 h-full">
+            <div className=" mb-8">
+              <h2 className="text-xl font-semibold border-b-2 mb-2">
+                Descripción del Proyecto
+              </h2>
+              <p className="p-4 rounded-lg shadow-inner">
+                {teamData.bio ||
+                  "Este equipo aún no ha definido una descripción del proyecto."}
+              </p>
+            </div>
+            <h2 className="text-xl font-semibold  border-b-2 mt-5 mb-4">
+              Enlaces del Proyecto
+            </h2>
 
-            <div className="mb-4 flex items-center">
-              <Github className="w-5 h-5" />
+            <div className="mb-4 flex mt- items-center">
+              <Github className="w-8 h-8" />
               <a
-                href={teamData.github_url}
+                href={`https://${teamData.github_url}`}
                 className={`${
                   isDark ? "text-accent" : "text-primary"
-                } font-bold ms-2 break-all`}
+                } font-bold  text-lg ms-2 break-all hover:text-info`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -114,12 +180,12 @@ function TeamsComponent({ hackathonId, teamId }) {
             </div>
 
             <div className="flex items-center">
-              <BriefcaseBusiness className="w-5 h-5" />
+              <BriefcaseBusiness className="w-8 h-8" />
               <a
-                href={teamData.live_preview_url}
+                href={`https://${teamData.live_preview_url}`}
                 className={`${
                   isDark ? "text-accent" : "text-primary"
-                } font-bold ms-2 break-all`}
+                } font-bold text-lg ms-2 break-all hover:text-info`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -130,14 +196,16 @@ function TeamsComponent({ hackathonId, teamId }) {
         </div>
 
         {/* Derecha: Tabs + miembros o solicitudes + descripción */}
-        <div className="md:w-2/3 w-full space-y-3">
-          <div className="">
+        <div className="md:w-2/3 w-full  space-y-3">
+          <div className=" ">
             {user.id === teamData.creator_id && (
               <div className="tabs tabs-lift ms-1">
                 <input
                   type="radio"
                   name={`team_tabs_${teamId}`}
-                  className="tab"
+                  className={`tab ${
+                    activeSection === "miembros" ? "bg-base-300" : "bg-base-200"
+                  }`}
                   aria-label="Miembros"
                   checked={activeSection === "miembros"}
                   onChange={() => setActiveSection("miembros")}
@@ -145,7 +213,11 @@ function TeamsComponent({ hackathonId, teamId }) {
                 <input
                   type="radio"
                   name={`team_tabs_${teamId}`}
-                  className="tab"
+                  className={`tab ${
+                    activeSection === "solicitudes"
+                      ? "bg-base-300"
+                      : "bg-base-200"
+                  }`}
                   aria-label="Solicitudes"
                   checked={activeSection === "solicitudes"}
                   onChange={() => setActiveSection("solicitudes")}
@@ -153,10 +225,10 @@ function TeamsComponent({ hackathonId, teamId }) {
               </div>
             )}
             {activeSection === "miembros" ? (
-              <div className="card bg-neutral text-neutral-content  p-4">
+              <div className="card bg-base-300 text-neutral-content  p-4">
                 <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
                   <div className=" flex gap-2 align-baseline ">
-                    <h2 className="text-lg font-semibold">
+                    <h2 className="text-xl font-semibold">
                       Miembros del equipo
                     </h2>
                     {user.id === teamData.creator_id && (
@@ -178,53 +250,33 @@ function TeamsComponent({ hackathonId, teamId }) {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto flex gap-4 justify-center">
-                  {teamData.members.map((member, idx) => (
-                    <img
-                      key={idx}
-                      src={
-                        member.user?.profile_picture
-                          ? `${
-                              import.meta.env.VITE_API_URL
-                            }/users/profile_pictures/${
-                              member.user.profile_picture
-                            }`
-                          : `https://placehold.co/400x400?text=${
-                              member.user?.firstname
-                                ?.charAt(0)
-                                ?.toUpperCase() || "U"
-                            }`
-                      }
-                      alt={member.user?.firstname || "User"}
-                      className="w-20 h-20 rounded-full shadow-md"
-                      title={member.user?.firstname}
-                    />
-                  ))}
+                <div className="">
+                  <CardCarousel
+                    usersArray={teamMembers}
+                    initialSlide={0}
+                    cardsPerSlide={1}
+                  />
                 </div>
               </div>
             ) : (
-              <div className="card bg-neutral text-neutral-content p-4">
-                <h2 className="text-lg font-semibold mb-2">Solicitudes</h2>
+              <div className="card bg-base-300 text-neutral-content p-4 ">
+                <h2 className="text-xl font-semibold mb-2">Solicitudes</h2>
                 {/* Aquí puedes conectar solicitudes reales */}
-                <p className="p-4 rounded-lg shadow-inner">
-                  No hay solicitudes por el momento.
-                </p>
+                <div className="overflow-y-auto max-h-60">
+                  {solicitudesPendientes.length === 0
+                    ? "No hay solicitudes pendientes"
+                    : solicitudesPendientes.map((request) => (
+                        <UserToListcomponent
+                          key={request.id}
+                          index={request.id}
+                          us={request.user}
+                          viewport="solicitud"
+                          HandleAccept={handleAccept}
+                        />
+                      ))}
+                </div>
               </div>
             )}
-          </div>
-          <AddMemberModal
-            team={teamData}
-            toState={activeModal}
-            onTeamUpdated={refreshTeamData}
-          />
-
-          {/* Descripción del Proyecto */}
-          <div className="card bg-neutral text-neutral-content p-4">
-            <h2 className="font-semibold mb-2">Descripción del Proyecto</h2>
-            <p className="p-4 rounded-lg shadow-inner">
-              {teamData.bio ||
-                "Este equipo aún no ha definido una descripción del proyecto."}
-            </p>
           </div>
         </div>
       </div>
@@ -235,12 +287,27 @@ function TeamsComponent({ hackathonId, teamId }) {
           <button className="btn btn-disabled">Eres miembro</button>
         ) : isFull ? (
           <button className="btn btn-disabled">Equipo lleno</button>
+        ) : hasPendingRequest ? (
+          <button className="btn btn-disabled">Esperando respuesta</button>
+        ) : isInHackathon ? (
+          <button className="btn btn-disabled">Inscrito en otro equipo</button>
         ) : (
-          <button className="btn btn-primary hover:btn-success">
-            Solicitar unirme
+          <button
+            disabled={disabledButton.disable}
+            className={`btn ${
+              isDark ? "btn-accent" : "btn-primary"
+            } hover:btn-success`}
+            onClick={JoinTeam}
+          >
+            {disabledButton.message || "Unirse al equipo"}
           </button>
         )}
       </div>
+      <AddMemberModal
+        team={teamData}
+        toState={activeModal}
+        onTeamUpdated={refreshTeamData}
+      />
     </div>
   );
 }

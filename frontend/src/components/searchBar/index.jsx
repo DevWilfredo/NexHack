@@ -21,14 +21,14 @@ const SearchBar = ({ onSearch, placeholder = "Buscar..." }) => {
   }, [debouncedQuery, onSearch]);
 
   return (
-    <div className="flex items-center gap-2 bg-neutral px-3 py-2 rounded-box  ">
+    <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-box  ">
       <UserSearch className="text-gray-400 w-8 h-8" />
       <input
         type="text"
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="input  w-full focus:scale-105
+        className="input bg-base-300  w-full focus:scale-105
          transition-all bordered-none"
       />
     </div>

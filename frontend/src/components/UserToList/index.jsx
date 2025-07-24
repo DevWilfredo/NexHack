@@ -1,16 +1,30 @@
-import { UserPlus } from "lucide-react";
+import { UserPlus, X, Check } from "lucide-react";
 
-const UserToListcomponent = (index, us, HandleInvitation) => {
+import { NavLink } from "react-router";
+import { useTheme } from "../../context/ThemeContext";
+
+const UserToListcomponent = ({
+  index,
+  us,
+  viewport = "addMember",
+  HandleInvitation,
+  HandleAccept,
+}) => {
+  const { isDark } = useTheme();
   return (
     <div
       key={index}
-      className={` card rounded-box p-3  my-2 ${
+      className={` card card-xs rounded-box p-3 mb-3 w-140 ${
         index % 2 === 0
           ? "shadow-md border-primary border-1 shadow-primary"
-          : " shadow-md border-accent border-1 shadow-accent"
-      }     hover:bg-primary cursor-pointer`}
+          : "shadow-md border-accent border-1 shadow-accent"
+      } ${
+        isDark
+          ? "hover:bg-accent hover:scale-103 transition-all"
+          : "hover:bg-primary hover:scale-103 transition-all"
+      }`}
     >
-      <div className="flex justify-between  w-full ">
+      <div className="flex justify-between ">
         <div className="flex items-center space-x-4">
           <img
             src={
@@ -24,20 +38,44 @@ const UserToListcomponent = (index, us, HandleInvitation) => {
             }
             className="w-8 h-8 rounded-full"
           />
-          <p>
-            {us.firstname} {us.lastname}
+          <p className="hover:text-info">
+            <NavLink to={`/users/${us.id}`} target="_blank">
+              {us.firstname} {us.lastname}
+            </NavLink>
           </p>
         </div>
-        <div className=" px-4 hover:text-success">
-          <button
-            className="btn btn-ghost"
-            onClick={() => HandleInvitation(us.id)}
-          >
-            <UserPlus />
-          </button>
+
+        <div className="flex items-center gap-2">
+          {/* Mostrar botones según el contexto */}
+          {viewport === "addMember" && (
+            <button
+              className="btn btn-sm btn-ghost hover:text-success hover:bg-transparent hover:border-transparent hover:shadow-none"
+              onClick={() => HandleInvitation(us.id)}
+            >
+              <UserPlus />
+            </button>
+          )}
+
+          {viewport === "solicitud" && (
+            <>
+              <button
+                className="btn btn-sm btn-ghost hover:text-success hover:bg-transparent hover:border-transparent hover:shadow-none"
+                onClick={() => HandleAccept("accept", index)}
+              >
+                <Check />
+              </button>
+              <button
+                className="btn btn-sm btn-ghost hover:text-error hover:bg-transparent hover:border-transparent hover:shadow-none"
+                onClick={() => HandleAccept("reject", index)}
+              >
+                <X />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
 export default UserToListcomponent;
