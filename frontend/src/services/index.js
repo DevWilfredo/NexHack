@@ -185,10 +185,11 @@ export const EditTeam = async (team, token) =>{
   const toSend = {
     name: team.name,
     github_url: team.github_url,
-    live_preview_url: team.live_preview_url
+    live_preview_url: team.live_preview_url,
+    bio: team.bio
   }
   
-  console.log(toSend);
+ 
   try{
     const response = await fetch(`${API_URL}/teams/${team.hackathon_id}`, {
       method: "PUT",
@@ -199,7 +200,7 @@ export const EditTeam = async (team, token) =>{
       body: JSON.stringify(toSend),
     });
     const data = await response.json();
-    console.log(data);
+    
     if (!response.ok) throw new Error("Error al enviar invitación");
     
     return data;
@@ -208,6 +209,7 @@ export const EditTeam = async (team, token) =>{
   }
 }
 
+<<<<<<< HEAD
 export const getUserNotifications = async (token) => {
   try {
     const response = await fetch(`${API_URL}/notifications`, {
@@ -244,3 +246,51 @@ export const markNotificationAsRead = async (notificationId, token) => {
 };
 
 
+=======
+//aceptar o rechazar peticiones
+
+export const HandleInvitation= async (userToken, requestID, action)=>{
+
+  try{
+    const response = await fetch(`${API_URL}/teams/requests/${requestID}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        'Content-Type': "application/json",
+      },
+      body: JSON.stringify({
+        "action": action
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) throw new Error("Error al enviar invitación");
+    return data;
+    
+  }
+  catch(error){
+    throw new Error("Error al buscar equipo:", error);   
+  }
+}
+
+//solicitar unirme al grupo
+export const SendRequest = async (userToken, teamId)=>{
+  try{
+    const response = await fetch(`${API_URL}/teams/${teamId}/request`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${userToken}`,        
+      },
+    });
+    const data = await response.json();
+   
+    
+    if (!response.ok) throw new Error("Error al enviar invitación");
+    return data;
+    
+  }
+  catch(error){
+    throw new Error("Error al buscar equipo:", error);   
+  }
+}
+>>>>>>> 4ed6345a3dea92d0b3fcb518a5703afdd368aee7

@@ -15,6 +15,7 @@ class Team(db.Model):
     live_preview_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    bio = db.Column(db.Text, nullable=True)
 
     hackathon = db.relationship("Hackathon", backref=db.backref("teams", cascade="all, delete-orphan"))
     creator = db.relationship("User", backref="created_teams")
@@ -31,7 +32,9 @@ class Team(db.Model):
             "live_preview_url": self.live_preview_url,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "members": [member.to_dict() for member in self.members]
+            "members": [member.to_dict() for member in self.members],
+            "requests": [request.to_dict() for request in self.requests],
+            "bio": self.bio,
         }
 
 class TeamMember(db.Model):
@@ -76,9 +79,10 @@ class TeamRequest(db.Model):
         return {
             "id": self.id,
             "team_id": self.team_id,
-            "user_id": self.user_id,
-            "requested_by_id": self.requested_by_id,
             "type": self.type,
             "status": self.status,
-            "created_at": self.created_at.isoformat()
+            "created_at": self.created_at.isoformat(),
+            "user": self.user.to_dict(),
+            "requested_by": self.requested_by.to_dict()
         }
+

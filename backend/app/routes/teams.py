@@ -175,8 +175,10 @@ def get_team_by_hackathon(hackathon_id, team_id):
         return jsonify(team.to_dict()), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-    # --- Editar un equipo de un hackathon especifico --- #
+
+
+
+# --- Editar un equipo de un hackathon especifico --- #
 @team_bp.route('/<int:hackathon_id>', methods=['PUT'])
 @jwt_required()
 def update_hackathon_team(hackathon_id):
@@ -193,8 +195,8 @@ def update_hackathon_team(hackathon_id):
         if 'name' in data:
             team.name = data['name']
         # si se quiere tener bio en el equipo, esta es la parte se descomenta
-       # if 'bio' in data:
-        #    team.bio = data['bio']
+        if 'bio' in data:
+           team.bio = data['bio']
         if 'github_url' in data:
             team.github_url = data['github_url']
         if 'live_preview_url' in data:
@@ -205,3 +207,12 @@ def update_hackathon_team(hackathon_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+@team_bp.route("/requests/me", methods=["GET"])
+@jwt_required()
+def get_all_my_requests():
+    current_user_id = get_jwt_identity()
+    invitations = TeamRequest.query.filter_by(user_id=current_user_id).all()
+    applications = TeamRequest.query.filter_by(requested_by_id=current_user_id).all()
+    all_requests = {r.id: r for r in invitations + applications}
+    return jsonify([r.to_dict() for r in all_requests.values()])
