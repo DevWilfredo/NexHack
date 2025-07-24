@@ -8,11 +8,11 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-bcrypt = "*"
 flask-cors = "*"
-python-dotenv = "*"
 marshmallow = "*"
 faker = "*"
 flask = "*"
 flask-jwt-extended = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

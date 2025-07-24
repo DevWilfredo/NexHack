@@ -6,6 +6,8 @@ import { useAuth } from "@context/AuthContext";
 import nexhackLogo from "@assets/nexhack.png";
 import nechackBlue from "@assets/nexhackBlue.png";
 import { Menu } from "lucide-react";
+import NotificationBell from "@components/NotificationBell";
+
 
 const Navbar = () => {
   const { isDark } = useTheme();
@@ -59,6 +61,9 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                
+                
+
                 <li>
                   <NavLink
                     to="/login"
@@ -95,6 +100,7 @@ const Navbar = () => {
         <ThemeToggler />
         {user ? (
           <>
+            <NotificationBell />
             <div className="dropdown dropdown-end">
               <Avatar />
             </div>
