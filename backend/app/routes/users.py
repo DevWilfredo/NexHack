@@ -53,13 +53,20 @@ def update_user(user_id):
 
         if 'firstname' in data:
             user.firstname = data['firstname']
+        if 'website_url' in data:
+            user.website_url = data['website_url']
+        if 'github_url' in data:
+            user.github_url = data['github_url']
+        if 'linkedin_url' in data:
+            user.linkedin_url = data['linkedin_url']
         if 'lastname' in data:
             user.lastname = data['lastname']
         if 'email' in data:
             user.email = data['email']
+        if 'bio' in data:
+            user.bio = data['bio']
         if 'password' in data:
             user.set_password(data['password'])
-        
         if 'file' in request.files:
             file = request.files['file']
             if file.filename != '' and allowed_file(file.filename):

@@ -1,51 +1,98 @@
-import { HeartPlus, ThumbsUp } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ChartComponent from "@components/chartComponent";
 import { useAuth } from "@context/AuthContext";
-import { GetUserProfile } from "@services/";
 import ModalUserUpdateComponent from "../ModalUserUpdate";
+import { useTheme } from "@context/ThemeContext";
+import SocialLinkDisplay from "../SocialLinksDisplay";
+import TestimonialsSection from "../TestimonialsSection";
+import HackathonHistory from "../HackathonsHistory";
+import LikesSection from "../LikesSection";
+import { ThumbsUp, Trophy, BarChart, Star } from "lucide-react";
 
 function UserProfileComponent() {
-  const { user, userToken, setUser } = useAuth();
-  const [userInfo, setUserInfo] = useState({});
+  const { user, setUser } = useAuth();
   const [showModal, setShowModal] = useState(false);
-  const [userLoaded, setUserLoaded] = useState(false);
-
-  const handleModal = () => setShowModal((prev) => !prev);
-
-  const handleUpdate = (updatedData) => {
-    setUser(updatedData);
-  };
-
-  //info Hardcodeada porque falta informacion en la db
   const [activeTab, setActiveTab] = useState("global");
+  const { isDark } = useTheme();
+  const [search, setSearch] = useState("");
 
-  const [repos, setRepos] = useState([
-    { name: "React no IA", description: "72hrs project without copilot." },
+  const sampleHackathons = [
     {
-      name: "Angular Express",
-      description: "24 hours all around SAAS with Angular",
+      name: "Hack4World 2024",
+      date: "2024-04-15",
+      teamName: "CodeWizards",
+      ranking: 1,
+      description: "An AI-based solution for sustainable agriculture.",
+      projectLink: "https://github.com/codewizards/hack4world",
+      deployLink: "https://hack4world.app",
+      hackathonLink: "https://hack4world.com",
     },
     {
-      name: "Solo dev React",
-      description: "1 week whole project no teams allowed",
+      name: "JS Challenge",
+      date: "2023-11-02",
+      teamName: "SoloDev",
+      ranking: 5,
+      description: "Real-time collaboration app using Socket.IO",
+      projectLink: "https://github.com/solodev/js-challenge",
+      deployLink: null,
+      hackathonLink: "https://jschallenge.dev",
+    },
+    {
+      name: "HackAI",
+      date: "2024-06-10",
+      teamName: "ByteForce",
+      ranking: 3,
+      description: "AI chatbot trained on legal documents.",
+      projectLink: "https://github.com/byteforce/hackai",
+      deployLink: "https://legalbot.io",
+      hackathonLink: "https://hackai.dev",
+    },
+  ];
+
+  const tabs = [
+    { key: "global", label: "General", icon: BarChart },
+    { key: "hackathons", label: "Hackathons", icon: Trophy },
+    { key: "followers", label: "Likes", icon: ThumbsUp },
+    { key: "hacksWins", label: "Ranked places", icon: Star },
+  ];
+
+  const [followers] = useState([
+    {
+      username: "devAlice",
+      fullName: "Alice Johnson",
+      profile_picture: null,
+      bio: "Frontend dev @Tesla",
+      points: 1420,
+      likedAt: "2024-06-15",
+    },
+    {
+      username: "devAlice",
+      fullName: "Pedro Ramirez",
+      profile_picture: null,
+      bio: "Backend dev @OpenAI",
+      points: 4530,
+      likedAt: "2024-03-20",
     },
   ]);
 
-  const [followers, setFollowers] = useState([
-    { username: "devAlice" },
-    { username: "devBob" },
-  ]);
-
-  const [hacksWins, sethacksWins] = useState([
+  const [hacksWins] = useState([
     { hackname: "Angular solodev", timeLimit: "24 hours", ranked: "1st place" },
     { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
   ]);
-  console.log(user);
+
+  const handleModal = () => setShowModal((prev) => !prev);
+  const handleUpdate = (updatedData) => setUser(updatedData);
+
+  const filteredHackathons = sampleHackathons.filter(
+    (h) =>
+      h.name.toLowerCase().includes(search.toLowerCase()) ||
+      h.teamName.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="flex justify-center">
-      <div className="basis-64 items-center gap-4">
+    <div className="flex flex-wrap gap-8 justify-center p-6">
+      {/* Profile section */}
+      <div className="w-full md:w-auto flex flex-col items-center gap-4 bg-base-200 p-6 rounded-lg shadow-lg ">
         <img
           src={
             user.profile_picture
@@ -57,113 +104,97 @@ function UserProfileComponent() {
                 }`
           }
           alt="Avatar"
-          className="w-24 h-24 rounded-full"
+          className="w-24 h-24 rounded-full shadow-lg object-cover"
         />
 
-        <div>
-          <h1 className="text-2xl font-bold">
-            {`${user.firstname} ${user.lastname}`}
-          </h1>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">{`${user.firstname} ${user.lastname}`}</h1>
+          {user.bio && (
+            <p className="mt-2 text-sm text-base-content">{user.bio}</p>
+          )}
 
-          <p className="text-sm text-gray-500">@{userInfo.username}</p>
           <button
-            className="btn btn-sm mt-2 btn-outline ml-auto"
+            className={`btn ${
+              isDark ? "btn-accent" : "btn-primary"
+            } btn-sm mt-2`}
             onClick={handleModal}
           >
-            Edit Profile
+            Editar Perfil
           </button>
-          <p className="mt-2">{userInfo.bio}</p>
         </div>
-        {/* Seguidores y seguidos */}
+
         <div className="mt-4 flex gap-6">
-          <span>
-            <HeartPlus className="text-accent" />
-            {userInfo.followers}
-            Followers
+          <span className="flex items-center gap-1 text-sm text-base-content">
+            <Trophy className="text-yellow-400" /> 4086 Points
           </span>
-          <span>
-            <ThumbsUp className="text-success" />
-            {userInfo.following}
-            Likes
+          <span className="flex items-center gap-1 text-sm text-base-content">
+            <ThumbsUp className="text-success" /> 275 Likes
           </span>
+        </div>
+
+        <div className="divider my-1" />
+        <h3 className="text-2xl font-semibold text-base-content">
+          Redes Sociales
+        </h3>
+
+        <div className="flex flex-col gap-4 w-full">
+          <SocialLinkDisplay type="email" value={user.email} />
+          {user.website_url && (
+            <SocialLinkDisplay type="website" value={user.website_url} />
+          )}
+          {user.github_url && (
+            <SocialLinkDisplay type="github" value={user.github_url} />
+          )}
+          {user.linkedin_url && (
+            <SocialLinkDisplay type="linkedin" value={user.linkedin_url} />
+          )}
         </div>
       </div>
 
-      {/* Tabs + Content dentro de un solo div */}
-      <div className="mt-6 basis-256 space-y-4">
-        {/* Tabs */}
-        <div className="flex gap-4 border-b pb-2">
-          <button
-            className={`btn btn-ghost ${
-              activeTab === "global" ? "btn-active" : ""
-            }`}
-            onClick={() => setActiveTab("global")}
-          >
-            Global Position
-          </button>
-          <button
-            className={`btn btn-ghost ${
-              activeTab === "repos" ? "btn-active" : ""
-            }`}
-            onClick={() => setActiveTab("repos")}
-          >
-            Hackathones
-          </button>
-          <button
-            className={`btn btn-ghost ${
-              activeTab === "followers" ? "btn-active" : ""
-            }`}
-            onClick={() => setActiveTab("followers")}
-          >
-            Followers
-          </button>
-          <button
-            className={`btn btn-ghost ${
-              activeTab === "hacksWins" ? "btn-active" : ""
-            }`}
-            onClick={() => setActiveTab("hacksWins")}
-          >
-            Ranked places
-          </button>
+      {/* Main content */}
+      <div className="flex-1 max-w-4xl space-y-6">
+        <div className="flex flex-wrap gap-4 border-b pb-2">
+          {tabs.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              className={`btn btn-ghost btn-sm flex items-center gap-1 ${
+                activeTab === key ? "btn-active btn-accent" : ""
+              }`}
+              onClick={() => setActiveTab(key)}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Contenido dinámico */}
         <div>
-          {activeTab === "repos" && (
-            <ul className="space-y-4">
-              {repos.map((repo, index) => (
-                <li key={index} className="p-4 border rounded-box">
-                  <h2 className="font-semibold">{repo.name}</h2>
-                  <p className="text-sm">{repo.description}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-
           {activeTab === "global" && <ChartComponent />}
 
-          {activeTab === "followers" && (
-            <ul className="space-y-2">
-              {followers.map((f, i) => (
-                <li key={i} className="p-2 border rounded-box">
-                  @{f.username}
-                </li>
-              ))}
-            </ul>
+          {activeTab === "hackathons" && (
+            <HackathonHistory
+              hackathons={filteredHackathons}
+              search={search}
+              setSearch={setSearch}
+            />
           )}
+
+          {activeTab === "followers" && <LikesSection likes={followers} />}
 
           {activeTab === "hacksWins" && (
             <ul className="space-y-2">
               {hacksWins.map((f, i) => (
-                <div key={i} className="p-2 border rounded-box ps-5">
+                <div key={i} className="p-4 border rounded-box bg-base-200">
                   <h2 className="font-semibold">{f.hackname}</h2>
-                  <p className="text-sm">
-                    Time Limit: {f.timeLimit} - Ranked: {f.ranked}
+                  <p className="text-sm text-gray-400">
+                    Time Limit: {f.timeLimit} — Ranked: {f.ranked}
                   </p>
                 </div>
               ))}
             </ul>
           )}
+
+          <TestimonialsSection />
         </div>
       </div>
 

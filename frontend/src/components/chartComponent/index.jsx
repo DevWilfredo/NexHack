@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "@context/ThemeContext";
 import {
   BarChart,
   Bar,
@@ -26,28 +27,29 @@ const participationData = [
 ];
 
 const ChartComponent = () => {
+  const {isDark} = useTheme();
   return (
     <div className="mt-8 p-6 bg-base-200 rounded-xl shadow space-y-6">
-      <h2 className="text-xl font-bold">Hackathon Performance</h2>
+      <h2 className="text-xl font-bold">Estadisticas Mensuales</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-        <div className="p-4 bg-base-100 rounded-box shadow">
+        <div className="p-4 bg-base-300 rounded-box shadow">
           <p className="text-lg font-semibold">
             {hackathonStats.totalHackathons}
           </p>
-          <p className="text-sm text-muted">Total Hackathons</p>
+          <p className="text-sm text-muted">Hackathons Totales</p>
         </div>
-        <div className="p-4 bg-base-100 rounded-box shadow">
+        <div className="p-4 bg-base-300 rounded-box shadow">
           <p className="text-lg font-semibold">
             #{hackathonStats.avgPlacement}
           </p>
-          <p className="text-sm text-muted">Avg. Placement</p>
+          <p className="text-sm text-muted">Promedio de Posicion</p>
         </div>
-        <div className="p-4 bg-base-100 rounded-box shadow">
+        <div className="p-4 bg-base-300 rounded-box shadow">
           <p className="text-lg font-semibold">
             {hackathonStats.top10Percentage}%
           </p>
-          <p className="text-sm text-muted">Top 10 Finishes</p>
+          <p className="text-sm text-muted">Top 10 ranking obtenidos</p>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ const ChartComponent = () => {
             <XAxis dataKey="month" />
             <YAxis allowDecimals={false} />
             <Tooltip />
-            <Bar dataKey="hackathons" fill="#9A031E" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="hackathons" fill={`${isDark ? '#9a031e' : '#0077b6'}`} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

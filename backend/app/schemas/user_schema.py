@@ -15,4 +15,8 @@ class UserUpdateSchema(Schema):
     lastname = fields.String(validate=validate.Length(min=2))
     email=fields.Email()
     password = fields.String(validate=validate.Length(min=6))
+    bio= fields.String()
+    github_url = fields.String()
+    website_url = fields.String()
+    linkedin_url = fields.String()
     

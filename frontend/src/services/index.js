@@ -59,9 +59,16 @@ export const RegisterUser = (firstname, lastname, email, password) => {
 //Update perfil con token ya funcional.
 export const updateUserProfile = async (userId, updatedData, token) => {
   const formData = new FormData();
+
   formData.append("firstname", updatedData.firstname);
   formData.append("lastname", updatedData.lastname);
-  formData.append("email", updatedData.email); 
+  formData.append("email", updatedData.email);
+
+  // Nuevos campos
+  formData.append("bio", updatedData.bio || "");
+  formData.append("website_url", updatedData.website_url || "");
+  formData.append("github_url", updatedData.github_url || "");
+  formData.append("linkedin_url", updatedData.linkedin_url || "");
 
   if (updatedData.avatarFile) {
     formData.append("file", updatedData.avatarFile);
@@ -71,17 +78,17 @@ export const updateUserProfile = async (userId, updatedData, token) => {
     const response = await fetch(`${API_URL}/users/${userId}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`, // JWT
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(formData),
+      body: formData,
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || "Error updating profile");
+      throw new Error(errorData.error || "Error actualizando perfil");
     }
 
-    return await response.json(); // Devuelve el usuario actualizado
+    return await response.json();
   } catch (error) {
     throw error;
   }
