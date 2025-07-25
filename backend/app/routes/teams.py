@@ -164,29 +164,28 @@ def handle_team_request(request_id):
         return jsonify({'error': str(e)}), 500
     
 
-    # --- Borrar una invitacion enviada, SOLO POR EL LIDER DE EQUIPO --- #
+    # --- Borrar una invitacion enviada (solo lider de equipo lo puede ver) o Cancelar una solicitud (Solo el usuario que la envio) --- #
 @team_bp.route('/requests/<int:request_id>', methods=['DELETE'])
 @jwt_required()
 def cancel_invitation(request_id):
     try:
         user_id = get_jwt_identity()
         team_request = TeamRequest.query.get_or_404(request_id)
-
-        if team_request.type != 'invitation':
-            return jsonify({'error': 'Solo se pueden cancelar invitaciones.'}), 400
+      
 
         if team_request.status != 'pending':
             return jsonify({'error': 'Solo se pueden cancelar invitaciones pendientes.'}), 400
 
-        if team_request.requested_by_id != int(user_id):
+        if team_request.requested_by_id != int(user_id) :
             return jsonify({'error': 'No tienes permisos para cancelar esta invitación.'}), 403
-
         db.session.delete(team_request)
         db.session.commit()
         return jsonify({'message': 'Invitación cancelada correctamente.'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+    
     
     # --- Conseguir un equipo en especifico, por hackathon ---
 @team_bp.route('/<int:team_id>/hackathons/<int:hackathon_id>', methods=['GET'])

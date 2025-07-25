@@ -68,17 +68,22 @@ with app.app_context():
     users = []
     for i in range(50):
         role = "moderator" if i < 5 else "user"
+        
+        # Usamos pravatar con ID único (de 1 a 70)
+        avatar_id = random.randint(1, 70)
+        avatar_url = f"https://i.pravatar.cc/150?img={avatar_id}"
+        
         user = User(
             firstname=faker.first_name(),
             lastname=faker.last_name(),
             email=faker.unique.email(),
             role=role,
-            profile_picture=None
+            profile_picture=avatar_url  # Asignamos avatar aquí
         )
         user.set_password("password123")
         db.session.add(user)
         users.append(user)
-    db.session.commit()
+        db.session.commit()
 
     # Crear notificaciones
     types = ['hackathon_start', 'invitation', 'evaluation', 'general']
@@ -137,5 +142,7 @@ with app.app_context():
         hackathon.add_tag(random.choice(tags))
         db.session.add(hackathon)
     db.session.commit()
+
+    
 
     print("✅ Base de datos poblada con usuarios, notificaciones y hackathones.")

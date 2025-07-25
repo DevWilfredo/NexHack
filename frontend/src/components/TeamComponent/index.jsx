@@ -241,7 +241,7 @@ function TeamsComponent({ hackathonId, teamId }) {
                   <CardCarousel
                     usersArray={teamMembers}
                     initialSlide={0}
-                    cardsPerSlide={1}
+                    cardsPerSlide={2}
                   />
                 </div>
               </div>

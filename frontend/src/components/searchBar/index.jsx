@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDebounce } from "react-use";
 import { UserSearch } from "lucide-react";
 
-const SearchBar = ({ onSearch, placeholder = "Buscar...", spacing = "md" }) => {
+const SearchBar = ({ onSearch, placeholder = "Buscar...", spacing }) => {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
