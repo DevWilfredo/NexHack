@@ -81,7 +81,11 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
 
   return (
     <dialog id="edit_user_modal" className="modal">
-      <div className="modal-box w-full max-w-2xl">
+      <div
+        className={`modal-box w-full max-w-2xl  bg-base-200 shadow-xl/20 ${
+          isDark ? "shadow-accent" : "shadow-primary"
+        } border border-info/1`}
+      >
         <h3 className="font-bold text-lg">Editar perfil de usuario</h3>
 
         <form method="dialog" onSubmit={handleSubmit(onSubmit)}>
