@@ -19,6 +19,13 @@ export function AcceptorReject(userToken, refreshTeamData) {
       });
   };
 }
+// ✅ verifica si ya participa en el hackathon
+export function isInHackathon(hackathonData, user) {
+  
+  return hackathonData.teams.some((teams) => teams.members.some((member) => member.user.id === user.id)
+  );
+}
+
 
 //  ✅ Función para cancelar invitaciones
 export function HandleCancelInvitation(userToken, hackathonId, teamId, setTeamData) {

@@ -11,6 +11,7 @@ import SearchBar from "../searchBar";
 import {
   AcceptorReject,
   HandleCancelInvitation,
+  isInHackathon,
   JoinTeam,
   refreshTeamData,
 } from "../../utilities/userUtils";
@@ -86,9 +87,7 @@ function TeamsComponent({ hackathonId, teamId }) {
       req.user.id === user.id
   );
   //estas dentro de un hackathon?
-  const isInHackathon = hackathonData.teams.some((teams) =>
-    teams.members.some((member) => member.id === user.id)
-  );
+
   //sacamos del array de array de array a los usuarios y lo enviamos al carrousel
   const teamMembers = teamData?.members.map((member) => member.user) || [];
 
@@ -362,7 +361,7 @@ function TeamsComponent({ hackathonId, teamId }) {
           <button className="btn btn-disabled">Equipo lleno</button>
         ) : hasPendingRequest ? (
           <button className="btn btn-disabled">Esperando respuesta</button>
-        ) : isInHackathon ? (
+        ) : isInHackathon(hackathonData, user) ? (
           <button className="btn btn-disabled">Inscrito en otro equipo</button>
         ) : (
           <button

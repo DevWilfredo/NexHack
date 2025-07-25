@@ -46,6 +46,7 @@ const DashboardComponent = () => {
             tags={tags}
             activeTagId={activeTagId}
             setActiveTagId={setActiveTagId}
+            extraClasses={"bg-base-200  border border-info/20 "}
           />
         </div>
         {/* Lista de hackatones */}
