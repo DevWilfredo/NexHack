@@ -19,3 +19,4 @@ class HackathonUpdateSchema(Schema):
     max_team_members = fields.Integer(validate=validate.Range(min=1))
     tags = fields.List(fields.String())
     rules = fields.List(fields.String())
+    status = fields.String()

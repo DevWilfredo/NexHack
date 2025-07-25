@@ -2,6 +2,8 @@ import os
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app.models.user import User
+from app.models.team import TeamMember
+from app.models.hackathon import Hackathon
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.schemas.user_schema import UserUpdateSchema
@@ -93,3 +95,24 @@ def update_user(user_id):
 @user_bp.route('/profile_pictures/<filename>', methods=['GET'])
 def serve_profile_picture(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+
+@user_bp.route('/my-hackathons', methods=['GET'])
+@jwt_required()
+def get_my_hackathons():
+    try:
+        user_id = get_jwt_identity()
+
+        hackathon_ids = (
+            db.session.query(TeamMember.hackathon_id)
+            .filter(TeamMember.user_id == user_id)
+            .distinct()
+            .all()
+        )
+        hackathon_ids = [h[0] for h in hackathon_ids]
+
+        hackathons = Hackathon.query.filter(Hackathon.id.in_(hackathon_ids)).all()
+
+        return jsonify([h.to_dict() for h in hackathons]), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

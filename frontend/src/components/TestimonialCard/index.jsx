@@ -22,13 +22,13 @@ function TestimonialCard({ name, role, image, quote }) {
               ))}
             </div>
           </div>
-          <p className="text-xs font-semibold uppercase text-slate-300 mt-0.5">
+          <p className="text-xs font-semibold uppercase text-base-content/40 mt-0.5">
             {role}
           </p>
         </div>
       </div>
       <div className="mt-6">
-        <p className="text-base text-slate-100 leading-relaxed">{quote}</p>
+        <p className="text-base text-base-content leading-relaxed">{quote}</p>
       </div>
     </div>
   );
