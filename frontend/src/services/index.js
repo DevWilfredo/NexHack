@@ -209,7 +209,6 @@ export const EditTeam = async (team, token) =>{
   }
 }
 
-<<<<<<< HEAD
 export const getUserNotifications = async (token) => {
   try {
     const response = await fetch(`${API_URL}/notifications`, {
@@ -246,11 +245,25 @@ export const markNotificationAsRead = async (notificationId, token) => {
 };
 
 
-=======
-//aceptar o rechazar peticiones
+//solicitar unirme al grupo
+export const SendRequest = async (userToken, teamId)=>{
+  try{
+    const response = await fetch(`${API_URL}/teams/${teamId}/request`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error("Error al enviar invitación");
+    return data;
+  }
+  catch(error){
+    throw new Error("Error al buscar equipo:", error);
+  }
+}
 
 export const HandleInvitation= async (userToken, requestID, action)=>{
-
   try{
     const response = await fetch(`${API_URL}/teams/requests/${requestID}`, {
       method: "PATCH",
@@ -266,31 +279,8 @@ export const HandleInvitation= async (userToken, requestID, action)=>{
     console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
-    
   }
   catch(error){
-    throw new Error("Error al buscar equipo:", error);   
+    throw new Error("Error al buscar equipo:", error);
   }
 }
-
-//solicitar unirme al grupo
-export const SendRequest = async (userToken, teamId)=>{
-  try{
-    const response = await fetch(`${API_URL}/teams/${teamId}/request`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${userToken}`,        
-      },
-    });
-    const data = await response.json();
-   
-    
-    if (!response.ok) throw new Error("Error al enviar invitación");
-    return data;
-    
-  }
-  catch(error){
-    throw new Error("Error al buscar equipo:", error);   
-  }
-}
->>>>>>> 4ed6345a3dea92d0b3fcb518a5703afdd368aee7
