@@ -6,10 +6,12 @@ export function AcceptorReject(userToken, refreshTeamData) {
   return (action, requestID) => {
     HandleInvitation(userToken, requestID, action)
       .then(() => {
-        refreshTeamData();
+       
         if (action.trim().toLowerCase() === "accept") {
+           refreshTeamData();
           toast.success("Invitación aceptada");
         } else {
+          
           toast.error("Invitación rechazada");
         }
       })

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
-import { fetchSingleHackathon, getTeamByHackathon } from "../../services";
+import {
+  fetchSingleHackathon,
+  getTeamByHackathon,
+  HandleInvitation,
+} from "../../services";
 import { BriefcaseBusiness, Github } from "lucide-react";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
 import AddMemberModal from "../TeamsModal";
@@ -9,12 +13,11 @@ import UserToListcomponent from "../UserToList";
 import CardCarousel from "../Carrousel";
 import SearchBar from "../searchBar";
 import {
-  AcceptorReject,
   HandleCancelInvitation,
   isInHackathon,
   JoinTeam,
-  refreshTeamData,
 } from "../../utilities/userUtils";
+import toast from "react-hot-toast";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -46,6 +49,7 @@ function TeamsComponent({ hackathonId, teamId }) {
         .then((res) => {
           setTeamData(res);
         })
+
         .catch((error) => console.error("Error fetching team:", error));
     }
   }, [hackathonId, teamId, userToken]);
@@ -61,6 +65,9 @@ function TeamsComponent({ hackathonId, teamId }) {
       );
       setSolicitudesPendientes(solicitudes);
       setInvitacionesPendientes(invitaciones);
+      console.log("Team data:", teamData);
+      console.log("Solicitudes pendientes:", solicitudesPendientes);
+      console.log("Invitaciones pendientes:", invitacionesPendientes);
     }
   }, [teamData]);
 
@@ -90,6 +97,36 @@ function TeamsComponent({ hackathonId, teamId }) {
 
   //sacamos del array de array de array a los usuarios y lo enviamos al carrousel
   const teamMembers = teamData?.members.map((member) => member.user) || [];
+
+  //utils traidos para que no rompa....
+  function AcceptorReject(userToken) {
+    return (action, requestID) => {
+      HandleInvitation(userToken, requestID, action)
+        .then(() => {
+          refreshTeamData(); // ahora está disponible correctamente
+          if (action.trim().toLowerCase() === "accept") {
+            toast.success("Invitación aceptada");
+          } else {
+            toast.error("Invitación rechazada");
+          }
+        })
+        .catch((error) => {
+          toast.error("Error al procesar la solicitud");
+          console.error("Error en AcceptorReject:", error);
+        });
+    };
+  }
+  function refreshTeamData() {
+    if (hackathonId && teamId && userToken) {
+      getTeamByHackathon({ teamId, hackathonId, token: userToken })
+        .then((res) => {
+          setTeamData(res);
+        })
+        .catch((error) =>
+          console.error("Error al obtener datos del equipo:", error)
+        );
+    }
+  }
 
   return (
     <div
@@ -321,7 +358,7 @@ function TeamsComponent({ hackathonId, teamId }) {
                           }
                           HandleAccept={
                             tipoSolicitudActivo === "solicitudes"
-                              ? AcceptorReject(userToken, refreshTeamData)
+                              ? AcceptorReject(userToken)
                               : undefined
                           }
                           HandleCancelInvitation={
@@ -378,12 +415,7 @@ function TeamsComponent({ hackathonId, teamId }) {
       <AddMemberModal
         team={teamData}
         toState={activeModal}
-        onTeamUpdated={refreshTeamData(
-          hackathonId,
-          teamId,
-          userToken,
-          setTeamData
-        )}
+        onTeamUpdated={refreshTeamData}
       />
     </div>
   );
