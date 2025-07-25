@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
-import {
-  fetchSingleHackathon,
-  getTeamByHackathon,
-  HandleInvitation,
-  SendRequest,
-} from "../../services";
+import { fetchSingleHackathon, getTeamByHackathon } from "../../services";
 import { BriefcaseBusiness, Github } from "lucide-react";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
 import AddMemberModal from "../TeamsModal";
 import { useTheme } from "../../context/ThemeContext";
 import UserToListcomponent from "../UserToList";
 import CardCarousel from "../Carrousel";
-import toast from "react-hot-toast";
+import SearchBar from "../searchBar";
+import {
+  AcceptorReject,
+  HandleCancelInvitation,
+  JoinTeam,
+  refreshTeamData,
+} from "../../utilities/userUtils";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -25,6 +26,12 @@ function TeamsComponent({ hackathonId, teamId }) {
     disable: false,
     message: "Solicitar unirse",
   });
+
+  //filtro de solicitudes  y searchbar
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState([]);
+  const [invitacionesPendientes, setInvitacionesPendientes] = useState([]);
+  const [tipoSolicitudActivo, setTipoSolicitudActivo] = useState("solicitudes");
+  const [filtro, setFiltro] = useState("");
 
   useEffect(() => {
     if (hackathonId && teamId && userToken) {
@@ -41,39 +48,20 @@ function TeamsComponent({ hackathonId, teamId }) {
         .catch((error) => console.error("Error fetching team:", error));
     }
   }, [hackathonId, teamId, userToken]);
-  //aceptar o negar
-  const handleAccept = (action, requestID) => {
-    HandleInvitation(userToken, requestID, action).then(() => {
-      refreshTeamData();
-      if (action.trim().toLowerCase() === "accept") {
-        toast.success("Invitación aceptada");
-      } else {
-        toast.error("Invitación rechazada");
-      }
-    });
-  };
 
-  //solicitar entrar
-  const JoinTeam = () => {
-    SendRequest(userToken, teamId).then(() => {
-      console.log("sended!");
-      setDisabledButton((disabledButton) => ({
-        ...disabledButton,
-        disable: true,
-        message: "Solicitud enviada",
-      }));
-    });
-  };
-
-  const refreshTeamData = () => {
-    if (hackathonId && teamId && userToken) {
-      getTeamByHackathon({ teamId, hackathonId, token: userToken })
-        .then((res) => {
-          setTeamData(res);
-        })
-        .catch((error) => console.error("Error fetching team:", error));
+  //useEffect para solicitudes
+  useEffect(() => {
+    if (teamData) {
+      const solicitudes = teamData.requests.filter(
+        (req) => req.type === "application" && req.status === "pending"
+      );
+      const invitaciones = teamData.requests.filter(
+        (req) => req.type === "invitation" && req.status === "pending"
+      );
+      setSolicitudesPendientes(solicitudes);
+      setInvitacionesPendientes(invitaciones);
     }
-  };
+  }, [teamData]);
 
   if (!user || !teamData || !hackathonData) {
     return <div className="text-center py-10">Cargando...</div>;
@@ -88,6 +76,7 @@ function TeamsComponent({ hackathonId, teamId }) {
       " " +
       teamData.members.find((member) => member.user?.id === teamData.creator_id)
         ?.user.lastname || "Desconocido";
+  //Eliminar invitaciones
 
   //verificar Si tienes solicitud Pendiente
   const hasPendingRequest = teamData.requests.some(
@@ -102,9 +91,7 @@ function TeamsComponent({ hackathonId, teamId }) {
   );
   //sacamos del array de array de array a los usuarios y lo enviamos al carrousel
   const teamMembers = teamData?.members.map((member) => member.user) || [];
-  const solicitudesPendientes = teamData.requests.filter(
-    (req) => req.type === "application" && req.status === "pending"
-  );
+
   return (
     <div
       className={`rounded-xl p-6 w-full mx-auto space-y-6 bg-base-200 shadow-xl/20 ${
@@ -260,20 +247,106 @@ function TeamsComponent({ hackathonId, teamId }) {
               </div>
             ) : (
               <div className="card bg-base-300 text-neutral-content p-4 ">
-                <h2 className="text-xl font-semibold mb-2">Solicitudes</h2>
-                {/* Aquí puedes conectar solicitudes reales */}
-                <div className="overflow-y-auto max-h-60">
-                  {solicitudesPendientes.length === 0
-                    ? "No hay solicitudes pendientes"
-                    : solicitudesPendientes.map((request) => (
+                <div className="flex justify-between">
+                  <h2 className="text-xl font-semibold mb-4">Solicitudes</h2>
+
+                  {/* Tabs internas */}
+                  <div className="tabs tabs-boxed mb-4 ">
+                    <div className="flex gap-2 mb-4 mr-2 items-center pb-2 ">
+                      <button
+                        className={`btn btn-xs rounded-full  ${
+                          tipoSolicitudActivo === "solicitudes"
+                            ? isDark
+                              ? "btn-accent"
+                              : "btn-primary"
+                            : "btn-outline"
+                        } hover:scale-103 transition-all`}
+                        onClick={() => setTipoSolicitudActivo("solicitudes")}
+                      >
+                        Solicitudes
+                      </button>
+
+                      <button
+                        className={`btn btn-xs rounded-full  ${
+                          tipoSolicitudActivo === "invitaciones"
+                            ? isDark
+                              ? "btn-accent"
+                              : "btn-primary"
+                            : "btn-outline"
+                        } hover:scale-103 transition-all`}
+                        onClick={() => setTipoSolicitudActivo("invitaciones")}
+                      >
+                        Invitaciones
+                      </button>
+                    </div>
+
+                    <div className="mb-4">
+                      <SearchBar
+                        onSearch={setFiltro}
+                        placeholder="Buscar"
+                        spacing="xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lista filtrada */}
+                <div className="overflow-y-auto max-h-60 ps-6">
+                  {(tipoSolicitudActivo === "solicitudes"
+                    ? solicitudesPendientes
+                    : invitacionesPendientes
+                  )
+                    .filter((req) => {
+                      const nombreCompleto =
+                        `${req.user.firstname} ${req.user.lastname}`.toLowerCase();
+                      return nombreCompleto.includes(filtro.toLowerCase());
+                    })
+                    .map((request) => {
+                      // mapeamos el cancelar aca para que se actualice el estado del padre y sepa que ID hay que borrar
+                      const cancelarInvitacion = HandleCancelInvitation(
+                        userToken,
+                        hackathonId,
+                        teamId,
+                        setTeamData
+                      );
+
+                      return (
                         <UserToListcomponent
                           key={request.id}
                           index={request.id}
                           us={request.user}
-                          viewport="solicitud"
-                          HandleAccept={handleAccept}
+                          viewport={
+                            tipoSolicitudActivo === "solicitudes"
+                              ? "solicitud"
+                              : "invitacion"
+                          }
+                          HandleAccept={
+                            tipoSolicitudActivo === "solicitudes"
+                              ? AcceptorReject(userToken, refreshTeamData)
+                              : undefined
+                          }
+                          HandleCancelInvitation={
+                            tipoSolicitudActivo === "invitaciones"
+                              ? () => cancelarInvitacion(request.id)
+                              : undefined
+                          }
                         />
-                      ))}
+                      );
+                    })}
+
+                  {/* Si no hay resultados */}
+                  {(tipoSolicitudActivo === "solicitudes"
+                    ? solicitudesPendientes
+                    : invitacionesPendientes
+                  ).filter((req) => {
+                    const nombreCompleto =
+                      `${req.user.firstname} ${req.user.lastname}`.toLowerCase();
+                    return nombreCompleto.includes(filtro.toLowerCase());
+                  }).length === 0 && (
+                    <p className="text-center text-sm text-gray-400 mt-2">
+                      No hay {tipoSolicitudActivo} pendientes.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -297,7 +370,7 @@ function TeamsComponent({ hackathonId, teamId }) {
             className={`btn ${
               isDark ? "btn-accent" : "btn-primary"
             } hover:btn-success`}
-            onClick={JoinTeam}
+            onClick={JoinTeam(userToken, teamId, setDisabledButton)}
           >
             {disabledButton.message || "Unirse al equipo"}
           </button>
@@ -306,7 +379,12 @@ function TeamsComponent({ hackathonId, teamId }) {
       <AddMemberModal
         team={teamData}
         toState={activeModal}
-        onTeamUpdated={refreshTeamData}
+        onTeamUpdated={refreshTeamData(
+          hackathonId,
+          teamId,
+          userToken,
+          setTeamData
+        )}
       />
     </div>
   );

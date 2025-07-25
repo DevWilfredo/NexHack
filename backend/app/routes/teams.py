@@ -55,7 +55,7 @@ def request_to_join_team(team_id):
             return jsonify({'error': 'Ya eres miembro de un equipo en este hackathon.'}), 400
 
         # Verificar si ya existe una solicitud pendiente
-        existing_request = TeamRequest.query.filter_by(user_id=user_id, team_id=team_id, type='application', status='pending').first()
+        existing_request = TeamRequest.query.filter_by(user_id=user_id, team_id=team_id, status='pending').first()
         if existing_request:
             return jsonify({'error': 'Ya tienes una solicitud pendiente para este equipo.'}), 400
 
@@ -159,6 +159,31 @@ def handle_team_request(request_id):
         team_request.status = 'accepted'
         db.session.commit()
         return jsonify({'message': 'Solicitud/invitación aceptada.', 'team': team.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+
+    # --- Borrar una invitacion enviada, SOLO POR EL LIDER DE EQUIPO --- #
+@team_bp.route('/requests/<int:request_id>', methods=['DELETE'])
+@jwt_required()
+def cancel_invitation(request_id):
+    try:
+        user_id = get_jwt_identity()
+        team_request = TeamRequest.query.get_or_404(request_id)
+
+        if team_request.type != 'invitation':
+            return jsonify({'error': 'Solo se pueden cancelar invitaciones.'}), 400
+
+        if team_request.status != 'pending':
+            return jsonify({'error': 'Solo se pueden cancelar invitaciones pendientes.'}), 400
+
+        if team_request.requested_by_id != int(user_id):
+            return jsonify({'error': 'No tienes permisos para cancelar esta invitación.'}), 403
+
+        db.session.delete(team_request)
+        db.session.commit()
+        return jsonify({'message': 'Invitación cancelada correctamente.'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
