@@ -25,6 +25,9 @@ def create_hackathon_team(hackathon_id):
             hackathon_id=hackathon_id,
             creator_id=user_id,
             name=name,
+            bio=data.get('bio', ''),
+            github_url=data.get('github_url', ''),
+            live_preview_url=data.get('live_preview_url', ''),
         )
         db.session.add(team)
         db.session.flush()
