@@ -1,10 +1,5 @@
 import os
 from flask import Flask
-from dotenv import load_dotenv
-
-# Carga el .env manualmente desde la carpeta backend
-dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-load_dotenv(dotenv_path)
 from .extensions import db, migrate, bcrypt, jwt, cors
 from .routes.auth import auth_bp
 from .routes.users import user_bp
