@@ -6,6 +6,7 @@ import { useTheme } from "@context/ThemeContext";
 import { useAuth } from "@context/AuthContext";
 import nexhackLogo from "@assets/nexhack.png";
 import nechackBlue from "@assets/nexhackBlue.png";
+import NotificationBell from "@components/NotificationBell";
 import {
   LayoutDashboard,
   CircleUserRound,
@@ -45,7 +46,6 @@ const Navbar = () => {
       } shadow-sm sticky top-0 z-20 backdrop-blur-lg`}
     >
       <div className="navbar-start flex items-center gap-2">
-        {/* Mobile Menu */}
         <div className="drawer">
           <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
           <div className="drawer-content flex items-center">
@@ -94,18 +94,50 @@ const Navbar = () => {
                   <span className="text-sm font-medium">{text}</span>
                 </NavLink>
               ))}
+
+              <li>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) => getBtnClass(isActive)}
+                >
+                  Inicio
+                </NavLink>
+              </li>
+
+              {!user && (
+                <>
+                  <li>
+                    <NavLink
+                      to="/login"
+                      className={({ isActive }) => getBtnClass(isActive)}
+                    >
+                      Login
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/register"
+                      className={({ isActive }) => getBtnClass(isActive)}
+                    >
+                      Registro
+                    </NavLink>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Navbar end */}
       <div className="navbar-end gap-2 items-center">
         <ThemeToggler />
         {user ? (
-          <div className="dropdown dropdown-end">
-            <Avatar />
-          </div>
+          <>
+            <NotificationBell />
+            <div className="dropdown dropdown-end">
+              <Avatar />
+            </div>
+          </>
         ) : (
           <>
             <NavLink

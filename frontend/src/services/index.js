@@ -209,6 +209,44 @@ export const EditTeam = async (team, token) =>{
   }
 }
 
+<<<<<<< HEAD
+export const getUserNotifications = async (token) => {
+  try {
+    const response = await fetch(`${API_URL}/notifications`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) throw new Error("Error al obtener notificaciones");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al cargar notificaciones:", error);
+    return [];
+  }
+};
+
+export const markNotificationAsRead = async (notificationId, token) => {
+  try {
+    const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': "application/json"
+      }
+    });
+
+    if (!response.ok) throw new Error("Error al marcar notificación como leída");
+    return await response.json();
+  } catch (error) {
+    console.error("Error en markNotificationAsRead:", error);
+    throw error;
+  }
+};
+
+
+=======
 //aceptar o rechazar peticiones
 
 export const HandleInvitation= async (userToken, requestID, action)=>{
@@ -255,3 +293,4 @@ export const SendRequest = async (userToken, teamId)=>{
     throw new Error("Error al buscar equipo:", error);   
   }
 }
+>>>>>>> 4ed6345a3dea92d0b3fcb518a5703afdd368aee7
