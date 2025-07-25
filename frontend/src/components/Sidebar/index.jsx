@@ -7,22 +7,19 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { useTheme } from "@context/ThemeContext";
 import { NavLink } from "react-router";
+import { useApp } from "../../context/AppContext";
 
 const Sidebar = () => {
-  const { isDark } = useTheme();
+  const { myHackathons: hackathons } = useApp();
+  console.log("Hackathons in Sidebar:", hackathons);
   const [openDropdown, setOpenDropdown] = useState(false);
 
   const linkBase =
     "flex items-center px-3 py-2 rounded-lg transition-colors duration-300";
-  const linkText = isDark ? "text-gray-200" : "text-gray-600";
-  const linkHover = isDark
-    ? "hover:bg-gray-800 hover:text-white"
-    : "hover:bg-gray-100 hover:text-gray-700";
-  const activeLink = isDark
-    ? "bg-accent text-white font-semibold"
-    : "bg-primary text-white font-semibold";
+  const linkText = "text-base-content";
+  const linkHover = "hover:bg-primary/50 hover:text-base-content hover:font-semibold";
+  const activeLink = "bg-primary text-white font-semibold";
 
   const links = [
     { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
@@ -31,19 +28,9 @@ const Sidebar = () => {
     { icon: Mails, text: "Solicitudes", to: "/" },
   ];
 
-  const hackathons = [
-    { id: 1, title: "Hackathon de Verano" },
-    { id: 2, title: "AI Challenge 2025" },
-    { id: 3, title: "Hack4Good" },
-  ];
-
   return (
     <aside
-      className={`hidden md:flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto ${
-        isDark
-          ? "bg-slate-900/80 border-slate-800/80"
-          : "bg-base-300 border-gray-300"
-      } border-r sticky top-0`}
+      className="hidden md:flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto bg-base-300 border-r border-base-content/10 sticky top-0"
     >
       <div className="flex flex-col justify-between flex-1">
         <nav className="-mx-3 space-y-2">
@@ -71,7 +58,9 @@ const Sidebar = () => {
           <div className="mt-6 px-3">
             <button
               onClick={() => setOpenDropdown(!openDropdown)}
-              className={`w-full flex items-center justify-between py-2 px-2 rounded-lg ${linkText} ${linkHover}`}
+              className={`w-full flex items-center justify-between py-2 px-2 rounded-lg ${linkText} ${linkHover} ${
+                openDropdown ? activeLink : ""
+              }`}
             >
               <span className="text-sm font-semibold">Mis Hackathons</span>
               {openDropdown ? (
@@ -83,20 +72,22 @@ const Sidebar = () => {
 
             {openDropdown && (
               <ul className="mt-2 space-y-1">
-                {hackathons.map((hackathon) => (
-                  <li key={hackathon.id}>
-                    <a
-                      href="#"
-                      className={`block text-sm px-3 py-1 rounded-md truncate ${
-                        isDark
-                          ? "text-gray-300 hover:bg-gray-800"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {hackathon.title}
-                    </a>
+                {hackathons.length === 0 ? (
+                  <li className="text-sm text-muted-foreground italic px-2">
+                    Aún no te has inscrito en ningún hackathon
                   </li>
-                ))}
+                ) : (
+                  hackathons.map((hackathon) => (
+                    <li key={hackathon.id}>
+                      <NavLink
+                        to={`/hackathons/${hackathon.id}`}
+                        className={`block text-sm px-3 py-1 rounded-md truncate transition-all ${linkText} ${linkHover}`}
+                      >
+                        {hackathon.title}
+                      </NavLink>
+                    </li>
+                  ))
+                )}
               </ul>
             )}
           </div>

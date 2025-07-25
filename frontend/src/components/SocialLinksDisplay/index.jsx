@@ -30,28 +30,36 @@ const cleanDisplayValue = (type, value) => {
   }
 };
 
-
-
-function SocialLinkDisplay({ type, value, label }) {
+function SocialLinkDisplay({ type, value, label, isMissing }) {
   const Icon = iconMap[type];
   const isEmail = type === "email";
   const href = isEmail ? `mailto:${value}` : value;
-  const displayValue = cleanDisplayValue(type, value);
+  const displayValue = isMissing ? value : cleanDisplayValue(type, value);
 
   return (
     <div className="w-full">
       {label && (
         <p className="text-xs text-muted-foreground mb-1 ml-1">{label}</p>
       )}
-      <a
-        href={href}
-        target={isEmail ? "_self" : "_blank"}
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 rounded transition text-sm text-white break-all group"
-      >
-        <Icon className="w-4 h-4 text-base-content shrink-0" />
-        <span className="group-hover:underline select-text">{displayValue}</span>
-      </a>
+
+      {isMissing ? (
+        <div className="flex items-center gap-2 rounded text-sm text-muted-foreground italic">
+          <Icon className="w-4 h-4 shrink-0" />
+          <span>{displayValue}</span>
+        </div>
+      ) : (
+        <a
+          href={href}
+          target={isEmail ? "_self" : "_blank"}
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded transition text-sm text-base-content break-all group"
+        >
+          <Icon className="w-4 h-4 text-base-content shrink-0" />
+          <span className="group-hover:underline select-text">
+            {displayValue}
+          </span>
+        </a>
+      )}
     </div>
   );
 }

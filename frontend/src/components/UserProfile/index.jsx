@@ -138,16 +138,28 @@ function UserProfileComponent() {
         </h3>
 
         <div className="flex flex-col gap-4 w-full">
-          <SocialLinkDisplay type="email" value={user.email} />
-          {user.website_url && (
-            <SocialLinkDisplay type="website" value={user.website_url} />
-          )}
-          {user.github_url && (
-            <SocialLinkDisplay type="github" value={user.github_url} />
-          )}
-          {user.linkedin_url && (
-            <SocialLinkDisplay type="linkedin" value={user.linkedin_url} />
-          )}
+          <SocialLinkDisplay
+            type="email"
+            value={user.email || "Aún no has agregado tu correo electrónico"}
+            isMissing={!user.email}
+          />
+          <SocialLinkDisplay
+            type="website"
+            value={user.website_url || "Aún no has agregado tu sitio web"}
+            isMissing={!user.website_url}
+          />
+          <SocialLinkDisplay
+            type="github"
+            value={user.github_url || "Aún no has agregado tu cuenta de GitHub"}
+            isMissing={!user.github_url}
+          />
+          <SocialLinkDisplay
+            type="linkedin"
+            value={
+              user.linkedin_url || "Aún no has agregado tu perfil de LinkedIn"
+            }
+            isMissing={!user.linkedin_url}
+          />
         </div>
       </div>
 

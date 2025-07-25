@@ -291,3 +291,20 @@ export const HandleInvitation= async (userToken, requestID, action)=>{
     throw new Error("Error al buscar equipo:", error);
   }
 }
+
+//Obtener Hackathons de Usuario logueado
+export const getMyHackathons = async (token) => {
+  try {
+    const res = await fetch(`${API_URL}/users/my-hackathons`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error fetching my hackathons", err);
+    return null;
+  }
+};
