@@ -70,7 +70,7 @@ const LoginFormComponent = () => {
         }}
       />
 
-      <div className="flex items-center">
+      <div className="flex items-center mt-3">
         <CheckboxComponent
           label="Recuérdame"
           name="rememberMe"

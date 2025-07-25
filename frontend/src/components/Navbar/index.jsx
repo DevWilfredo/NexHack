@@ -17,7 +17,7 @@ import {
 const links = [
   { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
   { icon: CircleUserRound, text: "Perfil", to: "/profile" },
-  { icon: Trophy, text: "Leaderboard", to: "/" },
+  { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
   { icon: Mails, text: "Solicitudes", to: "/" },
 ];
 
