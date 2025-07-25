@@ -6,23 +6,18 @@ import { useTheme } from "../../context/ThemeContext";
 const UserToListcomponent = ({
   index,
   us,
-  viewport = "addMember",
+  viewport = "invitacion",
   HandleInvitation,
   HandleAccept,
+  HandleCancelInvitation,
 }) => {
   const { isDark } = useTheme();
   return (
     <div
       key={index}
-      className={` card card-xs rounded-box p-3 mb-3 w-140 ${
-        index % 2 === 0
-          ? "shadow-md border-primary border-1 shadow-primary"
-          : "shadow-md border-accent border-1 shadow-accent"
-      } ${
-        isDark
-          ? "hover:bg-accent hover:scale-103 transition-all"
-          : "hover:bg-primary hover:scale-103 transition-all"
-      }`}
+      className={` card card-xs bg-base-200 rounded-box p-3 mb-3 w-140         
+           shadow-md border-primary border-1 shadow-primary   
+           hover:bg-primary hover:scale-103 transition-all`}
     >
       <div className="flex justify-between ">
         <div className="flex items-center space-x-4">
@@ -71,6 +66,14 @@ const UserToListcomponent = ({
                 <X />
               </button>
             </>
+          )}
+          {viewport === "invitacion" && HandleCancelInvitation && (
+            <button
+              className="btn btn-sm btn-ghost hover:text-error hover:bg-transparent hover:border-transparent hover:shadow-none"
+              onClick={HandleCancelInvitation}
+            >
+              <X />
+            </button>
           )}
         </div>
       </div>

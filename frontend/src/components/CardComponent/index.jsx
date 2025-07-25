@@ -14,7 +14,7 @@ const CardComponent = ({ userArray }) => {
         <figure>
           <img
             src={
-              userArray.profile_picture?.profile_picture
+              userArray.profile_picture
                 ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
                     userArray.profile_picture
                   }`
@@ -23,7 +23,7 @@ const CardComponent = ({ userArray }) => {
                   }`
             }
             alt="Movie"
-            className="w-50 h-full"
+            className="w-50 h-70 object-cover"
           />
         </figure>
         <div className="card-body  bg-base-300">

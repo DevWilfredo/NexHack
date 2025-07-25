@@ -138,4 +138,6 @@ with app.app_context():
         db.session.add(hackathon)
     db.session.commit()
 
+    
+
     print("✅ Base de datos poblada con usuarios, notificaciones y hackathones.")

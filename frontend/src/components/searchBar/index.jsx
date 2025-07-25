@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDebounce } from "react-use";
 import { UserSearch } from "lucide-react";
 
-const SearchBar = ({ onSearch, placeholder = "Buscar..." }) => {
+const SearchBar = ({ onSearch, placeholder = "Buscar...", spacing }) => {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
@@ -28,8 +28,8 @@ const SearchBar = ({ onSearch, placeholder = "Buscar..." }) => {
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="input bg-base-300  w-full focus:scale-105
-         transition-all bordered-none"
+        className={`input input-${spacing} bg-base-300  w-full focus:scale-105
+         transition-all bordered-none"`}
       />
     </div>
   );
