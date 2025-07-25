@@ -2,10 +2,15 @@ import { NavLink } from "react-router";
 import { useTheme } from "../../context/ThemeContext";
 import { Trophy } from "lucide-react";
 
-const CardComponent = ({ userArray }) => {
+const CardComponent = ({ userArray, sizeToview = "" }) => {
   const { isDark } = useTheme();
+  const isSmall = sizeToview?.trim().toLowerCase() === "small";
+
   return (
-    <div key={userArray.id} className="carousel-item w-1/2">
+    <div
+      key={userArray.id}
+      className={`carousel-item ${isSmall ? "w-70" : "w-1/2"}`}
+    >
       <div
         className={`card card-side bg-base-200 shadow-xl/20 ${
           isDark ? "shadow-accent" : "shadow-primary"
@@ -23,7 +28,7 @@ const CardComponent = ({ userArray }) => {
                   }`
             }
             alt="Movie"
-            className="w-50 h-70 object-cover"
+            className={` ${isSmall ? "w-30" : "w-70"} object-cover`}
           />
         </figure>
         <div className="card-body  bg-base-300">

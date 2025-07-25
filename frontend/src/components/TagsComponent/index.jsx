@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import DynamicIcon from "../DynamicIcon";
 import { useTheme } from "@context/ThemeContext";
 
-const TagsComponent = ({ tags, activeTagId, setActiveTagId }) => {
+const TagsComponent = ({ tags, activeTagId, setActiveTagId, extraClasses }) => {
   const { isDark } = useTheme();
   const [expanded, setExpanded] = useState(false);
 
@@ -13,7 +13,7 @@ const TagsComponent = ({ tags, activeTagId, setActiveTagId }) => {
 
   const pillBase = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer`;
   const lightPill = `bg-white border-base-300 text-base-content`;
-  const darkPill = `bg-slate-900/80 border-slate-700 text-white`;
+  const darkPill = `bg-base-200 border-slate-700 text-white`;
   const activePill = isDark
     ? "bg-accent text-white border-primary"
     : "bg-primary text-white border-primary";
@@ -24,9 +24,8 @@ const TagsComponent = ({ tags, activeTagId, setActiveTagId }) => {
 
   return (
     <div
-      className={`w-full py-4 space-y-4 ${
-        isDark ? "bg-slate-900/80 rounded-xl border border-info/20" : ""
-      } `}
+      className={`w-full py-4 space-y-4  ${extraClasses} rounded-xl
+       `}
     >
       {/* Tag pills */}
       <div className="flex flex-wrap gap-3 justify-center ">
