@@ -12,6 +12,7 @@ import HackathonsPage from "./pages/Hackathons";
 import TeamsPage from "./pages/Teams";
 import { Toaster } from "react-hot-toast";
 import RegisterPage from "./pages/Register";
+import LeaderboardPage from "./pages/LeaderboardPage/index.";
 
 const App = () => {
   return (
@@ -63,6 +64,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <HackathonsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <PrivateRoute>
+                <LeaderboardPage />
               </PrivateRoute>
             }
           />

@@ -1,69 +1,83 @@
-// ModalUserUpdateComponent.jsx
-
-import { updateUserProfile } from "@services"; // Asegúrate de que el alias o path sea correcto
-import { useState, useEffect } from "react";
+import { updateUserProfile } from "@services";
+import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import InputComponent from "@components/InputComponent";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useTheme } from "@context/ThemeContext";
 
 const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
   const { userToken, user } = useAuth();
-  const [newdata, setNewData] = useState({ ...user });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [emailError, setEmailError] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const { isDark } = useTheme();
-  //validacion con regex ya que daisyUI no tiene uno interno
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
 
-  const handleEmailBlur = () => {
-    setEmailError(!validateEmail(newdata.email));
-  };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      avatarFile: null,
+      bio: "",
+      website_url: "",
+      github_url: "",
+      linkedin_url: "",
+    },
+  });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewData((prev) => ({ ...prev, [name]: value }));
-  };
+  const onSubmit = async (formData) => {
+  const toastId = toast.loading("Actualizando perfil...");
+
+  try {
+    const updatedUser = await updateUserProfile(user.id, formData, userToken);
+    toast.success("Perfil actualizado correctamente", { id: toastId });
+    onUpdate(updatedUser);
+    onClose();
+  } catch (err) {
+    toast.error(err.message || "Error al actualizar", { id: toastId });
+  }
+};
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNewData((prev) => ({ ...prev, avatarFile: file }));
-    }
-  };
+  const file = e.target.files?.[0];
+  if (file) {
+    setValue("avatarFile", file);
+    setPreviewImage(URL.createObjectURL(file));
+    toast.success("Imagen cargada correctamente");
+  }
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const updatedUser = await updateUserProfile(user.id, newdata, userToken);
-      console.log(updatedUser);
-      onUpdate(updatedUser); // Actualiza el padre con la respuesta del backend
-    } catch (err) {
-      setError(err.message || "Error actualizando usuario");
-    } finally {
-      setLoading(false);
-      onClose(); // Cierra el modal pase lo que pase
-    }
-  };
 
   const handleCancel = () => {
-    setNewData({ ...user });
-    onClose();
-  };
+  reset();
+  setPreviewImage(null); // limpiar preview
+  onClose();
+};
 
   useEffect(() => {
-    const modal = document.getElementById("edit_user_modal");
-    if (showModal && user) {
-      setNewData({ ...user });
-      modal?.showModal();
-    } else {
-      modal?.close();
-    }
-  }, [showModal, user]);
+  const modal = document.getElementById("edit_user_modal");
+  if (showModal && user) {
+    reset({
+      firstname: user.firstname || "",
+      lastname: user.lastname || "",
+      email: user.email || "",
+      avatarFile: null,
+      bio: user.bio || "",
+      website_url: user.website_url || "",
+      github_url: user.github_url || "",
+      linkedin_url: user.linkedin_url || "",
+    });
+    setPreviewImage(null); // limpiar preview al abrir
+    modal?.showModal();
+  } else {
+    modal?.close();
+  }
+}, [showModal, user, reset]);
 
   return (
     <dialog id="edit_user_modal" className="modal">
@@ -73,25 +87,22 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
         } border border-info/1`}
       >
         <h3 className="font-bold text-lg">Editar perfil de usuario</h3>
-        {error && <p className="text-error text-sm">{error}</p>}
-        <form method="dialog" onSubmit={handleSubmit}>
+
+        <form method="dialog" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-5 mt-4">
-            {/* Avatar + botón */}
+            {/* Avatar */}
             <div className="flex flex-col items-center gap-2">
               <img
-                src={
-                  newdata.profile_picture
-                    ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
-                        newdata.profile_picture
-                      }`
-                    : `https://placehold.co/400x400?text=${
-                        newdata.firstname?.charAt(0)?.toUpperCase() || "U"
-                      }`
-                }
-                alt="Avatar"
-                className="w-32 h-32 rounded-full object-cover"
-              />
-              <label className="btn btn-sm btn-accent" htmlFor="profile-pic">
+  src={
+    previewImage ||
+    (user?.profile_picture
+      ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${user.profile_picture}`
+      : `https://placehold.co/400x400?text=${user?.firstname?.charAt(0)?.toUpperCase() || "U"}`)
+  }
+  alt="Avatar"
+  className="w-32 h-32 rounded-full object-cover"
+/>
+              <label className={`btn btn-sm p-2 ${isDark ? 'btn-accent' : 'btn-primary'}`} htmlFor="profile-pic">
                 Cambiar foto de perfil
               </label>
               <input
@@ -102,44 +113,64 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
               />
             </div>
 
-            {/* Inputs */}
-            <div className="flex flex-col gap-4 w-full">
-              <label>First Name</label>
-              <input
-                type="text"
+            {/* Form Inputs */}
+            <div className="flex flex-col gap-2 w-full">
+              <InputComponent
+                label="Nombre"
                 name="firstname"
                 placeholder="Nombre"
-                className="input input-bordered"
-                value={newdata.firstname || ""}
-                onChange={handleInputChange}
+                register={register}
+                error={errors.firstname}
               />
-              <label>Last Name</label>
-              <input
-                type="text"
+              <InputComponent
+                label="Apellido"
                 name="lastname"
                 placeholder="Apellido"
-                className="input input-bordered"
-                value={newdata.lastname || ""}
-                onChange={handleInputChange}
+                register={register}
+                error={errors.lastname}
               />
-              <label>Email</label>
-              <input
-                type="email"
+              <InputComponent
+                label="Bio"
+                name="bio"
+                placeholder="Escribe algo sobre ti..."
+                register={register}
+                error={errors.bio}
+              />
+              <InputComponent
+                label="Sitio Web"
+                name="website_url"
+                placeholder="www.ejemplo.com"
+                register={register}
+                error={errors.website_url}
+              />
+              <InputComponent
+                label="Github"
+                name="github_url"
+                placeholder="https://github.com/usuario"
+                register={register}
+                error={errors.github_url}
+              />
+              <InputComponent
+                label="Linkedin"
+                name="linkedin_url"
+                placeholder="https://linkedin.com/in/usuario"
+                register={register}
+                error={errors.linkedin_url}
+              />
+              <InputComponent
+                label="Correo"
                 name="email"
+                type="email"
                 placeholder="Correo"
-                className={`input input-bordered mb-0 pb-0 ${
-                  emailError ? "border-red-500" : "border-success"
-                }`}
-                value={newdata.email || ""}
-                onChange={handleInputChange}
-                onBlur={handleEmailBlur}
-                required
+                register={register}
+                error={errors.email}
+                rules={{
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "El correo no es válido",
+                  },
+                }}
               />
-              {emailError && (
-                <p className="text-red-500 text-sm mt-0 pt-0">
-                  El correo no es válido
-                </p>
-              )}
             </div>
           </div>
 
@@ -147,9 +178,9 @@ const ModalUserUpdateComponent = ({ showModal, onClose, onUpdate }) => {
           <div className="modal-action">
             <button
               type="submit"
-              className={`btn btn-success ${loading ? "btn-disabled" : ""}`}
+              className={`btn ${isDark ? 'btn-accent' : 'btn-primary'} ${isSubmitting ? "btn-disabled" : ""}`}
             >
-              {loading ? "Guardando..." : "Guardar cambios"}
+              {isSubmitting ? "Guardando..." : "Guardar cambios"}
             </button>
             <button type="button" className="btn" onClick={handleCancel}>
               Cancelar

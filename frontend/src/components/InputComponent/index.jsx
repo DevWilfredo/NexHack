@@ -11,7 +11,7 @@ const InputComponent = ({
   rules = {},
 }) => {
   return (
-    <div className="form-control mb-4">
+    <div className="form-control">
       <label className="label text-base-content mb-4">
         <span className="label-text">{label}</span>
       </label>
