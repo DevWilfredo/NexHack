@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getUsers, getMyHackathons } from "@services"; // ajusta la ruta si hace falta
-import { useAuth } from "./AuthContext"; // si usas auth para el token
+import {
+  getUsers,
+  getMyHackathons,
+  fetchUserRequests,
+  HandleInvitation,
+} from "@services";
+import { useAuth } from "./AuthContext";
 
 const AppContext = createContext();
 
@@ -11,7 +16,10 @@ export const AppProvider = ({ children }) => {
   const [myHackathons, setMyHackathons] = useState([]);
   const [loadingHackathons, setLoadingHackathons] = useState(false);
 
-  const { userToken } = useAuth(); 
+  const [requests, setRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
+  const { userToken } = useAuth();
 
   const fetchUsers = async () => {
     if (!userToken) return;
@@ -29,9 +37,31 @@ export const AppProvider = ({ children }) => {
     setLoadingHackathons(false);
   };
 
+  const fetchRequests = async () => {
+    if (!userToken) return;
+    setLoadingRequests(true);
+    const data = await fetchUserRequests(userToken);
+    if (data) setRequests(data);
+    console.log("Requests fetched:", data);
+    setLoadingRequests(false);
+  };
+
+  const handleInvitation = async (requestID, action) => {
+    if (!userToken) return;
+    try {
+      const result = await HandleInvitation(userToken, requestID, action);
+      await fetchRequests(); 
+      return result;
+    } catch (error) {
+      console.error("Error al manejar invitación:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchMyHackathons();
+    fetchRequests();
   }, [userToken]);
 
   return (
@@ -44,6 +74,10 @@ export const AppProvider = ({ children }) => {
         myHackathons,
         fetchMyHackathons,
         loadingHackathons,
+        requests,
+        fetchRequests,
+        loadingRequests,
+        handleInvitation
       }}
     >
       {children}

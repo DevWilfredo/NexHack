@@ -1,28 +1,6 @@
-import { Trophy, Activity, Users } from "lucide-react";
 import { useTheme } from "@context/ThemeContext";
 
-const cardData = [
-  {
-    icon: Trophy,
-    title: "Estás en el puesto #3",
-    description: "Ranking general del hackathon",
-    buttonText: "Ver clasificación entera",
-  },
-  {
-    icon: Activity,
-    title: "Actividad reciente",
-    description: "Tu equipo subió un nuevo commit hace 2 horas",
-    buttonText: "Ver historial",
-  },
-  {
-    icon: Users,
-    title: "231 participantes",
-    description: "Aumentó un 8% esta semana",
-    buttonText: "Ver estadísticas",
-  },
-];
-
-const DashboardCards = () => {
+const DashboardCards = ({cardData}) => {
   const { isDark } = useTheme();
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

@@ -13,6 +13,7 @@ import TeamsPage from "./pages/Teams";
 import { Toaster } from "react-hot-toast";
 import RegisterPage from "./pages/Register";
 import LeaderboardPage from "./pages/LeaderboardPage/index.";
+import RequestsPage from "./pages/Requests";
 
 const App = () => {
   return (
@@ -72,6 +73,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <LeaderboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <PrivateRoute>
+                <RequestsPage />
               </PrivateRoute>
             }
           />

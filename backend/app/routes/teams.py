@@ -61,7 +61,7 @@ def request_to_join_team(team_id):
 
         team_request = TeamRequest(
             team_id=team_id,
-            user_id=user_id,
+            user_id=team.creator_id,
             requested_by_id=user_id,
             type='application',
             status='pending'
@@ -127,6 +127,12 @@ def handle_team_request(request_id):
 
         team_request = TeamRequest.query.get_or_404(request_id)
         team = Team.query.get_or_404(team_request.team_id)
+        # Paso 1: determinar quién es el "target", la persona que quiere unirse
+        if team_request.type == "invitation":
+            target_user_id = team_request.user_id
+        else:  # entonces es una solicitud que te hicieron a ti
+            target_user_id = team_request.requested_by_id
+
 
         # Validar permisos
         if team_request.type == 'application':
@@ -147,14 +153,12 @@ def handle_team_request(request_id):
             return jsonify({'message': 'Solicitud/invitación rechazada.'}), 200
 
         # Si es accept, verificar que el usuario no esté ya en un equipo del hackathon
-        existing_member = TeamMember.query.filter_by(user_id=team_request.user_id, hackathon_id=team.hackathon_id).first()
+        existing_member = TeamMember.query.filter_by(user_id=target_user_id, hackathon_id=team.hackathon_id).first()
         if existing_member:
-            team_request.status = 'rejected'
-            db.session.commit()
             return jsonify({'error': 'El usuario ya es miembro de un equipo en este hackathon.'}), 400
 
         # Aceptar: crear TeamMember
-        new_member = TeamMember(user_id=team_request.user_id, team_id=team.id, hackathon_id=team.hackathon_id)
+        new_member = TeamMember(user_id=target_user_id, team_id=team.id, hackathon_id=team.hackathon_id)
         db.session.add(new_member)
         team_request.status = 'accepted'
         db.session.commit()
