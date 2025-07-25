@@ -12,60 +12,7 @@ const HackatonsComponent = ({ hackathonId }) => {
   const [hackathon, setHackathon] = useState(null);
   const { user, userToken } = useAuth();
   const [equipos, setEquipos] = useState([]);
-  const judgesFiller = [
-    {
-      bio: null,
-      email: "asd@asd.com",
-      firstname: "Victor",
-      github_url: null,
-      id: 53,
-      lastname: "Hernandez",
-      linkedin_url: null,
-      notifications: [],
-      profile_picture: null,
-      role: "user",
-      website_url: null,
-    },
-    {
-      bio: null,
-      email: "asd@asd.com",
-      firstname: "Alfredo",
-      github_url: null,
-      id: 52,
-      lastname: "Palacios",
-      linkedin_url: null,
-      notifications: [],
-      profile_picture: null,
-      role: "user",
-      website_url: null,
-    },
-    {
-      bio: null,
-      email: "asd@asd.com",
-      firstname: "Luis",
-      github_url: null,
-      id: 51,
-      lastname: "Gomez",
-      linkedin_url: null,
-      notifications: [],
-      profile_picture: null,
-      role: "user",
-      website_url: null,
-    },
-    {
-      bio: null,
-      email: "asd@asd.com",
-      firstname: "Victoria",
-      github_url: null,
-      id: 54,
-      lastname: "Rodriguez",
-      linkedin_url: null,
-      notifications: [],
-      profile_picture: null,
-      role: "user",
-      website_url: null,
-    },
-  ];
+
   useEffect(() => {
     if (!hackathonId || !userToken) return;
 
@@ -145,11 +92,15 @@ const HackatonsComponent = ({ hackathonId }) => {
 
             <div className="bg-base-300 text-neutral-content p-5 card">
               <h2 className="text-2xl font-semibold mb-4">Jurados</h2>
-              <CardCarousel
-                usersArray={judgesFiller}
-                cardsPerSlide={1}
-                viewport="small"
-              />
+              {hackathon.judges.length > 0 ? (
+                <CardCarousel
+                  usersArray={judgesFiller}
+                  cardsPerSlide={1}
+                  viewport="small"
+                />
+              ) : (
+                <h2>No hay jurados aun!</h2>
+              )}
             </div>
           </div>
         </div>
