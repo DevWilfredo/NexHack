@@ -90,9 +90,9 @@ function UserProfileComponent() {
   );
 
   return (
-    <div className="flex flex-wrap gap-8 justify-center p-6">
+    <div className="flex flex-wrap gap-8 p-6">
       {/* Profile section */}
-      <div className="w-full md:w-auto flex flex-col items-center gap-4 bg-base-200 p-6 rounded-lg shadow-lg ">
+      <div className="w-full md:w-72 flex flex-col items-center gap-4 bg-base-200 p-6 rounded-lg shadow-lg ">
         <img
           src={
             user.profile_picture
@@ -125,10 +125,10 @@ function UserProfileComponent() {
 
         <div className="mt-4 flex gap-6">
           <span className="flex items-center gap-1 text-sm text-base-content">
-            <Trophy className="text-yellow-400" /> 4086 Points
+            <Trophy className="text-yellow-400" /> {user.points || 0} Points
           </span>
           <span className="flex items-center gap-1 text-sm text-base-content">
-            <ThumbsUp className="text-success" /> 275 Likes
+            <ThumbsUp className="text-success" /> {user.likes || 0} Likes
           </span>
         </div>
 
@@ -152,13 +152,13 @@ function UserProfileComponent() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 max-w-4xl space-y-6">
+      <div className="flex-1 max-w-full space-y-6">
         <div className="flex flex-wrap gap-4 border-b pb-2">
           {tabs.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               className={`btn btn-ghost btn-sm flex items-center gap-1 ${
-                activeTab === key ? "btn-active btn-accent" : ""
+                activeTab === key ? "btn-active btn-primary" : ""
               }`}
               onClick={() => setActiveTab(key)}
             >

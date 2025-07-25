@@ -103,13 +103,13 @@ function LeaderboardPage() {
 
               <div className="flex-1">
                 <h2 className="text-lg font-semibold">{user.firstname} {user.lastname}</h2>
-                <p className="text-sm text-gray-400">{user.bio || "Sin bio"}</p>
+                <p className="text-sm text-base-content">{user.bio || "Sin bio"}</p>
               </div>
 
               <div className="text-right">
                 <span className="text-xl font-bold">{user.points || 0} pts</span>
                 <br />
-                <a href={`/profile/${user.username}`} className="btn btn-sm btn-accent mt-3">
+                <a href={`/profile/${user.username}`} className="btn btn-sm btn-primary mt-3">
                   Ver perfil
                 </a>
               </div>
