@@ -262,6 +262,7 @@ export const SendRequest = async (userToken, teamId)=>{
       },
     });
     const data = await response.json();
+    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
@@ -283,7 +284,7 @@ export const HandleInvitation= async (userToken, requestID, action)=>{
       }),
     });
     const data = await response.json();
-    console.log(data.requested_by);
+    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
