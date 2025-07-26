@@ -28,11 +28,11 @@ export function isInHackathon(hackathonData, user) {
 
 
 //  ✅ Función para cancelar invitaciones
-export function HandleCancelInvitation(userToken, hackathonId, teamId, setTeamData) {
+export function HandleCancelInvitation(userToken, refreshTeamData) {
   return async (requestId) => {
     await DeleteInvitation(userToken, requestId);
+    refreshTeamData();
 
-    refreshTeamData(hackathonId, teamId, userToken, setTeamData)();
   };
 }
 
@@ -61,7 +61,8 @@ export async function DeleteInvitation(userToken, requestID) {
 export function JoinTeam(userToken, teamId, setDisabledButton) {
   return () => {
     SendRequest(userToken, teamId)
-      .then(() => {
+      .then((data) => {
+        console.log(data)
         toast.success("Solicitud enviada");
         setDisabledButton((prev) => ({
           ...prev,
