@@ -94,7 +94,7 @@ const HackatonsComponent = ({ hackathonId }) => {
               <h2 className="text-2xl font-semibold mb-4">Jurados</h2>
               {hackathon.judges.length > 0 ? (
                 <CardCarousel
-                  usersArray={judgesFiller}
+                  usersArray={hackathon.judges}
                   cardsPerSlide={1}
                   viewport="small"
                 />

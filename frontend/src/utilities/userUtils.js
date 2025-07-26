@@ -1,29 +1,30 @@
 import { getTeamByHackathon, SendRequest, HandleInvitation } from "../services";
+import { useApp } from "@context/AppContext";
 import toast from "react-hot-toast"; 
 
 // ✅ Función para aceptar o rechazar solicitudes o invitaciones
 export function AcceptorReject(userToken, refreshTeamData) {
   return (action, requestID) => {
     HandleInvitation(userToken, requestID, action)
-      .then(() => {
-        refreshTeamData();
-        if (action.trim().toLowerCase() === "accept") {
-          toast.success("Invitación aceptada");
-        } else {
-          toast.error("Invitación rechazada");
-        }
-      })
-      .catch((error) => {
-        toast.error("Error al procesar la solicitud");
-        console.error("Error en AcceptorReject:", error);
-      });
+    .then(() => {
+      refreshTeamData();
+      if (action.trim().toLowerCase() === "accept") {
+        toast.success("Invitación aceptada");
+      } else {
+        toast.error("Invitación rechazada");
+      }
+    })
+    .catch((error) => {
+      toast.error("Error al procesar la solicitud");
+      console.error("Error en AcceptorReject:", error);
+    });
   };
 }
 // ✅ verifica si ya participa en el hackathon
 export function isInHackathon(hackathonData, user) {
   
   return hackathonData.teams.some((teams) => teams.members.some((member) => member.user.id === user.id)
-  );
+);
 }
 
 
@@ -32,7 +33,7 @@ export function HandleCancelInvitation(userToken, refreshTeamData) {
   return async (requestId) => {
     await DeleteInvitation(userToken, requestId);
     refreshTeamData();
-
+    
   };
 }
 
@@ -59,10 +60,12 @@ export async function DeleteInvitation(userToken, requestID) {
 
 // ✅ Función para unirse a un equipo
 export function JoinTeam(userToken, teamId, setDisabledButton) {
+  const { fetchRequests } = useApp();
   return () => {
     SendRequest(userToken, teamId)
       .then((data) => {
         console.log(data)
+        fetchRequests()
         toast.success("Solicitud enviada");
         setDisabledButton((prev) => ({
           ...prev,
