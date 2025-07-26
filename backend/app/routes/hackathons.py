@@ -4,9 +4,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.hackathon import Hackathon, HackathonRule, Tag, HackathonJudge
 from app.models.user import User
+from app.models.team import Team, TeamMember
+from app.models.evaluation import TeamScore, HackathonWinner
 from app.schemas.hackathon_schema import HackathonCreateSchema, HackathonUpdateSchema
 from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 
 hackathon_bp = Blueprint('hackathons', __name__)
 
@@ -162,3 +165,133 @@ def add_hackathons_judges(hackathon_id):
         db.session.rollback()
         return jsonify({'error': 'Database error', 'details': str(e)}), 500
 
+
+@hackathon_bp.route('/evaluate', methods=['POST'])
+@jwt_required()
+def evaluate_team():
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+
+    data = request.get_json()
+    team_id = data.get('team_id')
+    hackathon_id = data.get('hackathon_id')
+    score = data.get('score')
+    feedback = data.get('feedback', None)
+
+    # Validaciones básicas
+    if not all([team_id, hackathon_id, score is not None]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # Verifica que el equipo y hackathon existan
+    team = Team.query.get(team_id)
+    hackathon = Hackathon.query.get(hackathon_id)
+    if not team or not hackathon:
+        return jsonify({'error': 'Team or Hackathon not found'}), 404
+
+    # Verifica que el usuario sea juez de ese hackathon
+    is_judge = HackathonJudge.query.filter_by(
+        hackathon_id=hackathon_id, judge_id=user_id
+    ).first()
+    if not is_judge:
+        return jsonify({'error': 'You are not a judge for this hackathon'}), 403
+
+    # Verifica que el juez no haya evaluado ya este equipo
+    existing_score = TeamScore.query.filter_by(
+        team_id=team_id,
+        judge_id=user_id,
+        hackathon_id=hackathon_id
+    ).first()
+
+    if existing_score:
+        return jsonify({'error': 'You already evaluated this team'}), 400
+
+    try:
+        new_score = TeamScore(
+            team_id=team_id,
+            judge_id=user_id,
+            hackathon_id=hackathon_id,
+            score=score,
+            feedback=feedback
+        )
+        db.session.add(new_score)
+        db.session.commit()
+
+        return jsonify({'message': 'Evaluation submitted successfully', 'evaluation': new_score.to_dict()}), 201
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({'error': 'Database error', 'details': str(e)}), 500
+    
+@hackathon_bp.route('/<int:hackathon_id>/finalize', methods=['POST'])
+@jwt_required()
+def finalize_hackathon(hackathon_id):
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    hackathon = Hackathon.query.get_or_404(hackathon_id)
+
+    if user.id != hackathon.creator_id:
+        return jsonify({'error': 'Only the hackathon creator can finalize it'}), 403
+
+    if hackathon.status == "finished":
+        return jsonify({'message': 'Hackathon already finalized'}), 400
+
+    try:
+
+        # Obtener promedio de puntuación por equipo
+        avg_scores = db.session.query(
+            TeamScore.team_id,
+            func.avg(TeamScore.score).label("avg_score")
+        ).filter_by(hackathon_id=hackathon_id).group_by(TeamScore.team_id).order_by(
+            func.avg(TeamScore.score).desc()
+        ).all()
+
+        position_points = {1: 100, 2: 50, 3: 25}
+        winners = []
+
+        for index, (team_id, avg_score) in enumerate(avg_scores, start=1):
+            points_awarded = position_points.get(index, 0)
+
+            winner = HackathonWinner(
+                hackathon_id=hackathon_id,
+                team_id=team_id,
+                position=index,
+                points_awarded=points_awarded
+            )
+            db.session.add(winner)
+            winners.append(winner)
+
+            # Sumar puntos a los miembros solo si el equipo está en el Top 3
+            if points_awarded > 0:
+                members = TeamMember.query.filter_by(team_id=team_id).all()
+                for member in members:
+                    member_user = User.query.get(member.user_id)
+                    member_user.points += points_awarded
+
+        # Equipos que no recibieron ninguna evaluación
+        scored_team_ids = [team_id for team_id, _ in avg_scores]
+        all_teams = Team.query.filter_by(hackathon_id=hackathon_id).all()
+        remaining_teams = [team for team in all_teams if team.id not in scored_team_ids]
+
+        last_position = len(avg_scores)
+        for team in remaining_teams:
+            last_position += 1
+            winner = HackathonWinner(
+                hackathon_id=hackathon_id,
+                team_id=team.id,
+                position=last_position,
+                points_awarded=0
+            )
+            db.session.add(winner)
+
+        # Marcar hackathon como finalizado
+        hackathon.status = "finished"
+        db.session.commit()
+
+        return jsonify({
+            "message": "Hackathon finalized, winners saved, and points awarded",
+            "winners": [w.to_dict() for w in HackathonWinner.query.filter_by(hackathon_id=hackathon_id).order_by(HackathonWinner.position).all()]
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

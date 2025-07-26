@@ -19,7 +19,6 @@ class Hackathon(db.Model):
     # Relaciones
     rules = db.relationship("HackathonRule", backref="hackathon", cascade="all, delete-orphan")
     tags = db.relationship("Tag", secondary="hackathon_tags", backref="hackathons")
-    voting_criteria = db.relationship("VotingCriteria", backref="hackathon", cascade="all, delete-orphan")
     
 
     def to_dict(self):
@@ -49,9 +48,6 @@ class Hackathon(db.Model):
 
     def get_members(self):
         return [member.to_dict() for member in self.team_members]
-
-    def get_criteria(self):
-        return [c.to_dict() for c in self.voting_criteria]
 
 
     def add_tag(self, tag):

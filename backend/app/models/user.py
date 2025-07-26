@@ -15,16 +15,16 @@ class User(db.Model):
     github_url = db.Column(db.String(255), nullable=True)
     website_url = db.Column(db.String(255), nullable=True)
     linkedin_url = db.Column(db.String(255), nullable=True)
+    points = db.Column(db.Integer, default=0)  # 🔥 Campo nuevo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
-    
+
     def isModerator(self):
         return self.role == 'moderator'
 
@@ -34,11 +34,15 @@ class User(db.Model):
             "firstname": self.firstname,
             "lastname": self.lastname,
             "email": self.email,
-            "bio":self.bio,
+            "bio": self.bio,
             "role": self.role,
-            'profile_picture': self.profile_picture,
-            "github_url":self.github_url,
-            "linkedin_url":self.linkedin_url,
-            "website_url":self.website_url,
-            'notifications': [notification.to_dict() for notification in self.notifications]
+            "profile_picture": self.profile_picture,
+            "github_url": self.github_url,
+            "linkedin_url": self.linkedin_url,
+            "website_url": self.website_url,
+            "points": self.points, 
+            "notifications": [notification.to_dict() for notification in self.notifications]
         }
+    def add_points(self, points):
+        self.points += points
+        self.updated_at = datetime.utcnow()
