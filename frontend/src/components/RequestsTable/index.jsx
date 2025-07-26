@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "@context/ThemeContext";
 import { useApp } from "@context/AppContext";
+import { useAuth } from "@context/AuthContext";
 import { Search, UserCheck, UserX } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatoFecha } from "@utilities/dateUtils";
@@ -12,11 +13,18 @@ const RequestsTable = ({ requests = [] }) => {
   const itemsPerPage = 10;
   const { isDark } = useTheme();
   const { handleInvitation } = useApp();
+  const { user: authUser } = useAuth();
 
   const getRequestUserName = (request) => {
-    const user =
-      request.type === "invitation" ? request.user : request.requested_by;
-    return `${user.firstname} ${user.lastname}`;
+    const { user, requested_by } = request;
+
+    // Si yo envié la solicitud → mostrar el target (user)
+    if (requested_by.id === authUser.id) {
+      return `${user.firstname} ${user.lastname}`;
+    }
+
+    // Si yo soy el target → mostrar quién la envió (requested_by)
+    return `${requested_by.firstname} ${requested_by.lastname}`;
   };
 
   const filteredRequests = requests.filter(
@@ -32,17 +40,12 @@ const RequestsTable = ({ requests = [] }) => {
   );
 
   const handleAction = (request, action) => {
-    toast.promise(
-      handleInvitation(request.id, action),
-      {
-        loading: action === "accept" ? "Aceptando..." : "Rechazando...",
-        success:
-          action === "accept"
-            ? "Solicitud aceptada"
-            : "Solicitud rechazada",
-        error: "Error al procesar la solicitud",
-      }
-    );
+    toast.promise(handleInvitation(request.id, action), {
+      loading: action === "accept" ? "Aceptando..." : "Rechazando...",
+      success:
+        action === "accept" ? "Solicitud aceptada" : "Solicitud rechazada",
+      error: "Error al procesar la solicitud",
+    });
   };
 
   return (
@@ -101,7 +104,9 @@ const RequestsTable = ({ requests = [] }) => {
                       {getRequestUserName(request)}
                     </td>
                     <td className="px-4 py-3 text-sm capitalize">
-                      {request.type}
+                      {request.type === "invitation"
+                        ? "Invitación"
+                        : "Solicitud"}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {formatoFecha(request.created_at)}
@@ -120,7 +125,8 @@ const RequestsTable = ({ requests = [] }) => {
                       </span>
                     </td>
                     <td className="px-4 py-3 flex gap-2">
-                      {request.type === "invitation" ? (
+                      {authUser.id === request.requested_by.id ? (
+                        // Yo envié la solicitud → puedo cancelarla
                         <button
                           className="btn btn-sm btn-error text-white"
                           onClick={() => handleAction(request, "reject")}
@@ -130,6 +136,7 @@ const RequestsTable = ({ requests = [] }) => {
                           Cancelar
                         </button>
                       ) : (
+                        // Yo soy el target → puedo aceptar o rechazar
                         <>
                           <button
                             className="btn btn-sm btn-success"

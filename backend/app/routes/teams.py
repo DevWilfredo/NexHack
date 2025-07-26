@@ -139,9 +139,13 @@ def handle_team_request(request_id):
 
         # Validar permisos
         if team_request.type == 'application':
-            # Solo el creador del equipo puede aceptar/rechazar
-            if team.creator_id != int(user_id):
-                return jsonify({'error': 'Solo el creador del equipo puede gestionar esta solicitud.'}), 403
+            if action == 'reject':
+                # Si quien está rechazando es el mismo que envió la solicitud, lo dejamos (cancelación)
+                if team_request.requested_by_id != int(user_id) and team.creator_id != int(user_id):
+                    return jsonify({'error': 'Solo el creador del equipo o el solicitante pueden rechazar la solicitud.'}), 403
+            else:  # action == 'accept'
+                if team.creator_id != int(user_id):
+                    return jsonify({'error': 'Solo el creador del equipo puede aceptar esta solicitud.'}), 403
         elif team_request.type == 'invitation':
             # Solo el usuario invitado puede aceptar/rechazar
             if team_request.user_id != int(user_id):
