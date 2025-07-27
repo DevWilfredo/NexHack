@@ -1,5 +1,5 @@
 import { Bell } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getUserNotifications, markNotificationAsRead } from "@services";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,18 +7,18 @@ const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const { userToken } = useAuth();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const data = await getUserNotifications(userToken);
       setNotifications(data);
     } catch (error) {
       console.error("Error al cargar notificaciones:", error);
     }
-  };
+  }, [userToken]);
 
     useEffect(() => {
-    fetchNotifications();
-  }, [userToken]);
+      fetchNotifications();
+  },  [fetchNotifications]);
 
   const handleMarkAsRead = async (id) => {
     try {
