@@ -45,7 +45,7 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
               }}
             />
           </div>
-          <CrearHackathonModal onHackathonCreated={() => {}} />
+          <CrearHackathonModal />
         </div>
 
       {/* Tabla */}

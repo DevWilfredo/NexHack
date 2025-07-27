@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app.models.user import User
 from app.models.team import TeamMember
-from app.models.hackathon import Hackathon
+from app.models.hackathon import Hackathon, HackathonJudge
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.schemas.user_schema import UserUpdateSchema
@@ -102,17 +102,57 @@ def get_my_hackathons():
     try:
         user_id = get_jwt_identity()
 
-        hackathon_ids = (
+        # Hackathons como participante
+        participant_ids = (
             db.session.query(TeamMember.hackathon_id)
             .filter(TeamMember.user_id == user_id)
             .distinct()
             .all()
         )
-        hackathon_ids = [h[0] for h in hackathon_ids]
+        participant_ids = [h[0] for h in participant_ids]
 
-        hackathons = Hackathon.query.filter(Hackathon.id.in_(hackathon_ids)).all()
+        # Hackathons como juez
+        judge_ids = (
+            db.session.query(HackathonJudge.hackathon_id)
+            .filter(HackathonJudge.judge_id == user_id)
+            .distinct()
+            .all()
+        )
+        judge_ids = [h[0] for h in judge_ids]
 
-        return jsonify([h.to_dict() for h in hackathons]), 200
+        # Hackathons como creador
+        creator_hackathons = Hackathon.query.filter(Hackathon.creator_id == user_id).all()
+
+        # Un set para evitar duplicados
+        seen = set()
+        result = []
+
+        # Agregar como creador
+        for h in creator_hackathons:
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "creator"
+                result.append(data)
+                seen.add(h.id)
+
+        # Agregar como juez
+        for h in Hackathon.query.filter(Hackathon.id.in_(judge_ids)).all():
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "judge"
+                result.append(data)
+                seen.add(h.id)
+
+        # Agregar como participante
+        for h in Hackathon.query.filter(Hackathon.id.in_(participant_ids)).all():
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "participant"
+                result.append(data)
+                seen.add(h.id)
+
+        return jsonify(result), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
