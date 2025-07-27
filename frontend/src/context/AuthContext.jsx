@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import { LoginUser, RegisterUser } from "@services";
+import { LoginUser, RegisterUser, getUserNotifications } from "@services";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 
@@ -27,8 +27,14 @@ export const AuthProvider = ({ children }) => {
           if (!res.ok) throw new Error("Token inválido");
           return res.json();
         })
-        .then((data) => {
-          setUser(data.user);
+        .then(async (data) => {
+          try {
+            const notifications = await getUserNotifications(storedToken);
+            setUser({ ...data.user, notifications });
+          } catch (error) {
+            console.error("Error cargando notificaciones:", error);
+            setUser(data.user); // fallback sin notificaciones
+          }
         })
         .catch((err) => {
           console.error("Error al verificar token:", err);
@@ -39,41 +45,51 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (email, password) => {
-    const loadingToast = toast.loading("Iniciando sesión...");
+  const loadingToast = toast.loading("Iniciando sesión...");
 
-    LoginUser(email, password)
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          setUserToken(data.token);
+  LoginUser(email, password)
+    .then((data) => {
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setUserToken(data.token);
 
-          fetch(`${BACKEND_URL}/auth/verify-token`, {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
+        fetch(`${BACKEND_URL}/auth/verify-token`, {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Token inválido");
+            return res.json();
           })
-            .then((res) => {
-              if (!res.ok) throw new Error("Token inválido");
-              return res.json();
-            })
-            .then((res) => {
+          .then(async (res) => {
+            try {
+              const notifications = await getUserNotifications(data.token);
+              setUser({ ...res.user, notifications });
+              toast.success("Sesión iniciada con éxito", { id: loadingToast });
+              navigate("/dashboard");
+            } catch (error) {
+              console.error("Error al obtener notificaciones:", error);
               setUser(res.user);
               toast.success("Sesión iniciada con éxito", { id: loadingToast });
               navigate("/dashboard");
-            })
-            .catch((err) => {
-              console.error("Error al verificar token:", err);
-              toast.error("Token inválido", { id: loadingToast });
-            });
-        } else {
-          toast.error("Credenciales incorrectas", { id: loadingToast });
-        }
-      })
-      .catch((err) => {
-        console.error("Error en login:", err);
-        toast.error("Error al iniciar sesión", { id: loadingToast });
-      });
-  };
+            }
+          })
+          .catch((err) => {
+            console.error("Error al verificar token:", err);
+            toast.error("Token inválido", { id: loadingToast });
+          });
+      } else {
+        toast.error("Credenciales incorrectas", { id: loadingToast });
+      }
+    })
+    .catch((err) => {
+      console.error("Error en login:", err);
+      toast.error("Error al iniciar sesión", { id: loadingToast });
+    });
+};
+
+
 
   const logout = () => {
     localStorage.removeItem("token");

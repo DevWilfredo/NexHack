@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL
 const headers = {'Content-Type': "application/json"}
 
+
 export const GetTags = () => {
   return fetch(`${API_URL}/tags`)
     .then((response) => {
@@ -20,6 +21,25 @@ export const GetHackathons = async () => {
   }
 }
 
+export const CreateHackathon = async (data, token) => {
+  const response = await fetch(`${API_URL}/hackathons`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Error al crear el hackathon");
+  }
+
+  return await response.json();
+};
+
+
 export const GetUserProfile = (id,token) => {
   return fetch(`${API_URL}/users/${id}`,{
           headers: {
@@ -31,13 +51,28 @@ export const GetUserProfile = (id,token) => {
     })
 }
 
-export const LoginUser = (email, password) => {
-  return fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  }).then(res => res.json());
+export const LoginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error desde backend en login:", data);
+      throw new Error(data?.error || "Error en el login");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Fallo total en LoginUser:", error);
+    throw error;
+  }
 };
+
 
 export const RegisterUser = (firstname, lastname, email, password) => {
   return fetch(`${API_URL}/auth/register`, {
