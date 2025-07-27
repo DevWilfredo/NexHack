@@ -11,14 +11,13 @@ export const GetTags = () => {
     });
 }
 
-export const GetHackathons = () => {
-  return fetch(`${API_URL}/hackathons`)
-    .then((response) => {
-      return response.json();
-    })
-    .catch((error) => {
-      console.error("Error fetching tags:", error);
-    });
+export const GetHackathons = async () => {
+  try {
+    const response = await fetch(`${API_URL}/hackathons`);
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+  }
 }
 
 export const GetUserProfile = (id,token) => {
@@ -331,3 +330,44 @@ export const fetchUserRequests = async (token) => {
     return [];
   }
 };
+
+
+//Services de PUT hackathons para moderadores
+export const updateHackathon = async ({ hackathonId, token, updatedFields }) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updatedFields),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+};
+
+//services para añadir nuevo juez a un hackathon
+export const addJudge = async ({ hackathonId, token, userId }) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/add/${hackathonId}/judges`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({"judge_id": userId }),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}

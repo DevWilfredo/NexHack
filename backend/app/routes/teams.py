@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.team import Team,TeamMember,TeamRequest
 from app.models.user import User
+from app.models.hackathon import Hackathon, HackathonJudge
 
 team_bp = Blueprint('teams', __name__)
 
@@ -117,7 +118,7 @@ def invite_user_to_team(team_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-# --- Aceptar o rechazar solicitud/invitación ---
+# --- Aceptar o rechazar solicitud/invitación ---@team_bp.route('/requests/<int:request_id>', methods=['PATCH'])
 @team_bp.route('/requests/<int:request_id>', methods=['PATCH'])
 @jwt_required()
 def handle_team_request(request_id):
@@ -130,24 +131,42 @@ def handle_team_request(request_id):
 
         team_request = TeamRequest.query.get_or_404(request_id)
         team = Team.query.get_or_404(team_request.team_id)
+        hackathon = Hackathon.query.get_or_404(team.hackathon_id)
+        
         # Paso 1: determinar quién es el "target", la persona que quiere unirse
         if team_request.type == "invitation":
             target_user_id = team_request.user_id
         else:  # entonces es una solicitud que te hicieron a ti
             target_user_id = team_request.requested_by_id
 
+        # ❗ Validaciones específicas relacionadas con jueces
+        # Si es una invitación y el invitado es juez, no puede aceptarla
+        if team_request.type == 'invitation':
+            is_invited_user_judge = HackathonJudge.query.filter_by(
+                hackathon_id=hackathon.id,
+                judge_id=team_request.user_id
+            ).first()
+            if is_invited_user_judge and action == 'accept':
+                return jsonify({'error': 'Los jueces no pueden aceptar invitaciones a equipos.'}), 403
+
+        # Si es una solicitud y quien la solicita es juez, no puede ser aceptada
+        if team_request.type == 'application':
+            is_applicant_judge = HackathonJudge.query.filter_by(
+                hackathon_id=hackathon.id,
+                judge_id=team_request.requested_by_id
+            ).first()
+            if is_applicant_judge and action == 'accept':
+                return jsonify({'error': 'Los jueces no pueden unirse a equipos.'}), 403
 
         # Validar permisos
         if team_request.type == 'application':
             if action == 'reject':
-                # Si quien está rechazando es el mismo que envió la solicitud, lo dejamos (cancelación)
                 if team_request.requested_by_id != int(user_id) and team.creator_id != int(user_id):
                     return jsonify({'error': 'Solo el creador del equipo o el solicitante pueden rechazar la solicitud.'}), 403
             else:  # action == 'accept'
                 if team.creator_id != int(user_id):
                     return jsonify({'error': 'Solo el creador del equipo puede aceptar esta solicitud.'}), 403
         elif team_request.type == 'invitation':
-            # Solo el usuario invitado puede aceptar/rechazar
             if team_request.user_id != int(user_id):
                 return jsonify({'error': 'Solo el usuario invitado puede gestionar esta invitación.'}), 403
 
@@ -159,20 +178,27 @@ def handle_team_request(request_id):
             db.session.commit()
             return jsonify({'message': 'Solicitud/invitación rechazada.'}), 200
 
-        # Si es accept, verificar que el usuario no esté ya en un equipo del hackathon
+        # Verificar si el usuario ya está en un equipo para ese hackathon
         existing_member = TeamMember.query.filter_by(user_id=target_user_id, hackathon_id=team.hackathon_id).first()
         if existing_member:
             return jsonify({'error': 'El usuario ya es miembro de un equipo en este hackathon.'}), 400
 
-        # Aceptar: crear TeamMember
+        # Verificar que el equipo no exceda el límite de miembros
+        current_member_count = TeamMember.query.filter_by(team_id=team.id).count()
+        if current_member_count >= hackathon.max_team_members:
+            return jsonify({'error': 'Este equipo ya alcanzó el número máximo de miembros permitido.'}), 400
+
+        # Aceptar la solicitud/invitación
         new_member = TeamMember(user_id=target_user_id, team_id=team.id, hackathon_id=team.hackathon_id)
         db.session.add(new_member)
         team_request.status = 'accepted'
         db.session.commit()
         return jsonify({'message': 'Solicitud/invitación aceptada.', 'team': team.to_dict()}), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
     
 
     # --- Borrar una invitacion enviada (solo lider de equipo lo puede ver) o Cancelar una solicitud (Solo el usuario que la envio) --- #
