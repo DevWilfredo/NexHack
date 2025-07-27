@@ -11,7 +11,6 @@ import DashboardCards from "../DashboardCards";
 import HackathonsTable from "../HackathonsTable";
 import HackathonsCalendar from "../HackathonsCalendar";
 import { Activity, Trophy, Users } from "lucide-react";
-import CrearHackathonModal from "../CrearHackathon";
 
 
 const cardData = [
@@ -77,11 +76,6 @@ const DashboardComponent = () => {
             setActiveTagId={setActiveTagId}
             extraClasses={"bg-base-200  border border-info/20 "}
           />
-        </div>
-
-        {/* Botón + Modal de creación de hackathon */}
-        <div className="flex justify-start mb-2">
-          <CrearHackathonModal onHackathonCreated={fetchHackathons}/>
         </div>
 
         {/* Lista de hackatones */}
