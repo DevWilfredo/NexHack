@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL
 const headers = {'Content-Type': "application/json"}
 
+
 export const GetTags = () => {
   return fetch(`${API_URL}/tags`)
     .then((response) => {
@@ -20,9 +21,7 @@ export const GetHackathons = async () => {
   }
 }
 
-export const CreateHackathon = async (data) => {
-  const token = sessionStorage.getItem("token");
-
+export const CreateHackathon = async (data, token) => {
   const response = await fetch(`${API_URL}/hackathons`, {
     method: "POST",
     headers: {

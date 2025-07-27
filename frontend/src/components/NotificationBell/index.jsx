@@ -1,42 +1,36 @@
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getUserNotifications, markNotificationAsRead } from "@services";
+import { useAuth } from "../../context/AuthContext";
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
-  const [hiddenIds, setHiddenIds] = useState([]);
+  const { userToken } = useAuth();
 
-  const token = sessionStorage.getItem("token");
+  const fetchNotifications = async () => {
+    try {
+      const data = await getUserNotifications(userToken);
+      setNotifications(data);
+    } catch (error) {
+      console.error("Error al cargar notificaciones:", error);
+    }
+  };
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const data = await getUserNotifications(token);
-        setNotifications(data);
-      } catch (error) {
-        console.error("Error al cargar notificaciones:", error);
-      }
-    };
-
+    useEffect(() => {
     fetchNotifications();
-  }, [token]);
+  }, [userToken]);
 
   const handleMarkAsRead = async (id) => {
     try {
-      await markNotificationAsRead(id, token);
-      setHiddenIds((prev) => [...prev, id]);
+      await markNotificationAsRead(id, userToken);
+      fetchNotifications();
     } catch (error) {
       console.error("Error al marcar como leída", error);
     }
   };
 
-  const unreadCount = notifications.filter(
-    (n) => !n.read && !hiddenIds.includes(n.id)
-  ).length;
-
-  const visibleNotifications = notifications.filter(
-    (n) => !n.read && !hiddenIds.includes(n.id)
-  );
+  const unreadNotifications = notifications.filter((n) => !n.read);
+  const unreadCount = unreadNotifications.length;
 
   return (
     <div className="dropdown dropdown-end">
@@ -55,15 +49,13 @@ const NotificationBell = () => {
         tabIndex={0}
         className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-72 max-h-96 overflow-y-auto"
       >
-        {visibleNotifications.length === 0 ? (
+        {unreadCount === 0 ? (
           <span className="text-sm">No tienes notificaciones pendientes</span>
         ) : (
-          visibleNotifications.map((n) => (
+          unreadNotifications.map((n) => (
             <div
               key={n.id}
-              className={`mb-2 p-2 rounded cursor-pointer ${
-                n.read ? "bg-base-300" : "bg-base-200"
-              }`}
+              className="mb-2 p-2 rounded cursor-pointer bg-base-200"
               onClick={() => handleMarkAsRead(n.id)}
             >
               <p className="font-semibold text-sm">{n.type}</p>

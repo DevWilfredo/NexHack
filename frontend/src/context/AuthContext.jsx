@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const BACKEND_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
 
     if (storedToken) {
       setUserToken(storedToken);
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
   LoginUser(email, password)
     .then((data) => {
       if (data.token) {
-        sessionStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token);
         setUserToken(data.token);
 
         fetch(`${BACKEND_URL}/auth/verify-token`, {
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
 
 
   const logout = () => {
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     setUser(null);
     setUserToken(null);
     toast.success("Sesión cerrada correctamente");

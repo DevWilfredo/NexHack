@@ -1,8 +1,8 @@
-"""Initial clean migration with new evaluation logic
+"""Recrear migraciones desde cero
 
-Revision ID: 977925ca0abe
+Revision ID: 45b4480a48d5
 Revises: 
-Create Date: 2025-07-26 15:17:32.810044
+Create Date: 2025-07-27 10:48:23.164988
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '977925ca0abe'
+revision = '45b4480a48d5'
 down_revision = None
 branch_labels = None
 depends_on = None
