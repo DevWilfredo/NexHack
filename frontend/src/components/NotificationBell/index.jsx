@@ -1,25 +1,36 @@
 import { Bell } from "lucide-react";
-import { useState } from "react";
-import { useAuth } from "@context/AuthContext";
-import { markNotificationAsRead } from "@services";
+import { useEffect, useState, useCallback } from "react";
+import { getUserNotifications, markNotificationAsRead } from "@services";
+import { useAuth } from "../../context/AuthContext";
 
 const NotificationBell = () => {
-  const { user } = useAuth();
-  const [hiddenIds, setHiddenIds] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const { userToken } = useAuth();
 
-  const unreadCount = user?.notifications?.filter(
-    (n) => !n.read && !hiddenIds.includes(n.id)
-  ).length;
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const data = await getUserNotifications(userToken);
+      setNotifications(data);
+    } catch (error) {
+      console.error("Error al cargar notificaciones:", error);
+    }
+  }, [userToken]);
+
+    useEffect(() => {
+      fetchNotifications();
+  },  [fetchNotifications]);
 
   const handleMarkAsRead = async (id) => {
-    const token = localStorage.getItem("token");
     try {
-      await markNotificationAsRead(id, token);
-      setHiddenIds((prev) => [...prev, id]);
+      await markNotificationAsRead(id, userToken);
+      fetchNotifications();
     } catch (error) {
       console.error("Error al marcar como leída", error);
     }
   };
+
+  const unreadNotifications = notifications.filter((n) => !n.read);
+  const unreadCount = unreadNotifications.length;
 
   return (
     <div className="dropdown dropdown-end">
@@ -38,22 +49,19 @@ const NotificationBell = () => {
         tabIndex={0}
         className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-72 max-h-96 overflow-y-auto"
       >
-        {user.notifications.length === 0 ? (
-          <span className="text-sm">No hay notificaciones</span>
+        {unreadCount === 0 ? (
+          <span className="text-sm">No tienes notificaciones pendientes</span>
         ) : (
-          user.notifications
-            .filter((n) => !hiddenIds.includes(n.id))
-            .map((n) => (
-              <div
-                key={n.id}
-                className={`mb-2 p-2 rounded cursor-pointer ${
-                  n.read ? "bg-base-300" : "bg-base-200"
-                }`}
-                onClick={() => handleMarkAsRead(n.id)}
-              >
-                <p className="text-sm">{n.message}</p>
-              </div>
-            ))
+          unreadNotifications.map((n) => (
+            <div
+              key={n.id}
+              className="mb-2 p-2 rounded cursor-pointer bg-base-200"
+              onClick={() => handleMarkAsRead(n.id)}
+            >
+              <p className="font-semibold text-sm">{n.type}</p>
+              <p className="text-xs">{n.message}</p>
+            </div>
+          ))
         )}
       </div>
     </div>

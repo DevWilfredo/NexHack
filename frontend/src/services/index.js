@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL
 const headers = {'Content-Type': "application/json"}
 
+
 export const GetTags = () => {
   return fetch(`${API_URL}/tags`)
     .then((response) => {
@@ -11,15 +12,33 @@ export const GetTags = () => {
     });
 }
 
-export const GetHackathons = () => {
-  return fetch(`${API_URL}/hackathons`)
-    .then((response) => {
-      return response.json();
-    })
-    .catch((error) => {
-      console.error("Error fetching tags:", error);
-    });
+export const GetHackathons = async () => {
+  try {
+    const response = await fetch(`${API_URL}/hackathons`);
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+  }
 }
+
+export const CreateHackathon = async (data, token) => {
+  const response = await fetch(`${API_URL}/hackathons`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Error al crear el hackathon");
+  }
+
+  return await response.json();
+};
+
 
 export const GetUserProfile = (id,token) => {
   return fetch(`${API_URL}/users/${id}`,{
@@ -32,13 +51,28 @@ export const GetUserProfile = (id,token) => {
     })
 }
 
-export const LoginUser = (email, password) => {
-  return fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  }).then(res => res.json());
+export const LoginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error desde backend en login:", data);
+      throw new Error(data?.error || "Error en el login");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Fallo total en LoginUser:", error);
+    throw error;
+  }
 };
+
 
 export const RegisterUser = (firstname, lastname, email, password) => {
   return fetch(`${API_URL}/auth/register`, {
@@ -262,6 +296,7 @@ export const SendRequest = async (userToken, teamId)=>{
       },
     });
     const data = await response.json();
+    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
@@ -308,3 +343,66 @@ export const getMyHackathons = async (token) => {
     return null;
   }
 };
+
+
+export const fetchUserRequests = async (token) => {
+  try {
+    const response = await fetch(`${API_URL}/teams/requests/me`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener las solicitudes');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en fetchUserRequests:", error);
+    return [];
+  }
+};
+
+
+//Services de PUT hackathons para moderadores
+export const updateHackathon = async ({ hackathonId, token, updatedFields }) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updatedFields),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+};
+
+//services para añadir nuevo juez a un hackathon
+export const addJudge = async ({ hackathonId, token, userId }) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/add/${hackathonId}/judges`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({"judge_id": userId }),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}

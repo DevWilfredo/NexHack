@@ -3,6 +3,7 @@ import { NavLink } from "react-router";
 import { useTheme } from "@context/ThemeContext";
 import { Search } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import CrearHackathonModal from "../CrearHackathon";
 
 const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
   const [search, setSearch] = useState("");
@@ -27,25 +28,28 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
         isDark ? "bg-slate-900/80" : "bg-base-200"
       } rounded-2xl p-6 shadow-lg border border-info/20`}
     >
-      {/* Header con buscador */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Search className="text-base-content" size={20} />
-          <input
-            type="text"
-            placeholder="Buscar hackathon..."
-            className={`input input-sm input-bordered w-64 ${isDark ? 'bg-slate-900/80' : ''}`}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+        {/* Header con buscador */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Search className="text-base-content" size={20} />
+            <input
+              type="text"
+              placeholder="Buscar hackathon..."
+              className={`input input-sm input-bordered w-64 ${
+                isDark ? "bg-slate-900/80" : ""
+              }`}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+          <CrearHackathonModal onHackathonCreated={() => {}} />
         </div>
-      </div>
 
       {/* Tabla */}
-      <div className={`overflow-x-auto rounded-xl ${isDark ? '' : 'bg-white'}`}>
+      <div className={`overflow-x-auto rounded-xl ${isDark ? "" : "bg-white"}`}>
         <table className="table w-full table-zebra table-pin-rows">
           <thead className="bg-base-100 text-base-content uppercase text-sm">
             <tr>
@@ -86,10 +90,7 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
                       {formatoFecha(hackathon.start_date)}
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      {calcularHoras(
-                        hackathon.start_date,
-                        hackathon.end_date
-                      )}{" "}
+                      {calcularHoras(hackathon.start_date, hackathon.end_date)}{" "}
                       horas
                     </td>
                     <td className="px-4 py-3">
@@ -130,7 +131,11 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
               key={i}
               onClick={() => setCurrentPage(i + 1)}
               className={`btn btn-sm rounded-full ${
-                currentPage === i + 1 ? isDark ? 'btn-accent' : 'btn-primary' : "btn-ghost"
+                currentPage === i + 1
+                  ? isDark
+                    ? "btn-accent"
+                    : "btn-primary"
+                  : "btn-ghost"
               }`}
             >
               {i + 1}

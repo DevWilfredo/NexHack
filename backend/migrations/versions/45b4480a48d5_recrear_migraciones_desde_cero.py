@@ -1,8 +1,8 @@
-"""Database schema completed
+"""Recrear migraciones desde cero
 
-Revision ID: 60e5a0e7e0b3
+Revision ID: 45b4480a48d5
 Revises: 
-Create Date: 2025-07-19 11:01:36.374920
+Create Date: 2025-07-27 10:48:23.164988
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '60e5a0e7e0b3'
+revision = '45b4480a48d5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,6 +21,7 @@ def upgrade():
     op.create_table('tags',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('icon', sa.String(length=100), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
@@ -30,8 +31,13 @@ def upgrade():
     sa.Column('lastname', sa.String(length=255), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
+    sa.Column('bio', sa.Text(), nullable=True),
     sa.Column('role', sa.String(length=50), nullable=True),
     sa.Column('profile_picture', sa.String(length=255), nullable=True),
+    sa.Column('github_url', sa.String(length=255), nullable=True),
+    sa.Column('website_url', sa.String(length=255), nullable=True),
+    sa.Column('linkedin_url', sa.String(length=255), nullable=True),
+    sa.Column('points', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -63,6 +69,15 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('hackathon_judges',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('hackathon_id', sa.Integer(), nullable=False),
+    sa.Column('judge_id', sa.Integer(), nullable=False),
+    sa.Column('assigned_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),
+    sa.ForeignKeyConstraint(['judge_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('hackathon_rules',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('hackathon_id', sa.Integer(), nullable=False),
@@ -86,29 +101,22 @@ def upgrade():
     sa.Column('live_preview_url', sa.String(length=255), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('bio', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['creator_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('voting_criteria',
+    op.create_table('hackathon_winners',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('hackathon_id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('weight', sa.Float(), nullable=False),
-    sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('team_evaluations',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('team_id', sa.Integer(), nullable=False),
-    sa.Column('judge_id', sa.Integer(), nullable=False),
-    sa.Column('hackathon_id', sa.Integer(), nullable=False),
+    sa.Column('position', sa.Integer(), nullable=False),
+    sa.Column('points_awarded', sa.Float(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),
-    sa.ForeignKeyConstraint(['judge_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['team_id'], ['teams.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('team_id', 'judge_id', name='_team_judge_unique')
+    sa.UniqueConstraint('hackathon_id', 'team_id', name='_unique_winner_per_hackathon')
     )
     op.create_table('team_members',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -135,19 +143,19 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('user_hackathon_points',
+    op.create_table('team_scores',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('hackathon_id', sa.Integer(), nullable=False),
     sa.Column('team_id', sa.Integer(), nullable=False),
-    sa.Column('position', sa.Integer(), nullable=True),
-    sa.Column('points', sa.Integer(), nullable=True),
+    sa.Column('judge_id', sa.Integer(), nullable=False),
+    sa.Column('hackathon_id', sa.Integer(), nullable=False),
+    sa.Column('score', sa.Float(), nullable=False),
+    sa.Column('feedback', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),
+    sa.ForeignKeyConstraint(['judge_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['team_id'], ['teams.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id', 'hackathon_id', name='_user_hackathon_points_unique')
+    sa.UniqueConstraint('team_id', 'judge_id', 'hackathon_id', name='_team_judge_hackathon_uc')
     )
     op.create_table('user_team_likes',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -178,32 +186,21 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('from_user_id', 'to_user_id', 'hackathon_id', name='_testimonial_unique')
     )
-    op.create_table('team_scores',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('evaluation_id', sa.Integer(), nullable=False),
-    sa.Column('criteria_id', sa.Integer(), nullable=False),
-    sa.Column('score', sa.Integer(), nullable=False),
-    sa.Column('feedback', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['criteria_id'], ['voting_criteria.id'], ),
-    sa.ForeignKeyConstraint(['evaluation_id'], ['team_evaluations.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('team_scores')
     op.drop_table('user_testimonials')
     op.drop_table('user_team_likes')
-    op.drop_table('user_hackathon_points')
+    op.drop_table('team_scores')
     op.drop_table('team_requests')
     op.drop_table('team_members')
-    op.drop_table('team_evaluations')
-    op.drop_table('voting_criteria')
+    op.drop_table('hackathon_winners')
     op.drop_table('teams')
     op.drop_table('hackathon_tags')
     op.drop_table('hackathon_rules')
+    op.drop_table('hackathon_judges')
     op.drop_table('notifications')
     op.drop_table('hackathons')
     op.drop_table('users')

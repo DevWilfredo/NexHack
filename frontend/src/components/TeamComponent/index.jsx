@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
-import { fetchSingleHackathon, getTeamByHackathon } from "../../services";
+import {
+  fetchSingleHackathon,
+  getTeamByHackathon,
+  HandleInvitation,
+} from "../../services";
 import { BriefcaseBusiness, Github } from "lucide-react";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
 import AddMemberModal from "../TeamsModal";
@@ -9,11 +13,12 @@ import UserToListcomponent from "../UserToList";
 import CardCarousel from "../Carrousel";
 import SearchBar from "../searchBar";
 import {
-  AcceptorReject,
   HandleCancelInvitation,
+  isInHackathon,
   JoinTeam,
-  refreshTeamData,
 } from "../../utilities/userUtils";
+import toast from "react-hot-toast";
+import { useApp } from "@context/AppContext";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -22,6 +27,7 @@ function TeamsComponent({ hackathonId, teamId }) {
   const [activeSection, setActiveSection] = useState("miembros"); //
   const [activeModal, setActiveModal] = useState(null);
   const { isDark } = useTheme();
+  const { fetchRequests } = useApp();
   const [disabledButton, setDisabledButton] = useState({
     disable: false,
     message: "Solicitar unirse",
@@ -83,12 +89,41 @@ function TeamsComponent({ hackathonId, teamId }) {
     (req) =>
       req.type === "application" &&
       req.status === "pending" &&
-      req.user.id === user.id
+      req.requested_by.id === user.id
   );
-  //estas dentro de un hackathon?
-  const isInHackathon = hackathonData.teams.some((teams) =>
-    teams.members.some((member) => member.id === user.id)
-  );
+  //copia de refreshData
+  function refreshTeamData() {
+    if (hackathonId && teamId && userToken) {
+      getTeamByHackathon({ teamId, hackathonId, token: userToken })
+        .then((res) => {
+          setTeamData(res);
+          fetchRequests();
+        })
+        .catch((error) =>
+          console.error("Error al obtener datos del equipo:", error)
+        );
+    }
+  }
+
+  //copia del services
+  function AcceptorReject(userToken) {
+    return (action, requestID) => {
+      HandleInvitation(userToken, requestID, action)
+        .then(() => {
+          refreshTeamData(); // ahora está disponible correctamente
+          if (action.trim().toLowerCase() === "accept") {
+            toast.success("Invitación aceptada");
+          } else {
+            toast.error("Invitación rechazada");
+          }
+        })
+        .catch((error) => {
+          toast.error("Error al procesar la solicitud");
+          console.error("Error en AcceptorReject:", error);
+        });
+    };
+  }
+
   //sacamos del array de array de array a los usuarios y lo enviamos al carrousel
   const teamMembers = teamData?.members.map((member) => member.user) || [];
 
@@ -298,23 +333,21 @@ function TeamsComponent({ hackathonId, teamId }) {
                   )
                     .filter((req) => {
                       const nombreCompleto =
-                        `${req.user.firstname} ${req.user.lastname}`.toLowerCase();
+                        `${req.requested_by.firstname} ${req.requested_by.lastname}`.toLowerCase();
                       return nombreCompleto.includes(filtro.toLowerCase());
                     })
                     .map((request) => {
                       // mapeamos el cancelar aca para que se actualice el estado del padre y sepa que ID hay que borrar
-                      const cancelarInvitacion = HandleCancelInvitation(
-                        userToken,
-                        hackathonId,
-                        teamId,
-                        setTeamData
-                      );
 
                       return (
                         <UserToListcomponent
                           key={request.id}
                           index={request.id}
-                          us={request.user}
+                          us={
+                            tipoSolicitudActivo === "solicitudes"
+                              ? request.requested_by
+                              : request.user
+                          }
                           viewport={
                             tipoSolicitudActivo === "solicitudes"
                               ? "solicitud"
@@ -327,7 +360,11 @@ function TeamsComponent({ hackathonId, teamId }) {
                           }
                           HandleCancelInvitation={
                             tipoSolicitudActivo === "invitaciones"
-                              ? () => cancelarInvitacion(request.id)
+                              ? () =>
+                                  HandleCancelInvitation(
+                                    userToken,
+                                    refreshTeamData
+                                  )(request.id)
                               : undefined
                           }
                         />
@@ -356,13 +393,15 @@ function TeamsComponent({ hackathonId, teamId }) {
 
       {/* Botón para unirse */}
       <div className="flex justify-end pt-4">
-        {isMember ? (
+        {hackathonData.judges.some((j) => j.id === user.id) ? (
+          <button className="btn btn-disabled">Eres juez en este evento</button>
+        ) : isMember ? (
           <button className="btn btn-disabled">Eres miembro</button>
         ) : isFull ? (
           <button className="btn btn-disabled">Equipo lleno</button>
         ) : hasPendingRequest ? (
           <button className="btn btn-disabled">Esperando respuesta</button>
-        ) : isInHackathon ? (
+        ) : isInHackathon(hackathonData, user) ? (
           <button className="btn btn-disabled">Inscrito en otro equipo</button>
         ) : (
           <button
@@ -379,12 +418,7 @@ function TeamsComponent({ hackathonId, teamId }) {
       <AddMemberModal
         team={teamData}
         toState={activeModal}
-        onTeamUpdated={refreshTeamData(
-          hackathonId,
-          teamId,
-          userToken,
-          setTeamData
-        )}
+        onTeamUpdated={refreshTeamData}
       />
     </div>
   );

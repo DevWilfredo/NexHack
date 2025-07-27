@@ -8,7 +8,7 @@ from .routes.hackathons import hackathon_bp
 from .routes.tags import tags_bp
 from .routes.teams import team_bp
 from .config import Config
-from .models import hackathon, user, evaluation, feedback, notification, points, team
+from .models import hackathon, user, evaluation, feedback, notification, team
 from app.routes.notifications import notifications_bp
 
 

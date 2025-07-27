@@ -9,6 +9,7 @@ const CardCarousel = ({
   usersArray = [],
   initialSlide = 0,
   cardsPerSlide = 2,
+  viewport = "small",
 }) => {
   const totalSlides = Math.ceil(usersArray.length / cardsPerSlide);
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
@@ -32,11 +33,15 @@ const CardCarousel = ({
   };
 
   return (
-    <div className="w-auto mx-auto">
-      <div className=" max-w-auto">
-        <div className="flex justify-center  gap-5 p-4 bg-base-200 rounded-box">
+    <div className="w-auto bg-base-300 mx-auto">
+      <div className=" max-w-auto bg-base-300">
+        <div className="flex justify-center  gap-5 p-4 bg-base-300 rounded-box">
           {getSlideItems().map((users, index) => (
-            <CardComponent userArray={users} key={index} />
+            <CardComponent
+              userArray={users ? users : null}
+              key={index}
+              sizeToview={viewport}
+            />
           ))}
         </div>
         <div className="absolute left-2 top-1/2 -translate-y-1/2">
