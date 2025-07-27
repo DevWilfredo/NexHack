@@ -10,9 +10,9 @@ flask-bcrypt = "*"
 flask-cors = "*"
 marshmallow = "*"
 faker = "*"
-flask = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
+flask = "*"
 
 [dev-packages]
 

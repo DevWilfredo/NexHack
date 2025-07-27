@@ -1,6 +1,7 @@
 import os
 from flask import Flask
-from .extensions import db, migrate, bcrypt, jwt, cors
+from flask_cors import CORS
+from .extensions import db, migrate, bcrypt, jwt
 from .routes.auth import auth_bp
 from .routes.users import user_bp
 from .routes.hackathons import hackathon_bp
@@ -19,7 +20,7 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    cors.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     api_prefix = app.config["API_PREFIX"]
     app.register_blueprint(auth_bp, url_prefix=f"{api_prefix}/auth")
