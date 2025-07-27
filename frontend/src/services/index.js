@@ -53,13 +53,28 @@ export const GetUserProfile = (id,token) => {
     })
 }
 
-export const LoginUser = (email, password) => {
-  return fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  }).then(res => res.json());
+export const LoginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error desde backend en login:", data);
+      throw new Error(data?.error || "Error en el login");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Fallo total en LoginUser:", error);
+    throw error;
+  }
 };
+
 
 export const RegisterUser = (firstname, lastname, email, password) => {
   return fetch(`${API_URL}/auth/register`, {
