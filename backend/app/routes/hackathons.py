@@ -82,22 +82,36 @@ def update_hackathon(hackathon_id):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user or not user.isModerator():
-            return jsonify({'error': 'You have not the required permissions'}), 403
+            return jsonify({'error': 'No tienes permisos suficientes.'}), 403
 
         hackathon = Hackathon.query.get_or_404(hackathon_id)
+
+        # ⚠️ Solo permitir modificar campos permitidos
         hackathon.title = data.get("title", hackathon.title)
         hackathon.description = data.get("description", hackathon.description)
         hackathon.start_date = data.get("start_date", hackathon.start_date)
         hackathon.end_date = data.get("end_date", hackathon.end_date)
-        hackathon.max_teams = data.get("max_teams", hackathon.max_teams)
-        hackathon.max_team_members = data.get("max_team_members", hackathon.max_team_members)
-        hackathon.status = data.get("status", hackathon.status)
 
+        # 🛑 Validar cambio de estado
+        new_status = data.get("status", hackathon.status)
+        current_teams_count = len(hackathon.teams)
+
+        if new_status != hackathon.status:
+            if new_status == "open":
+                if current_teams_count >= hackathon.max_teams:
+                    return jsonify({"error": "No se puede cambiar a 'open', el número máximo de equipos ya fue alcanzado."}), 400
+            elif new_status not in ["pending", "cancelled", "finalized"]:
+                return jsonify({"error": "Estado no permitido. Solo se puede cambiar a 'pending', 'cancelled' o 'finalized'."}), 400
+
+            hackathon.status = new_status
+
+        # ✅ Actualizar reglas si vienen
         if "rules" in data:
             hackathon.rules.clear()
             for rule_text in data["rules"]:
                 hackathon.add_rule(rule_text)
 
+        # ✅ Actualizar tags si vienen
         if "tags" in data:
             hackathon.tags.clear()
             for tag_name in data["tags"]:
@@ -108,13 +122,14 @@ def update_hackathon(hackathon_id):
                 hackathon.add_tag(tag)
 
         db.session.commit()
-
         return jsonify(hackathon.to_dict()), 200
 
     except ValidationError as err:
         return jsonify(err.messages), 400
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 @hackathon_bp.route('/<int:hackathon_id>', methods=['GET'])
 def get_single_hackathon(hackathon_id):
@@ -128,13 +143,13 @@ def get_single_hackathon(hackathon_id):
 @hackathon_bp.route('/add/<int:hackathon_id>/judges', methods=['POST'])
 @jwt_required()
 def add_hackathons_judges(hackathon_id):
-
     user_id = get_jwt_identity()
     user = User.query.get_or_404(user_id)
     hackathon = Hackathon.query.get_or_404(hackathon_id)
 
-    if not user or (user.id != hackathon.creator_id):
-        return jsonify({'error': 'You do not have the required permissions'}), 403
+    # ✅ Permitir si es moderador o creador
+    if user.role != 'moderator' and user.id != hackathon.creator_id:
+        return jsonify({'error': 'No tienes permisos para agregar jueces a este hackathon.'}), 403
 
     data = request.get_json()
     judge_id = data.get('judge_id')
@@ -144,7 +159,7 @@ def add_hackathons_judges(hackathon_id):
 
     judge = User.query.get(judge_id)
     if not judge:
-        return jsonify({'error': 'Judge user not found'}), 404
+        return jsonify({'error': 'Usuario no encontrado como juez'}), 404
 
     existing_judge = HackathonJudge.query.filter_by(
         hackathon_id=hackathon_id,
@@ -152,14 +167,14 @@ def add_hackathons_judges(hackathon_id):
     ).first()
 
     if existing_judge:
-        return jsonify({'message': 'User is already a judge for this hackathon'}), 200
+        return jsonify({'message': 'Este usuario ya es juez en este hackathon'}), 200
 
     try:
         new_judge = HackathonJudge(hackathon_id=hackathon_id, judge_id=judge_id)
         db.session.add(new_judge)
         db.session.commit()
 
-        return jsonify({'message': 'Judge added successfully', 'judge': new_judge.to_dict()}), 201
+        return jsonify({'message': 'Juez agregado exitosamente', 'judge': new_judge.to_dict()}), 201
 
     except SQLAlchemyError as e:
         db.session.rollback()

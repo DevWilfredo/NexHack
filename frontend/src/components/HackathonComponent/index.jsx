@@ -1,44 +1,95 @@
 import { NavLink } from "react-router";
-import TagsComponent from "../../components/TagsComponent";
+
 import AvatarGroupComponent from "../../components/AvatarGroup";
 import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
-import { fetchSingleHackathon } from "../../services";
+import { fetchSingleHackathon, GetTags } from "../../services";
 import CardCarousel from "../Carrousel";
 import CreateTeamModal from "../CreateTeamModal";
 import { isInHackathon } from "../../utilities/userUtils";
-import { AlertCircle, CalendarIcon, Scale, Trophy, Users } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarIcon,
+  Scale,
+  Trophy,
+  User,
+  Users,
+} from "lucide-react";
 import DynamicIcon from "../DynamicIcon";
 import BadgeHackathonComponent from "../BadgeHackathon";
+import { useApp } from "../../context/AppContext";
+import EditHackathonModal from "../EditHackathonModal";
+import JudgesModalComponent from "../JudgesModal";
 const HackatonsComponent = ({ hackathonId }) => {
   const [hackathon, setHackathon] = useState(null);
   const { user, userToken } = useAuth();
   const [equipos, setEquipos] = useState([]);
+  const { globalUsers, allhackathons } = useApp();
+  const [showModal, setShowModal] = useState(false);
+  const [dbTags, setDbTagas] = useState([]);
+
+  const handleModal = () => setShowModal((prev) => !prev);
+  const updateData = async () => {
+    const data = await fetchSingleHackathon(hackathonId, userToken);
+    setHackathon(data);
+    setEquipos(data.teams);
+    GetTags().then((data) => setDbTagas(data));
+  };
 
   useEffect(() => {
     if (!hackathonId || !userToken) return;
 
-    fetchSingleHackathon(hackathonId, userToken).then((data) => {
-      setHackathon(data);
-      setEquipos(data.teams);
-    });
+    updateData();
   }, [hackathonId]);
 
+  const handleUpdate = (updatedData) => setHackathon(updatedData);
   //Si no explota, no sacar.
   if (!hackathon) {
     return <div className="text-center mt-10">Cargando hackathon...</div>;
   }
 
   const isUserInHackathon = isInHackathon(hackathon, user);
+  const creator = globalUsers.find((u) => u.id === hackathon.creator_id);
 
   return (
     <div className=" mx-auto  p-6 bg-base-200 rounded-xl shadow-xl space-y-6 ">
       <div className="flex justify-between">
         <div className="w-1/2">
-          <h1 className="text-4xl font-bold mb-4">{hackathon.title}</h1>
-          <p className="text-lg">{hackathon.description}</p>
-          <div className="flex flex-wrap gap-2 mt-2 mb-2">
+          <h1 className="text-4xl font-bold mb-4 card-title">
+            {hackathon.title}
+            {user.id === hackathon.creator_id || user.role === "moderator" ? (
+              <button
+                className="btn btn-primary btn-md ms-5"
+                onClick={handleModal}
+              >
+                Editar Hackathon
+              </button>
+            ) : (
+              ""
+            )}
+          </h1>
+          <EditHackathonModal
+            showModal={showModal}
+            onClose={handleModal}
+            userToken={userToken}
+            hackathon={hackathon}
+            onUpdate={handleUpdate}
+            tags={dbTags}
+          />
+          <p className=" text-md ">
+            Creador del hackathon:
+            {` ${
+              creator
+                ? `${creator.firstname} ${creator.lastname}`
+                : "Desconocido"
+            }`}
+          </p>
+          <div className="divider m-0 p-0"></div>
+          <p className="text-lg card-title font-bold">
+            <User /> {hackathon.description}
+          </p>
+          <div className="flex flex-wrap gap-2 mt-5">
             {hackathon.tags.map((tag, index) => (
               <span
                 key={index}
@@ -107,9 +158,31 @@ const HackatonsComponent = ({ hackathonId }) => {
             </div>
 
             <div className="bg-base-300 text-neutral-content p-5 card">
-              <h2 className="text-2xl card-title font-semibold mb-4">
-                <Trophy /> Jurados
-              </h2>
+              <div className="flex justify-between">
+                <div>
+                  <h2 className="text-2xl card-title font-semibold mb-4">
+                    <Trophy /> Jurados{" "}
+                  </h2>
+                </div>
+                <div>
+                  {user.id === hackathon.creator_id ||
+                  user.role === "moderator" ? (
+                    <label
+                      className="btn btn-primary btn-sm"
+                      htmlFor="JudgesModal"
+                    >
+                      Agregar jurados
+                    </label>
+                  ) : (
+                    ""
+                  )}
+                  <JudgesModalComponent
+                    hackathon={hackathon}
+                    onHackathonUpdated={updateData}
+                  />
+                </div>
+              </div>
+
               <div className="divider my-1" />
               {hackathon.judges.length > 0 ? (
                 <CardCarousel
@@ -166,12 +239,16 @@ const HackatonsComponent = ({ hackathonId }) => {
               ))}
             </div>
             <div className="flex justify-end align-bottom pb-5 pr-5">
-              {!isUserInHackathon ? (
+              {hackathon.judges.some((j) => j.id === user.id) ? (
+                <button className="btn btn-disabled">
+                  Eres juez en este evento
+                </button>
+              ) : !isUserInHackathon ? (
                 <label htmlFor="CreateTeamModal" className="btn btn-accent">
                   Crear equipo
                 </label>
               ) : (
-                <button className="btn btn-disabled">Ya estas inscrito</button>
+                <button className="btn btn-disabled">Ya estás inscrito</button>
               )}
               <CreateTeamModal userToken={userToken} hackathon={hackathon} />
             </div>

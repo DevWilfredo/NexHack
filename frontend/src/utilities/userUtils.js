@@ -6,8 +6,9 @@ import toast from "react-hot-toast";
 export function AcceptorReject(userToken, refreshTeamData) {
   return (action, requestID) => {
     HandleInvitation(userToken, requestID, action)
-    .then(() => {
+    .then((data) => {
       refreshTeamData();
+      console.log(data)
       if (action.trim().toLowerCase() === "accept") {
         toast.success("Invitación aceptada");
       } else {
