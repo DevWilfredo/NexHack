@@ -393,7 +393,9 @@ function TeamsComponent({ hackathonId, teamId }) {
 
       {/* Botón para unirse */}
       <div className="flex justify-end pt-4">
-        {isMember ? (
+        {hackathonData.judges.some((j) => j.id === user.id) ? (
+          <button className="btn btn-disabled">Eres juez en este evento</button>
+        ) : isMember ? (
           <button className="btn btn-disabled">Eres miembro</button>
         ) : isFull ? (
           <button className="btn btn-disabled">Equipo lleno</button>

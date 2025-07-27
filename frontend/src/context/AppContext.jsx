@@ -6,6 +6,7 @@ import {
   HandleInvitation,
 } from "@services";
 import { useAuth } from "./AuthContext";
+import { GetHackathons } from "../services";
 
 const AppContext = createContext();
 
@@ -19,6 +20,9 @@ export const AppProvider = ({ children }) => {
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
+  const [allHackathons, setAllHackathons] = useState([]);
+  const [loadingAllHackathons, setLoadingAllHackathons] = useState(false);
+
   const { userToken } = useAuth();
 
   const fetchUsers = async () => {
@@ -30,7 +34,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const fetchMyHackathons = async () => {
-    if (!userToken) return;
     setLoadingHackathons(true);
     const data = await getMyHackathons(userToken);
     if (data) setMyHackathons(data);
@@ -46,11 +49,20 @@ export const AppProvider = ({ children }) => {
     setLoadingRequests(false);
   };
 
+  const fetchAllHackathons = async () => {
+    if (!userToken) return;
+    setLoadingAllHackathons(true);
+    const data = await GetHackathons(userToken);
+    if (data) setAllHackathons(data);
+    console.log("all hackathons fetched:", data);
+    setLoadingAllHackathons(false);
+  };
+
   const handleInvitation = async (requestID, action) => {
     if (!userToken) return;
     try {
       const result = await HandleInvitation(userToken, requestID, action);
-      await fetchRequests(); 
+      await fetchRequests();
       return result;
     } catch (error) {
       console.error("Error al manejar invitación:", error);
@@ -62,6 +74,7 @@ export const AppProvider = ({ children }) => {
     fetchUsers();
     fetchMyHackathons();
     fetchRequests();
+    fetchAllHackathons();
   }, [userToken]);
 
   return (
@@ -77,7 +90,10 @@ export const AppProvider = ({ children }) => {
         requests,
         fetchRequests,
         loadingRequests,
-        handleInvitation
+        handleInvitation,
+        allHackathons,
+        fetchAllHackathons,
+        loadingAllHackathons,
       }}
     >
       {children}
