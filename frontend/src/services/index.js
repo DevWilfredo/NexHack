@@ -21,6 +21,27 @@ export const GetHackathons = () => {
     });
 }
 
+export const CreateHackathon = async (data) => {
+  const token = sessionStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/hackathons`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Error al crear el hackathon");
+  }
+
+  return await response.json();
+};
+
+
 export const GetUserProfile = (id,token) => {
   return fetch(`${API_URL}/users/${id}`,{
           headers: {
