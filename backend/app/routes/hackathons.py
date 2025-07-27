@@ -22,12 +22,13 @@ def get_hackatons():
     except Exception as e:
         return jsonify({'erorr': str(e)}), 500
 
-@hackathon_bp.route('/', methods=['POST'])
+@hackathon_bp.route('', methods=['POST'])
 @jwt_required()
 def create_hackathon():
     schema = HackathonCreateSchema()
     try:
         json_data = request.get_json()
+        print("JSON recibido: ", json_data)
         if not json_data:
             return jsonify({"error": "No input data provided"}), 400
 
@@ -64,6 +65,7 @@ def create_hackathon():
         return jsonify(hackathon.to_dict()), 201
 
     except ValidationError as err:
+        print("Error de validación",err.messages)
         return jsonify(err.messages), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -107,20 +107,23 @@ export default function CrearHackathonModal({ onHackathonCreated }) {
 
               <div className="flex gap-4">
                 <input
-                  type="datetime-local"
+                  type="date"
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleChange}
                   className="input input-bordered w-full"
                   required
+                  min={new Date().toISOString().split("T")[0]}
                 />
                 <input
-                  type="datetime-local"
+                  type="date"
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleChange}
                   className="input input-bordered w-full"
                   required
+                  min={formData.start_date || new Date().toISOString().split("T")[0]}
+                  disabled={!formData.start_date}
                 />
               </div>
 
