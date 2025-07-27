@@ -10,6 +10,29 @@ import {
 import DashboardCards from "../DashboardCards";
 import HackathonsTable from "../HackathonsTable";
 import HackathonsCalendar from "../HackathonsCalendar";
+import { Activity, Trophy, Users } from "lucide-react";
+
+
+const cardData = [
+  {
+    icon: Trophy,
+    title: "Estás en el puesto #3",
+    description: "Ranking general del hackathon",
+    buttonText: "Ver clasificación entera",
+  },
+  {
+    icon: Activity,
+    title: "Actividad reciente",
+    description: "Tu equipo subió un nuevo commit hace 2 horas",
+    buttonText: "Ver historial",
+  },
+  {
+    icon: Users,
+    title: "231 participantes",
+    description: "Aumentó un 8% esta semana",
+    buttonText: "Ver estadísticas",
+  },
+];
 
 const DashboardComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -39,13 +62,14 @@ const DashboardComponent = () => {
       {/* Zona central (60%) */}
       <div className="w-full lg:flex-[5] pt-4">
         {/* Zona superior con imágenes (como leetcode) */}
-        <DashboardCards />
+        <DashboardCards cardData={cardData} />
         {/* Tags */}
         <div className="bg-base-200 rounded-box mt-2 mb-2 ">
           <TagsComponent
             tags={tags}
             activeTagId={activeTagId}
             setActiveTagId={setActiveTagId}
+            extraClasses={"bg-base-200  border border-info/20 "}
           />
         </div>
         {/* Lista de hackatones */}

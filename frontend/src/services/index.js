@@ -262,6 +262,7 @@ export const SendRequest = async (userToken, teamId)=>{
       },
     });
     const data = await response.json();
+    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
@@ -306,5 +307,27 @@ export const getMyHackathons = async (token) => {
   } catch (err) {
     console.error("Error fetching my hackathons", err);
     return null;
+  }
+};
+
+
+export const fetchUserRequests = async (token) => {
+  try {
+    const response = await fetch(`${API_URL}/teams/requests/me`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener las solicitudes');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en fetchUserRequests:", error);
+    return [];
   }
 };

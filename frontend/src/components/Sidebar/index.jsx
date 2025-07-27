@@ -25,7 +25,7 @@ const Sidebar = () => {
     { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
     { icon: CircleUserRound, text: "Perfil", to: "/profile" },
     { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
-    { icon: Mails, text: "Solicitudes", to: "/" },
+    { icon: Mails, text: "Solicitudes", to: "/requests" },
   ];
 
   return (
