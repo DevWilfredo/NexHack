@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL
 const OPEN_AI_URL = import.meta.env.VITE_OPENAI_API_URL
 const OPEN_AI_KEY = import.meta.env.VITE_OPENAI_API_KEY
-const headers = {'Content-Type': "application/json"}
+const headers = { 'Content-Type': "application/json" }
 
 
 export const GetTags = () => {
@@ -42,12 +42,12 @@ export const CreateHackathon = async (data, token) => {
 };
 
 
-export const GetUserProfile = (id,token) => {
-  return fetch(`${API_URL}/users/${id}`,{
-          headers: {
-        Authorization: `Bearer ${token}`, // JWT
-      }
-})
+export const GetUserProfile = (id, token) => {
+  return fetch(`${API_URL}/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`, // JWT
+    }
+  })
     .then((response) => {
       return response.json();
     })
@@ -87,7 +87,7 @@ export const RegisterUser = (firstname, lastname, email, password) => {
       if (!res.ok) {
         throw new Error(data.error || "Error en el registro");
       }
-      return data; 
+      return data;
     });
 };
 
@@ -133,14 +133,14 @@ export const updateUserProfile = async (userId, updatedData, token) => {
 //prueba de conseguir Teams especifico 
 export const getTeamByHackathon = async ({ teamId, hackathonId, token }) => {
   try {
-   
+
     const response = await fetch(
       `${API_URL}/teams/${teamId}/hackathons/${hackathonId}`,
       {
         method: "GET",
-         headers: {
-        Authorization: `Bearer ${token}`, // JWT
-      },
+        headers: {
+          Authorization: `Bearer ${token}`, // JWT
+        },
       }
     );
 
@@ -158,7 +158,7 @@ export const getTeamByHackathon = async ({ teamId, hackathonId, token }) => {
 };
 
 //intento por el camino largo, primero el hackathon, de ahi la info de teams
-export const fetchSingleHackathon = async (hackathonId,token) => {
+export const fetchSingleHackathon = async (hackathonId, token) => {
   try {
     const response = await fetch(`http://127.0.0.1:5000/api/v1/hackathons/${hackathonId}`, {
       headers: {
@@ -169,7 +169,7 @@ export const fetchSingleHackathon = async (hackathonId,token) => {
     if (!response.ok) throw new Error("Error al obtener hackathon");
 
     const data = await response.json();
-    
+
     return data;
 
   } catch (error) {
@@ -196,9 +196,9 @@ export const getUsers = async (token) => {
   }
 };
 
-export const SendInvitation = async (userToken, teamId,toUserId, teamName) =>{
-  try{
-   
+export const SendInvitation = async (userToken, teamId, toUserId, teamName) => {
+  try {
+
     const response = await fetch(`${API_URL}/teams/${teamId}/invite`, {
       method: "POST",
       headers: {
@@ -206,34 +206,34 @@ export const SendInvitation = async (userToken, teamId,toUserId, teamName) =>{
         'Content-Type': "application/json",
       }
       ,
-       body: JSON.stringify({
-    "user_id": toUserId,
-   
-  }),
-      
+      body: JSON.stringify({
+        "user_id": toUserId,
+
+      }),
+
     });
     const data = await response.json();
     console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
-    
+
     return data;
-  }catch(error){
+  } catch (error) {
     throw new Error("Error al buscar equipo:", error);
     return null;
   }
 }
 
 
-export const EditTeam = async (team, token) =>{
+export const EditTeam = async (team, token) => {
   const toSend = {
     name: team.name,
     github_url: team.github_url,
     live_preview_url: team.live_preview_url,
     bio: team.bio
   }
-  
- 
-  try{
+
+
+  try {
     const response = await fetch(`${API_URL}/teams/${team.hackathon_id}`, {
       method: "PUT",
       headers: {
@@ -243,12 +243,12 @@ export const EditTeam = async (team, token) =>{
       body: JSON.stringify(toSend),
     });
     const data = await response.json();
-    
+
     if (!response.ok) throw new Error("Error al enviar invitación");
-    
+
     return data;
-  }catch(error){
-    throw new Error("Error al buscar equipo:", error);   
+  } catch (error) {
+    throw new Error("Error al buscar equipo:", error);
   }
 }
 
@@ -289,8 +289,8 @@ export const markNotificationAsRead = async (notificationId, token) => {
 
 
 //solicitar unirme al grupo
-export const SendRequest = async (userToken, teamId)=>{
-  try{
+export const SendRequest = async (userToken, teamId) => {
+  try {
     const response = await fetch(`${API_URL}/teams/${teamId}/request`, {
       method: "POST",
       headers: {
@@ -302,13 +302,13 @@ export const SendRequest = async (userToken, teamId)=>{
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
-  catch(error){
+  catch (error) {
     throw new Error("Error al buscar equipo:", error);
   }
 }
 
-export const HandleInvitation= async (userToken, requestID, action)=>{
-  try{
+export const HandleInvitation = async (userToken, requestID, action) => {
+  try {
     const response = await fetch(`${API_URL}/teams/requests/${requestID}`, {
       method: "PATCH",
       headers: {
@@ -324,7 +324,7 @@ export const HandleInvitation= async (userToken, requestID, action)=>{
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
-  catch(error){
+  catch (error) {
     throw new Error("Error al buscar equipo:", error);
   }
 }
@@ -406,7 +406,7 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({"judge_id": userId }),
+    body: JSON.stringify({ "judge_id": userId }),
   });
 
   const data = await res.json();
@@ -421,6 +421,40 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
 
 
 export const sendMessageToAI = async (message) => {
+  const SYSTEM_PROMPT = `
+Eres NexBot, el asistente oficial de NexHack, una plataforma online inspirada en LeetCode y CodeWars, pero centrada en proyectos colaborativos reales. En NexHack, los usuarios practican programación resolviendo desafíos grupales en hackathones. Cada hackathon impulsa la creación de portafolio, networking técnico y crecimiento profesional.
+
+Como asistente:
+
+- Eres parte del equipo de NexHack. Hablas desde el "nosotros", y conoces el funcionamiento interno.
+- Ayudas a usuarios con dudas generales de programación (explicaciones, conceptos, documentación oficial, buenas prácticas).
+- **BAJO NINGUNA CIRCUNSTANCIA puedes proporcionar código, fragmentos de código, ejemplos de código, ni siquiera pseudocódigo.**
+- **Está absolutamente prohibido incluir cualquier tipo de código, ejemplo de funciones, componentes, estructuras o comandos.**
+- Si un usuario solicita código, debes responder amablemente que no puedes proporcionarlo y ofrecer explicación teórica o links a documentación oficial.
+- Puedes mencionar tecnologías, librerías, marcos teóricos y orientar a investigar, pero solo eso.
+- Sí puedes proporcionar enlaces a documentación, artículos oficiales o recursos externos.
+
+Además:
+
+- Ayudas a moderadores a generar hackathones con creatividad: propones títulos, descripciones, reglas y etiquetas (tags) según el tema.
+- Un hackathon en NexHack contiene: título, descripción, fecha de inicio y fin, máximo de equipos y miembros, reglas y tags.
+- Los hackathones solo pueden ser creados por moderadores.
+
+Sabes lo siguiente sobre NexHack:
+
+- Es 100% online.
+- Los eventos tienen jueces que evalúan y dan puntuaciones: 1er lugar (100 pts), 2do (50 pts), 3ero (25 pts), aplicados por miembro.
+- Los equipos pueden subir GitHub, deploy y tableros de objetivos.
+- Participantes pueden dejar feedback y likes SOLO si trabajaron juntos.
+- Hay un ranking (leaderboard) por puntos.
+- Moderadores crean eventos desde un calendario filtrable por fecha.
+
+Si el usuario se desvía del tema (como política, temas personales, etc.), redirige con cortesía a programación y al entorno de NexHack.
+
+Tu estilo es amigable, directo, breve, motivador. Hablas como un mentor técnico profesional y confiable, que **nunca da código**.
+`;
+
+
   try {
     const response = await fetch(OPEN_AI_URL, {
       method: "POST",
@@ -429,18 +463,18 @@ export const sendMessageToAI = async (message) => {
         "Authorization": `Bearer ${OPEN_AI_KEY}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+        model: "mistralai/mistral-7b-instruct:free",
         messages: [
           {
             role: "system",
-            content: "Eres un mentor técnico en NexHack. Solo orientas a investigar, no das respuestas. Si te preguntan cosas fuera de programación, animación o hackathones, redirige al tema principal.",
+            content: SYSTEM_PROMPT.trim(),
           },
           {
             role: "user",
-            content: message
-          }
-        ]
-      })
+            content: message,
+          },
+        ],
+      }),
     });
 
     const data = await response.json();
@@ -457,8 +491,9 @@ export const sendMessageToAI = async (message) => {
   }
 };
 
+
 //finalizar un hackathon
-export const finalizeHackathon = async ( hackathonId, token ) => {
+export const finalizeHackathon = async (hackathonId, token) => {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}/finalize`, {
     method: "POST",
     headers: {
@@ -477,7 +512,7 @@ export const finalizeHackathon = async ( hackathonId, token ) => {
 }
 
 //suspender hackathon
-export const suspendHackathon = async ( hackathonId, token ) => {
+export const suspendHackathon = async (hackathonId, token) => {
   console.log("hackathonId", hackathonId);
   console.log("token", token);
   const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
