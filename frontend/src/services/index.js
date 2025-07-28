@@ -428,7 +428,7 @@ export const sendMessageToAI = async (message) => {
         "Authorization": "Bearer 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"
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+       model: "mistralai/mistral-7b-instruct:free",
         messages: [
           {
             role: "system",
