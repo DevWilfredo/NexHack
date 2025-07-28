@@ -37,7 +37,7 @@ const Avatar = () => {
           <NavLink to="/dashboard">Dashboard</NavLink>
         </li>
         <li>
-          <NavLink to="/profile">Perfil</NavLink>
+          <NavLink to={`/profile/${user.id}`}>Perfil</NavLink>
         </li>
         <li onClick={handleLogout}>
           <a>Cerrar Sesión</a>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search, SearchX } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { NavLink } from "react-router";
 
 function LeaderboardPage() {
   const { globalUsers } = useApp();
@@ -162,12 +163,12 @@ function LeaderboardPage() {
                     {user.points || 0} pts
                   </span>
                   <br />
-                  <a
-                    href={`/profile/${user.username}`}
+                  <NavLink
+                    to={`/profile/${user.id}`}
                     className="btn btn-sm btn-primary mt-3"
                   >
                     Ver perfil
-                  </a>
+                  </NavLink>
                 </div>
               </motion.li>
             ))

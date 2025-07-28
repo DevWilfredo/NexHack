@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app.models.user import User
 from app.models.team import TeamMember
 from app.models.hackathon import Hackathon, HackathonJudge
+from app.models.evaluation import HackathonWinner
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.schemas.user_schema import UserUpdateSchema
@@ -27,9 +28,6 @@ def get_users():
 @jwt_required()
 def get_single_user(user_id):
     try:
-        jwt_id = get_jwt_identity()
-        if not str(user_id) == jwt_id:
-            return jsonify({'error':'You have not the required Permissions'}), 403
         user = User.query.get_or_404(user_id)
         return jsonify(user.to_dict()), 200
     except Exception as e:
@@ -156,3 +154,72 @@ def get_my_hackathons():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+
+def team_to_dict_with_ranking(team, hackathon_id):
+    winner = HackathonWinner.query.filter_by(
+        hackathon_id=hackathon_id,
+        team_id=team.id
+    ).first()
+
+    return {
+        **team.to_dict(),
+        "ranking": winner.position if winner else None,
+        "points_awarded": winner.points_awarded if winner else None,
+    }
+
+
+@user_bp.route('/<int:user_id>/hackathons', methods=['GET'])
+@jwt_required()
+def get_user_hackathons(user_id):
+    try:
+        # Hackathons como participante
+        participant_ids = (
+            db.session.query(TeamMember.hackathon_id)
+            .filter(TeamMember.user_id == user_id)
+            .distinct()
+            .all()
+        )
+        participant_ids = [h[0] for h in participant_ids]
+
+        # Hackathons como juez
+        judge_ids = (
+            db.session.query(HackathonJudge.hackathon_id)
+            .filter(HackathonJudge.judge_id == user_id)
+            .distinct()
+            .all()
+        )
+        judge_ids = [h[0] for h in judge_ids]
+
+        # Hackathons como creador
+        creator_hackathons = Hackathon.query.filter(Hackathon.creator_id == user_id).all()
+
+        # Un set para evitar duplicados
+        seen = set()
+        result = []
+
+        for h in creator_hackathons:
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "creator"
+                result.append(data)
+                seen.add(h.id)
+
+        for h in Hackathon.query.filter(Hackathon.id.in_(judge_ids)).all():
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "judge"
+                result.append(data)
+                seen.add(h.id)
+
+        for h in Hackathon.query.filter(Hackathon.id.in_(participant_ids)).all():
+            if h.id not in seen:
+                data = h.to_dict()
+                data["role"] = "participant"
+                result.append(data)
+                seen.add(h.id)
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
