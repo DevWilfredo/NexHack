@@ -244,7 +244,7 @@ const HackatonsComponent = ({ hackathonId }) => {
                   Eres juez en este evento
                 </button>
               ) : !isUserInHackathon ? (
-                <label htmlFor="CreateTeamModal" className="btn btn-accent">
+                <label htmlFor="CreateTeamModal" className="btn btn-primary">
                   Crear equipo
                 </label>
               ) : (
