@@ -1,21 +1,14 @@
 import React, { useMemo } from "react";
-import {
-  ExternalLink,
-  Rocket,
-  Github,
-  CalendarDays,
-} from "lucide-react";
-import { useApp } from "../../context/AppContext"; // Ajusta la ruta si es necesario
-import { useAuth } from "../../context/AuthContext"; // Para saber el ID del usuario actual
+import { ExternalLink, Rocket, Github, CalendarDays } from "lucide-react";
+import { useAuth } from "@context/AuthContext";
 
-function HackathonHistory({ search, setSearch }) {
-  const { myHackathons } = useApp();
-  const { user } = useAuth(); // Necesitamos el ID del usuario logueado
+function HackathonHistory({ hackathons = [], search, setSearch }) {
+  const { user } = useAuth();
 
   const filteredHackathons = useMemo(() => {
-    if (!search) return myHackathons;
+    if (!search) return hackathons;
 
-    return myHackathons.filter((hack) => {
+    return hackathons.filter((hack) => {
       const title = hack.title?.toLowerCase() || "";
       const team = hack.teams?.find((team) =>
         team.members?.some((m) => m.user?.id === user?.id)
@@ -25,7 +18,7 @@ function HackathonHistory({ search, setSearch }) {
 
       return title.includes(query) || teamName.includes(query);
     });
-  }, [search, myHackathons, user]);
+  }, [search, hackathons, user]);
 
   return (
     <>
@@ -54,14 +47,30 @@ function HackathonHistory({ search, setSearch }) {
             return (
               <li
                 key={index}
-                className="rounded-xl bg-base-200 p-4 shadow-lg/20 shadow-accent hover:scale-[1.02] transition-all"
+                className="rounded-xl bg-base-200 p-4 shadow-lg/30 shadow-primary hover:scale-[1.02] transition-all"
               >
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-bold">
                     {hack.title || "Hackathon sin título"}
                   </h3>
-                  <span className="badge badge-accent text-sm">
-                    #{userTeam?.ranking ?? "N/A"}
+                  <span
+                    className={`badge text-sm ${
+                      hack.role === "creator"
+                        ? "badge-info"
+                        : hack.role === "judge"
+                        ? "badge-warning"
+                        : hack.role === "participant"
+                        ? "badge-primary"
+                        : "badge-ghost"
+                    }`}
+                  >
+                    {hack.role === "creator"
+                      ? "Creador"
+                      : hack.role === "judge"
+                      ? "Juez"
+                      : hack.role === "participant"
+                      ? "Participante"
+                      : "Sin rol"}
                   </span>
                 </div>
 
@@ -102,7 +111,7 @@ function HackathonHistory({ search, setSearch }) {
                       href={userTeam.live_preview_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-sm btn-accent"
+                      className="btn btn-sm btn-primary"
                     >
                       <Rocket size={16} /> Deploy
                     </a>

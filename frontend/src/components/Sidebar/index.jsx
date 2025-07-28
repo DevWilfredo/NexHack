@@ -8,8 +8,9 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { NavLink } from "react-router";
-import { useApp } from "../../context/AppContext";
+import { useApp } from "@context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@context/AuthContext";
 
 const roleColors = {
   creator: "bg-green-200 text-green-800",
@@ -19,6 +20,7 @@ const roleColors = {
 
 const Sidebar = () => {
   const { myHackathons: hackathons } = useApp();
+  const { user } = useAuth();
   const [openDropdown, setOpenDropdown] = useState(false);
 
   const linkBase =
@@ -30,7 +32,7 @@ const Sidebar = () => {
 
   const links = [
     { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
-    { icon: CircleUserRound, text: "Perfil", to: "/profile" },
+    { icon: CircleUserRound, text: "Perfil", to: `profile/${user.id}` },
     { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
     { icon: Mails, text: "Solicitudes", to: "/requests" },
   ];

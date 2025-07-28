@@ -344,6 +344,15 @@ export const getMyHackathons = async (token) => {
   }
 };
 
+export const GetUserHackathons = (id, token) => {
+  return fetch(`${API_URL}/users/${id}/hackathons`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).then((res) => res.json());
+};
+
+
 
 export const fetchUserRequests = async (token) => {
   try {
