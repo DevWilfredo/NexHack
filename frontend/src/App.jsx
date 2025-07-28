@@ -14,12 +14,14 @@ import { Toaster } from "react-hot-toast";
 import RegisterPage from "./pages/Register";
 import LeaderboardPage from "./pages/LeaderboardPage/index.";
 import RequestsPage from "./pages/Requests";
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   return (
     <>
       <FaviconUpdater />
       <Toaster position="top-right" />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
