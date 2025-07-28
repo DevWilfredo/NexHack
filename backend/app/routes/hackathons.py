@@ -182,7 +182,7 @@ def add_hackathons_judges(hackathon_id):
         db.session.rollback()
         return jsonify({'error': 'Database error', 'details': str(e)}), 500
 
-
+#-- endpoint para evaluar los equipos y darles puntajes  ---#
 @hackathon_bp.route('/evaluate', methods=['POST'])
 @jwt_required()
 def evaluate_team():
@@ -246,9 +246,10 @@ def finalize_hackathon(hackathon_id):
     user = User.query.get_or_404(user_id)
     hackathon = Hackathon.query.get_or_404(hackathon_id)
 
-    if user.id != hackathon.creator_id:
-        return jsonify({'error': 'Only the hackathon creator can finalize it'}), 403
-
+    # ✅ Permitir si es moderador o creador
+    if user.role != 'moderator' and user.id != hackathon.creator_id:
+        return jsonify({'error': 'No tienes permisos para agregar jueces a este hackathon.'}), 403
+    
     if hackathon.status == "finished":
         return jsonify({'message': 'Hackathon already finalized'}), 400
 

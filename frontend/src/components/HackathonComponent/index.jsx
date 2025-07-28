@@ -11,6 +11,7 @@ import { isInHackathon } from "../../utilities/userUtils";
 import {
   AlertCircle,
   CalendarIcon,
+  Frown,
   Scale,
   Trophy,
   User,
@@ -21,6 +22,7 @@ import BadgeHackathonComponent from "../BadgeHackathon";
 import { useApp } from "../../context/AppContext";
 import EditHackathonModal from "../EditHackathonModal";
 import JudgesModalComponent from "../JudgesModal";
+import WarningModalComponent from "../warningmodal";
 const HackatonsComponent = ({ hackathonId }) => {
   const [hackathon, setHackathon] = useState(null);
   const { user, userToken } = useAuth();
@@ -28,7 +30,14 @@ const HackatonsComponent = ({ hackathonId }) => {
   const { globalUsers, allhackathons } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [dbTags, setDbTagas] = useState([]);
+  const [showWarningModal, setShowWarningModal] = useState("");
 
+  const handleWarningModal = (type) => {
+    setShowWarningModal(type);
+
+    document.activeElement?.blur();
+    document.getElementById("warningmodal")?.showModal();
+  };
   const handleModal = () => setShowModal((prev) => !prev);
   const updateData = async () => {
     const data = await fetchSingleHackathon(hackathonId, userToken);
@@ -103,7 +112,7 @@ const HackatonsComponent = ({ hackathonId }) => {
             ))}
           </div>
         </div>
-        <div>
+        <div className="flex flex-col ">
           <BadgeHackathonComponent hackathon={hackathon} />
         </div>
       </div>
@@ -113,24 +122,54 @@ const HackatonsComponent = ({ hackathonId }) => {
         <div className="left w-full lg:w-2/3 space-y-4 ">
           <div className="grid bg-base-200 grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="card  bg-base-300 text-neutral-content">
-              <div className="card-body">
-                <h2 className="card-title">
-                  {" "}
-                  <CalendarIcon />
-                  Fecha de inicio
-                </h2>
-
-                <p>{formatDateToISOShort(hackathon.start_date)}</p>
+              <div className="card-body ">
+                <div className="card-title flex-justify-between">
+                  <h2 className="card-title ">
+                    <CalendarIcon />
+                    Fecha de finalización
+                  </h2>
+                </div>
+                <div>
+                  <p>{formatDateToISOShort(hackathon.end_date)}</p>
+                </div>
               </div>
             </div>
             <div className="card bg-base-300 text-neutral-content">
               <div className="card-body">
-                <h2 className="card-title">
-                  <CalendarIcon />
-                  Fecha de finalización
-                </h2>
-
-                <p>{formatDateToISOShort(hackathon.end_date)}</p>
+                <div className="card-title flex justify-between">
+                  <h2 className="card-title">
+                    <CalendarIcon />
+                    Fecha de finalización
+                  </h2>
+                  <div className="dropdown dropdown-end self-center mt-2 rounded-box btn-primary">
+                    <div tabIndex={-1} role="button" className="btn btn-sm">
+                      <WarningModalComponent
+                        hackathon={hackathon}
+                        newState={showWarningModal}
+                      />
+                      Finalizar
+                    </div>
+                    <ul
+                      tabIndex={0}
+                      className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+                    >
+                      <li>
+                        <a onClick={() => handleWarningModal("finalized")}>
+                          <Trophy className="text-warning" />
+                          Finalizar hackathon
+                        </a>
+                      </li>
+                      <li>
+                        <a onClick={() => handleWarningModal("closed")}>
+                          <Frown className="text-error" /> Suspender hackathon
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <p>{formatDateToISOShort(hackathon.end_date)}</p>
+                </div>
               </div>
             </div>
           </div>

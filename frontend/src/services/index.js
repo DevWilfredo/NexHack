@@ -416,6 +416,7 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
   return data;
 }
 
+//URL de la api
 const API_URL_AI = "https://openrouter.ai/api/v1/chat/completions";
 
 export const sendMessageToAI = async (message) => {
@@ -455,4 +456,43 @@ export const sendMessageToAI = async (message) => {
   }
 };
 
+//finalizar un hackathon
+export const finalizeHackathon = async ( hackathonId, token ) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}/finalize`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}
+
+//suspender hackathon
+export const suspendHackathon = async ( hackathonId, token ) => {
+  console.log("hackathonId", hackathonId);
+  console.log("token", token);
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status: "cancelled" }),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}
