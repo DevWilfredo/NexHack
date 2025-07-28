@@ -91,7 +91,7 @@ const Sidebar = () => {
                       <li key={hackathon.id}>
                         <NavLink
                           to={`/hackathons/${hackathon.id}`}
-                          className={`block px-3 py-2 rounded-md transition-all flex justify-between items-center ${linkText} ${linkHover}`}
+                          className={`px-3 py-2 rounded-md transition-all flex justify-between items-center ${linkText} ${linkHover}`}
                         >
                           <span className="truncate text-sm font-medium">
                             {hackathon.title}
