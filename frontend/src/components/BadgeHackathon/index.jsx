@@ -12,12 +12,12 @@ function BadgeHackathonComponent({ hackathon }) {
       color: "bg-warning text-content",
       icon: <Meh className="w-5 h-5 text-base-content mr-2" />,
     },
-    closed: {
+    cancelled: {
       text: "Cancelado",
       color: "bg-error text-content",
       icon: <Frown className="w-5 h-5 text-content mr-2" />,
     },
-    finalized: {
+    finished: {
       text: "Hackathon finalizado",
       color: "bg-gray-200 text-gray-600",
       icon: <Check className="w-5 h-5 text-gray-500 mr-2" />,

@@ -406,3 +406,46 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
 
   return data;
 }
+
+//finalizar un hackathon
+export const finalizeHackathon = async ( hackathonId, token ) => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}/finalize`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}
+
+//suspender hackathon
+
+export const suspendHackathon = async ( hackathonId, token ) => {
+  console.log("hackathonId", hackathonId);
+  console.log("token", token);
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status: "cancelled" }),
+  });
+
+  const data = await res.json();
+  console.log(data);
+  if (!res.ok) {
+    throw new Error(data.error || "Error al actualizar el hackathon");
+  }
+
+  return data;
+}
+ 
