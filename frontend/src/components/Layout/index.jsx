@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router";
 import {useAuth} from '@context/AuthContext'
 import Navbar from "@components/Navbar";
 import Sidebar from "@components/Sidebar";
+import ChatWidget from "../ChatbotWidget";
 
 const Layout = () => {
   const {user}  = useAuth()
@@ -16,6 +17,7 @@ const Layout = () => {
 
         <main className="flex-1 p-4 mt-4 overflow-auto">
           <Outlet />
+          <ChatWidget />
         </main>
       </div>
     </div>
