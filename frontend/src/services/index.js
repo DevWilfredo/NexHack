@@ -416,8 +416,6 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
   return data;
 }
 
-
-
 //URL de la api
 const API_URL_AI = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -478,7 +476,6 @@ export const finalizeHackathon = async ( hackathonId, token ) => {
 }
 
 //suspender hackathon
-
 export const suspendHackathon = async ( hackathonId, token ) => {
   console.log("hackathonId", hackathonId);
   console.log("token", token);
@@ -499,4 +496,3 @@ export const suspendHackathon = async ( hackathonId, token ) => {
 
   return data;
 }
- 
