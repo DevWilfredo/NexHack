@@ -25,7 +25,7 @@ function UserToJudgesComponent({ us, index, handleInvitation }) {
             className="w-8 h-8 rounded-full"
           />
           <p className="hover:text-info">
-            <NavLink to={`/users/${us.id}`} target="_blank">
+            <NavLink to={`/profile/${us.id}`} target="_blank">
               {us.firstname} {us.lastname}
             </NavLink>
           </p>

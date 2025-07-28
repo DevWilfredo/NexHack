@@ -41,7 +41,7 @@ const CardComponent = ({ userArray, sizeToview = "" }) => {
           </div>
           <p>{userArray.bio}</p>
           <div className="card-actions justify-end">
-            <NavLink to={`/users/${userArray.id}`}>
+            <NavLink to={`/profile/${userArray.id}`}>
               <button
                 className={`btn btn-${
                   isDark ? "accent" : "primary"
