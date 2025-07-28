@@ -23,7 +23,7 @@ export const AppProvider = ({ children }) => {
   const [allHackathons, setAllHackathons] = useState([]);
   const [loadingAllHackathons, setLoadingAllHackathons] = useState(false);
 
-  const { userToken } = useAuth();
+  const { userToken, user } = useAuth();
 
   const fetchUsers = async () => {
     if (!userToken) return;
@@ -75,7 +75,7 @@ export const AppProvider = ({ children }) => {
     fetchMyHackathons();
     fetchRequests();
     fetchAllHackathons();
-  }, [userToken]);
+  }, [userToken, user]);
 
   return (
     <AppContext.Provider

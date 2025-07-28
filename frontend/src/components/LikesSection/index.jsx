@@ -30,7 +30,7 @@ function LikesSection({ likes }) {
               </p>
               <a
                 href={`/profile/${like.username}`}
-                className="btn btn-sm btn-accent border border-accent/10 mt-4"
+                className="btn btn-sm btn-primary border border-primary/10 mt-4"
               >
                 <User size={16} className="mr-1" />
                 Ver perfil
@@ -38,7 +38,7 @@ function LikesSection({ likes }) {
             </div>
 
             <div className="flex flex-col items-end">
-              <span className="badge badge-accent mb-1 p-2">
+              <span className="badge badge-primary mb-1 p-2">
                 <Trophy className="mr-1 h-5 w-5 text-yellow-600" fill="currentColor" />
                 {like.points} pts
               </span>

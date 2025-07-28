@@ -344,6 +344,15 @@ export const getMyHackathons = async (token) => {
   }
 };
 
+export const GetUserHackathons = (id, token) => {
+  return fetch(`${API_URL}/users/${id}/hackathons`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).then((res) => res.json());
+};
+
+
 
 export const fetchUserRequests = async (token) => {
   try {
@@ -449,3 +458,45 @@ export const suspendHackathon = async ( hackathonId, token ) => {
   return data;
 }
  
+
+
+const API_URL_AI = "https://openrouter.ai/api/v1/chat/completions";
+
+export const sendMessageToAI = async (message) => {
+  try {
+    const response = await fetch(API_URL_AI, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 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"
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Eres un mentor técnico en NexHack. Solo orientas a investigar, no das respuestas. Si te preguntan cosas fuera de programación, animación o hackathones, redirige al tema principal.",
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      console.error("Respuesta inválida:", data);
+      throw new Error(data.error?.message || "Error al procesar respuesta de OpenRouter");
+    }
+
+    return data.choices?.[0]?.message?.content || "No se pudo generar una respuesta.";
+  } catch (error) {
+    console.error("Error al enviar mensaje a la IA:", error);
+    return "Lo siento, hubo un error al procesar tu mensaje.";
+  }
+};
+
+
