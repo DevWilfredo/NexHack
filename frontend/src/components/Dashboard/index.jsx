@@ -12,7 +12,6 @@ import DashboardCards from "../DashboardCards";
 import HackathonsTable from "../HackathonsTable";
 import HackathonsCalendar from "../HackathonsCalendar";
 import { Activity, Trophy, Users } from "lucide-react";
-import ChatWidget from "../ChatbotWidget";
 
 const cardData = [
   {
@@ -88,7 +87,6 @@ const DashboardComponent = () => {
         datesToShow={datesToShow}
         mapHackathons={mapHackathons}
       />
-      <ChatWidget />
     </div>
   );
 };

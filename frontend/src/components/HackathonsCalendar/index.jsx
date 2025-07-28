@@ -14,8 +14,14 @@ const HackathonsCalendar = ({
   mapHackathons,
 }) => {
   const { isDark } = useTheme();
-  const selectedKey = formatDateToISOShort(selectedDate);
-  const eventosEseDia = mapHackathons[selectedKey] || [];
+  const selectedKey = selectedDate ? formatDateToISOShort(selectedDate) : null;
+
+  // Solo los hackathones que inician ese día
+  const eventosEseDia = selectedKey
+    ? (mapHackathons[selectedKey] || []).filter(
+        (hack) => formatDateToISOShort(hack.start_date) === selectedKey
+      )
+    : [];
 
   return (
     <div className="w-full lg:flex-[1] p-4 space-y-6">
@@ -77,7 +83,9 @@ const HackathonsCalendar = ({
                   key={hack.id}
                   className="block bg-primary/10 px-4 py-3 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all duration-300 transform hover:scale-[1.02]"
                 >
-                  <span className="font-semibold truncate block">{hack.title}</span>
+                  <span className="font-semibold truncate block">
+                    {hack.title}
+                  </span>
                   <div className="text-sm flex flex-col sm:flex-row sm:items-center sm:gap-4 mt-2 text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <CalendarDays className="w-4 h-4" />

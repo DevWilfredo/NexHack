@@ -8,12 +8,14 @@ export const formatoFecha = (fechaString) => {
   return `${dia}-${mes}-${año}`;
 };
 
-//  Formatea a "YYYY-MM-DD"
+//  Formatea una fecha a "YYYY-MM-DD" (ISO corto)
+//  Útil para comparar fechas y evitar problemas de zona horaria
 export const formatDateToISOShort = (date) => {
   const d = new Date(date);
   if (isNaN(d)) throw new Error("Fecha inválida: " + date);
-  return d.toISOString().split("T")[0];
+  return d.toLocaleDateString("sv-SE");
 };
+
 
 //  Calcula diferencia en horas
 export const calcularHoras = (inicio, fin) => {

@@ -1,4 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL
+const OPEN_AI_URL = import.meta.env.VITE_OPENAI_API_URL
+const OPEN_AI_KEY = import.meta.env.VITE_OPENAI_API_KEY
 const headers = {'Content-Type': "application/json"}
 
 
@@ -416,16 +418,15 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
   return data;
 }
 
-//URL de la api
-const API_URL_AI = "https://openrouter.ai/api/v1/chat/completions";
+
 
 export const sendMessageToAI = async (message) => {
   try {
-    const response = await fetch(API_URL_AI, {
+    const response = await fetch(OPEN_AI_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": `Bearer ${OPEN_AI_KEY}`,
       },
       body: JSON.stringify({
        model: "mistralai/mistral-7b-instruct:free",

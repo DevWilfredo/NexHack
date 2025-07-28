@@ -130,7 +130,7 @@ const HackatonsComponent = ({ hackathonId }) => {
                   </h2>
                 </div>
                 <div>
-                  <p>{formatDateToISOShort(hackathon.end_date)}</p>
+                  <p>{formatDateToISOShort(hackathon.start_date)}</p>
                 </div>
               </div>
             </div>
