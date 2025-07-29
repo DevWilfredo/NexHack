@@ -532,3 +532,35 @@ export const suspendHackathon = async (hackathonId, token) => {
 
   return data;
 }
+
+// @services/feedbackServices.js (o donde prefieras)
+
+// Obtener likes recibidos por un usuario
+export async function GetUserLikes(userId, token) {
+  const response = await fetch(`${API_URL}/users/likes/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener likes del usuario");
+  }
+
+  return await response.json();
+}
+
+// Obtener testimonios recibidos por un usuario
+export async function GetUserTestimonials(userId, token) {
+  const response = await fetch(`${API_URL}/users/testimonials/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener testimonios del usuario");
+  }
+
+  return await response.json();
+}

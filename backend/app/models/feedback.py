@@ -12,7 +12,12 @@ class UserTeamLike(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    __table_args__ = (db.UniqueConstraint('from_user_id', 'to_user_id', 'hackathon_id', name='_user_like_unique'),)
+    from_user = db.relationship("User", foreign_keys=[from_user_id])
+    to_user = db.relationship("User", foreign_keys=[to_user_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('from_user_id', 'to_user_id', 'hackathon_id', name='_user_like_unique'),
+    )
 
     def to_dict(self):
         return {
@@ -21,8 +26,10 @@ class UserTeamLike(db.Model):
             "to_user_id": self.to_user_id,
             "hackathon_id": self.hackathon_id,
             "team_id": self.team_id,
+            "from_user": self.from_user.to_dict() if self.from_user else None,
             "created_at": self.created_at.isoformat()
         }
+
 
 class UserTestimonial(db.Model):
     __tablename__ = 'user_testimonials'
@@ -33,9 +40,15 @@ class UserTestimonial(db.Model):
     hackathon_id = db.Column(db.Integer, db.ForeignKey('hackathons.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Float, nullable=False, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    __table_args__ = (db.UniqueConstraint('from_user_id', 'to_user_id', 'hackathon_id', name='_testimonial_unique'),)
+    from_user = db.relationship("User", foreign_keys=[from_user_id])
+    to_user = db.relationship("User", foreign_keys=[to_user_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('from_user_id', 'to_user_id', 'hackathon_id', name='_testimonial_unique'),
+    )
 
     def to_dict(self):
         return {
@@ -45,5 +58,8 @@ class UserTestimonial(db.Model):
             "hackathon_id": self.hackathon_id,
             "team_id": self.team_id,
             "message": self.message,
+            "rating": self.rating,
+            "from_user": self.from_user.to_dict() if self.from_user else None,
             "created_at": self.created_at.isoformat()
         }
+

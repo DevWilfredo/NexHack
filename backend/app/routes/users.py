@@ -2,10 +2,12 @@ import os
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app.models.user import User
-from app.models.team import TeamMember
+from app.models.team import TeamMember, Team
 from app.models.hackathon import Hackathon, HackathonJudge
 from app.models.evaluation import HackathonWinner
+from app.models.feedback import UserTeamLike, UserTestimonial
 from app.extensions import db
+from app.utils.notifications import create_notification
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.schemas.user_schema import UserUpdateSchema
 from marshmallow import ValidationError
@@ -223,3 +225,187 @@ def get_user_hackathons(user_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@user_bp.route('/likes', methods=['POST'])
+@jwt_required()
+def give_like():
+    from_user = get_jwt_identity()
+    data = request.get_json()
+    to_user = data.get('to_user_id')
+    team_id = data.get('team_id')
+    hackathon_id = data.get('hackathon_id')
+
+    if from_user == to_user:
+        return jsonify({'error': 'No puedes darte like a ti mismo.'}), 400
+
+    # Validación de existencia de equipo y usuarios
+    team = Team.query.filter_by(id=team_id, hackathon_id=hackathon_id).first()
+    if not team:
+        return jsonify({'error': 'El equipo no pertenece al hackathon especificado.'}), 400
+
+    user_ids_in_team = [member.user_id for member in team.members]
+    print(f"Usuarios en el equipo: {user_ids_in_team}")
+    if int(from_user) not in user_ids_in_team or to_user not in user_ids_in_team:
+        return jsonify({'error': 'Ambos usuarios deben haber sido miembros del mismo equipo en este hackathon.'}), 403
+
+    # 💡 Verificamos si ya existe un like entre estos dos usuarios (en cualquier hackathon)
+    existing_like = UserTeamLike.query.filter_by(
+        from_user_id=int(from_user),
+        to_user_id=to_user
+    ).first()
+
+    if existing_like:
+        return jsonify({'error': 'Ya diste like a este usuario anteriormente.'}), 409
+
+    try:
+        like = UserTeamLike(
+            from_user_id=int(from_user),
+            to_user_id=to_user,
+            team_id=team_id,
+            hackathon_id=hackathon_id
+        )
+        db.session.add(like)
+
+        # 🔔 Crear notificación para el usuario que recibió el like
+        from_user_obj = User.query.get(from_user)
+        message = f"{from_user_obj.firstname} te dio un like en el equipo del hackathon."
+
+        create_notification(
+            user_id=to_user,
+            notif_type="like_received",
+            message=message,
+            data={
+                "from_user": {
+                    "id": from_user_obj.id,
+                    "firstname": from_user_obj.firstname,
+                    "lastname": from_user_obj.lastname,
+                    "profile_picture": from_user_obj.profile_picture,
+                    "bio": from_user_obj.bio
+                },
+                "team_id": team_id,
+                "hackathon_id": hackathon_id
+            }
+        )
+
+        db.session.commit()
+        return jsonify(like.to_dict()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@user_bp.route('/testimonials', methods=['POST'])
+@jwt_required()
+def give_testimonial():
+    data = request.get_json()
+    from_user = get_jwt_identity()
+    to_user = data.get('to_user_id')
+    team_id = data.get('team_id')
+    hackathon_id = data.get('hackathon_id')
+    message = data.get('message')
+    rating = data.get('rating')
+
+    if from_user == to_user:
+        return jsonify({'error': 'No puedes dejarte un testimonio a ti mismo.'}), 400
+
+    if not message or message.strip() == "":
+        return jsonify({'error': 'El mensaje no puede estar vacío.'}), 400
+
+    if rating is None:
+        return jsonify({'error': 'El rating es obligatorio.'}), 400
+    
+    try:
+        rating = float(rating)
+    except ValueError:
+        return jsonify({'error': 'El rating debe ser un número válido.'}), 400
+
+    if rating < 0 or rating > 5:
+        return jsonify({'error': 'El rating debe estar entre 0 y 5.'}), 400
+
+    team = Team.query.filter_by(id=team_id, hackathon_id=hackathon_id).first()
+    if not team:
+        return jsonify({'error': 'El equipo no pertenece al hackathon especificado.'}), 400
+
+    user_ids_in_team = [member.user_id for member in team.members]
+    if int(from_user) not in user_ids_in_team or to_user not in user_ids_in_team:
+        return jsonify({'error': 'Ambos usuarios deben haber sido miembros del mismo equipo en este hackathon.'}), 403
+
+    existing_testimonial = UserTestimonial.query.filter_by(
+        from_user_id=int(from_user),
+        to_user_id=to_user
+    ).first()
+
+    if existing_testimonial:
+        return jsonify({'error': 'Ya diste un testimonio a este usuario anteriormente.'}), 409
+
+    try:
+        testimonial = UserTestimonial(
+            from_user_id=int(from_user),
+            to_user_id=to_user,
+            team_id=team_id,
+            hackathon_id=hackathon_id,
+            message=message.strip(),
+            rating=rating
+        )
+        db.session.add(testimonial)
+        db.session.flush()  # Obtener testimonial.id antes del commit
+
+        # 🔔 Crear notificación para el receptor del testimonio
+        from_user_obj = User.query.get(from_user)
+        message = f"{from_user_obj.firstname} te dejó un testimonio en el equipo del hackathon."
+
+        create_notification(
+            user_id=to_user,
+            notif_type="testimonial_received",
+            message=message,
+            data={
+                "from_user": {
+                    "id": from_user_obj.id,
+                    "firstname": from_user_obj.firstname,
+                    "lastname": from_user_obj.lastname,
+                    "profile_picture": from_user_obj.profile_picture,
+                    "bio": from_user_obj.bio
+                },
+                "team_id": team_id,
+                "hackathon_id": hackathon_id,
+                "testimonial_id": testimonial.id,
+                "message": message,
+                "rating": rating
+            }
+        )
+
+        db.session.commit()
+        return jsonify(testimonial.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+
+
+@user_bp.route('/likes/<int:user_id>', methods=['GET'])
+def get_user_likes(user_id):
+    likes = UserTeamLike.query.filter_by(to_user_id=user_id)\
+        .join(User, User.id == UserTeamLike.from_user_id)\
+        .order_by(UserTeamLike.created_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": like.id,
+            "from_user": like.from_user.to_dict(),  # datos del que dio el like
+            "hackathon_id": like.hackathon_id,
+            "team_id": like.team_id,
+            "created_at": like.created_at.isoformat()
+        }
+        for like in likes
+    ]), 200
+
+
+@user_bp.route('/testimonials/<int:user_id>', methods=['GET'])
+def get_user_testimonials(user_id):
+    testimonials = UserTestimonial.query.filter_by(to_user_id=user_id)\
+        .join(User, User.id == UserTestimonial.from_user_id)\
+        .order_by(UserTestimonial.created_at.desc()).all()
+
+    return jsonify([t.to_dict() for t in testimonials
+    ]), 200
+

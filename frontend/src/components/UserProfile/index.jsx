@@ -9,7 +9,7 @@ import HackathonHistory from "../HackathonsHistory";
 import LikesSection from "../LikesSection";
 import { ThumbsUp, Trophy, BarChart } from "lucide-react";
 import { useParams } from "react-router";
-import { GetUserProfile, GetUserHackathons } from "@services";
+import { GetUserProfile, GetUserHackathons, GetUserLikes, GetUserTestimonials } from "@services";
 import SpinnerLoader from "../SpinnerLoader";
 
 function UserProfileComponent() {
@@ -17,6 +17,8 @@ function UserProfileComponent() {
   const { user: authUser, setUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [userHackathons, setUserHackathons] = useState([]);
+  const [userLikes, setUserLikes] = useState([]);
+  const [userTestimonials, setUserTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("global");
@@ -61,25 +63,32 @@ function UserProfileComponent() {
 
   // Obtener perfil cuando cambia el ID de la URL
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const [profile, hackathons] = await Promise.all([
-          GetUserProfile(id, token),
-          GetUserHackathons(id, token),
-        ]);
-        setProfileData(profile);
-        setUserHackathons(hackathons);
-      } catch (error) {
-        console.error("Error al obtener datos del perfil:", error);
-      } finally {
-        setTimeout(() => setLoading(false), 800);
-      }
-    };
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
 
-    fetchProfile();
-  }, [id]);
+      const [profile, hackathons, likes, testimonials] = await Promise.all([
+        GetUserProfile(id, token),
+        GetUserHackathons(id, token),
+        GetUserLikes(id, token),
+        GetUserTestimonials(id, token),
+      ]);
+
+      setProfileData(profile);
+      setUserHackathons(hackathons);
+      setUserLikes(likes);
+      setUserTestimonials(testimonials);
+    } catch (error) {
+      console.error("Error al obtener datos del perfil:", error);
+    } finally {
+      setTimeout(() => setLoading(false), 800);
+    }
+  };
+
+  fetchProfile();
+}, [id]);
+
 
   if (loading || !profileData) {
     return <SpinnerLoader />;
@@ -198,7 +207,7 @@ function UserProfileComponent() {
             />
           )}
 
-          {activeTab === "followers" && <LikesSection likes={followers} />}
+          {activeTab === "followers" && <LikesSection likes={userLikes} />}
 
           {activeTab === "hacksWins" && (
             <ul className="space-y-2">
@@ -213,7 +222,7 @@ function UserProfileComponent() {
             </ul>
           )}
 
-          <TestimonialsSection />
+          <TestimonialsSection  testimonials={userTestimonials} />
         </div>
       </div>
 

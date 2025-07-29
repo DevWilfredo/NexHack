@@ -46,3 +46,11 @@ class User(db.Model):
     def add_points(self, points):
         self.points += points
         self.updated_at = datetime.utcnow()
+
+class LoginAttempt(db.Model):
+    __tablename__ = 'login_attempts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), nullable=False)
+    success = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
