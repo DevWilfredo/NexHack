@@ -15,17 +15,17 @@ import {
   Menu,
 } from "lucide-react";
 
-const links = [
-  { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
-  { icon: CircleUserRound, text: "Perfil", to: "/profile" },
-  { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
-  { icon: Mails, text: "Solicitudes", to: "/requests" },
-];
 
 const Navbar = () => {
   const { isDark } = useTheme();
   const { user } = useAuth();
   const location = useLocation();
+  const links = [
+    { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
+    { icon: CircleUserRound, text: "Perfil", to: `/profile/${user?.id}` },
+    { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
+    { icon: Mails, text: "Solicitudes", to: "/requests" },
+  ];
 
   const getBtnClass = (isActive) =>
     isActive
