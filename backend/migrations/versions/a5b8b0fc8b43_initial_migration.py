@@ -1,8 +1,8 @@
-"""Recrear migraciones desde cero
+"""Initial Migration
 
-Revision ID: 45b4480a48d5
+Revision ID: a5b8b0fc8b43
 Revises: 
-Create Date: 2025-07-27 10:48:23.164988
+Create Date: 2025-07-29 17:02:33.788952
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '45b4480a48d5'
+revision = 'a5b8b0fc8b43'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -178,6 +178,7 @@ def upgrade():
     sa.Column('hackathon_id', sa.Integer(), nullable=False),
     sa.Column('team_id', sa.Integer(), nullable=False),
     sa.Column('message', sa.Text(), nullable=False),
+    sa.Column('rating', sa.Float(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['from_user_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['hackathon_id'], ['hackathons.id'], ),

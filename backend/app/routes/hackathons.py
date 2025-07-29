@@ -10,6 +10,7 @@ from app.schemas.hackathon_schema import HackathonCreateSchema, HackathonUpdateS
 from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
+from app.utils.notifications import create_notification
 
 hackathon_bp = Blueprint('hackathons', __name__)
 
@@ -149,7 +150,7 @@ def add_hackathons_judges(hackathon_id):
     user = User.query.get_or_404(user_id)
     hackathon = Hackathon.query.get_or_404(hackathon_id)
 
-    # ✅ Permitir si es moderador o creador
+    # ✅ Permitir si es moderador o creador del hackathon
     if user.role != 'moderator' and user.id != hackathon.creator_id:
         return jsonify({'error': 'No tienes permisos para agregar jueces a este hackathon.'}), 403
 
@@ -174,15 +175,31 @@ def add_hackathons_judges(hackathon_id):
     try:
         new_judge = HackathonJudge(hackathon_id=hackathon_id, judge_id=judge_id)
         db.session.add(new_judge)
-        db.session.commit()
 
+        # 🔔 Notificar al juez agregado
+        create_notification(
+            user_id=judge.id,
+            notif_type="assigned_judge",
+            message=f"Has sido asignado como juez en el hackathon '{hackathon.title}'.",
+            data={
+                "hackathon_id": hackathon.id,
+                "hackathon_title": hackathon.title,
+                "added_by": {
+                    "id": user.id,
+                    "firstname": user.firstname,
+                    "lastname": user.lastname,
+                    "profile_picture": user.profile_picture
+                }
+            }
+        )
+
+        db.session.commit()
         return jsonify({'message': 'Juez agregado exitosamente', 'judge': new_judge.to_dict()}), 201
 
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({'error': 'Database error', 'details': str(e)}), 500
 
-#-- endpoint para evaluar los equipos y darles puntajes  ---#
 @hackathon_bp.route('/evaluate', methods=['POST'])
 @jwt_required()
 def evaluate_team():
@@ -231,6 +248,29 @@ def evaluate_team():
             feedback=feedback
         )
         db.session.add(new_score)
+
+        # 🔔 Notificar a cada miembro del equipo que su equipo fue evaluado
+        team_members = TeamMember.query.filter_by(team_id=team_id).all()
+        for member in team_members:
+            create_notification(
+                user_id=member.user_id,
+                notif_type="team_evaluated",
+                message=f"Tu equipo '{team.name}' fue evaluado por el juez {user.firstname} {user.lastname}.",
+                data={
+                    "team_id": team.id,
+                    "team_name": team.name,
+                    "hackathon_id": hackathon.id,
+                    "score": score,
+                    "feedback": feedback,
+                    "judge": {
+                        "id": user.id,
+                        "firstname": user.firstname,
+                        "lastname": user.lastname,
+                        "profile_picture": user.profile_picture
+                    }
+                }
+            )
+
         db.session.commit()
 
         return jsonify({'message': 'Evaluation submitted successfully', 'evaluation': new_score.to_dict()}), 201
@@ -248,7 +288,7 @@ def finalize_hackathon(hackathon_id):
 
     # ✅ Permitir si es moderador o creador
     if user.role != 'moderator' and user.id != hackathon.creator_id:
-        return jsonify({'error': 'No tienes permisos para agregar jueces a este hackathon.'}), 403
+        return jsonify({'error': 'No tienes permisos para finalizar este hackathon.'}), 403
     
     if hackathon.status == "finished":
         return jsonify({'message': 'Hackathon already finalized'}), 400
@@ -300,6 +340,22 @@ def finalize_hackathon(hackathon_id):
                 points_awarded=0
             )
             db.session.add(winner)
+
+        # 🔔 Notificar a todos los miembros de cada equipo que el hackathon terminó
+        for team in all_teams:
+            members = TeamMember.query.filter_by(team_id=team.id).all()
+            for member in members:
+                create_notification(
+                    user_id=member.user_id,
+                    notif_type="hackathon_finished",
+                    message=f"El hackathon '{hackathon.title}' ha finalizado. Gracias por participar.",
+                    data={
+                        "hackathon_id": hackathon.id,
+                        "hackathon_name": hackathon.title,
+                        "team_id": team.id,
+                        "team_name": team.name
+                    }
+                )
 
         # Marcar hackathon como finalizado
         hackathon.status = "finished"
