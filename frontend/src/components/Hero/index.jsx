@@ -5,6 +5,8 @@ import ButtonPrimary from "@components/ButtonPrimary";
 import ButtonSecondary from "@components/ButtonSecondary";
 import { motion } from "framer-motion";
 import AnimatedSection from "@components/AnimatedSection";
+import nexhackDark from "@assets/nexhackDark.webp";
+import nexhackBlueDashboard from "@assets/nexhackBlueDashboard.webp";
 
 const Hero = () => {
   const { isDark } = useTheme();
@@ -27,7 +29,9 @@ const Hero = () => {
               <span>¿Listo para</span>{" "}
               <span
                 className={`block w-full py-2 text-transparent bg-clip-text leading-12 bg-gradient-to-r ${
-                  isDark ? "from-accent to-secondary" : "from-primary to-secondary"
+                  isDark
+                    ? "from-accent to-secondary"
+                    : "from-primary to-secondary"
                 } lg:inline`}
               >
                 programar, competir y colaborar
@@ -62,22 +66,24 @@ const Hero = () => {
             className="w-full mx-auto mt-20 text-center md:w-10/12"
           >
             <div className="relative z-0 w-full mt-8">
-              <div className="relative overflow-hidden shadow-2xl">
-                <div
-                  className={`flex items-center flex-none px-4 ${
-                    isDark ? "bg-accent" : "bg-primary"
-                  } rounded-b-none h-11 rounded-xl`}
-                >
+              <div className="w-full max-w-5xl mx-auto rounded-xl overflow-hidden shadow-lg border border-base-200">
+                {/* Barra del navegador */}
+                <div className="flex items-center justify-between px-4 py-2 bg-primary border-b border-base-200 space-x-4 rounded-t-xl">
+                  {/* Botones estilo navegador */}
                   <div className="flex space-x-1.5">
-                    <div className="w-3 h-3 border-2 border-white rounded-full"></div>
-                    <div className="w-3 h-3 border-2 border-white rounded-full"></div>
-                    <div className="w-3 h-3 border-2 border-white rounded-full"></div>
+                    <div className="w-3 h-3 bg-rose-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>
+
+                  {/* Botón de recarga */}
+                  <button className="text-white hover:text-gray-700 text-sm cursor-pointer">
+                    ⟳
+                  </button>
                 </div>
-                <img
-                  src="https://cdn.devdojo.com/images/march2021/green-dashboard.jpg"
-                  alt="dashboard"
-                />
+
+                {/* Contenido del navegador */}
+                <img src={isDark ? nexhackDark : nexhackBlueDashboard} alt="dashboard" className="w-full" />
               </div>
             </div>
           </motion.div>
