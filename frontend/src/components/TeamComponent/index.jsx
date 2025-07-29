@@ -19,6 +19,47 @@ import {
 } from "../../utilities/userUtils";
 import toast from "react-hot-toast";
 import { useApp } from "@context/AppContext";
+import { NavLink } from "react-router";
+import TestimonialCarousel from "../TestimonialCarrousel";
+import EvaluationModalComponent from "../EvaluationModal";
+
+const testimonials = [
+  {
+    name: "Lucía Fernández",
+    role: "Ingeniera de Software",
+    image: "https://i.pravatar.cc/150?img=12",
+    quote:
+      "Participar en este hackathon me impulsó a salir de mi zona de confort. Fue una experiencia increíblemente enriquecedora.",
+  },
+  {
+    name: "Martín Rojas",
+    role: "Estudiante de Informática",
+    image: "https://i.pravatar.cc/150?img=33",
+    quote:
+      "Aprendí más en un fin de semana que en varias semanas de clase. La energía y colaboración del evento fue única.",
+  },
+  {
+    name: "Camila Díaz",
+    role: "Diseñadora UX/UI",
+    image: "https://i.pravatar.cc/150?img=5",
+    quote:
+      "El trabajo en equipo fue lo mejor. Conocí personas con mucho talento y compartimos ideas muy creativas.",
+  },
+  {
+    name: "Santiago Morales",
+    role: "Desarrollador Frontend",
+    image: "https://i.pravatar.cc/150?img=18",
+    quote:
+      "Los desafíos eran reales y muy interesantes. Me encantó tener la oportunidad de resolver problemas concretos.",
+  },
+  {
+    name: "Valentina Romero",
+    role: "Data Scientist",
+    image: "https://i.pravatar.cc/150?img=25",
+    quote:
+      "Pude aplicar mis conocimientos en un entorno práctico y competitivo. ¡Definitivamente repetiría!",
+  },
+];
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -38,6 +79,13 @@ function TeamsComponent({ hackathonId, teamId }) {
   const [invitacionesPendientes, setInvitacionesPendientes] = useState([]);
   const [tipoSolicitudActivo, setTipoSolicitudActivo] = useState("solicitudes");
   const [filtro, setFiltro] = useState("");
+
+  //modal de evaluacion
+  const [showEvaluationModal, setShowEvaluationModal] = useState(false);
+
+  const handleShowEvaluationModal = () => {
+    setShowEvaluationModal((prev) => !prev);
+  };
 
   useEffect(() => {
     if (hackathonId && teamId && userToken) {
@@ -166,6 +214,17 @@ function TeamsComponent({ hackathonId, teamId }) {
               hackathonData.start_date
             )} - ${formatDateToISOShort(hackathonData.end_date)}`}
           </p>
+          <button
+            onClick={handleShowEvaluationModal}
+            className="btn btn-primary mt-2"
+          >
+            Evaluar Equipo
+          </button>
+          <EvaluationModalComponent
+            showModal={showEvaluationModal}
+            onClose={handleShowEvaluationModal}
+            team={teamData}
+          />
         </div>
       </div>
 
@@ -390,30 +449,51 @@ function TeamsComponent({ hackathonId, teamId }) {
           </div>
         </div>
       </div>
+      <div className="w-full card bg-base-300 text-neutral-content p-4 p">
+        <div>
+          <h2 className="text-bold text-xl">Valoraciones del Jurado</h2>
+        </div>
+        <div className="divider pt-0" />
+        <div>
+          <TestimonialCarousel testimonials={testimonials} cardsPerSlide={3} />
+        </div>
+      </div>
 
       {/* Botón para unirse */}
-      <div className="flex justify-end pt-4">
-        {hackathonData.judges.some((j) => j.id === user.id) ? (
-          <button className="btn btn-disabled">Eres juez en este evento</button>
-        ) : isMember ? (
-          <button className="btn btn-disabled">Eres miembro</button>
-        ) : isFull ? (
-          <button className="btn btn-disabled">Equipo lleno</button>
-        ) : hasPendingRequest ? (
-          <button className="btn btn-disabled">Esperando respuesta</button>
-        ) : isInHackathon(hackathonData, user) ? (
-          <button className="btn btn-disabled">Inscrito en otro equipo</button>
-        ) : (
-          <button
-            disabled={disabledButton.disable}
-            className={`btn ${
-              isDark ? "btn-accent" : "btn-primary"
-            } hover:btn-success`}
-            onClick={JoinTeam(userToken, teamId, setDisabledButton)}
-          >
-            {disabledButton.message || "Unirse al equipo"}
-          </button>
-        )}
+      <div className="flex justify-between">
+        <div className="flex justify-start pt-4">
+          <NavLink to={`/hackathons/${hackathonData.id}`}>
+            {" "}
+            <button className="btn btn-primary">volver atras</button>
+          </NavLink>
+        </div>
+        <div className="flex justify-end pt-4">
+          {hackathonData.judges.some((j) => j.id === user.id) ? (
+            <button className="btn btn-disabled">
+              Eres juez en este evento
+            </button>
+          ) : isMember ? (
+            <button className="btn btn-disabled">Eres miembro</button>
+          ) : isFull ? (
+            <button className="btn btn-disabled">Equipo lleno</button>
+          ) : hasPendingRequest ? (
+            <button className="btn btn-disabled">Esperando respuesta</button>
+          ) : isInHackathon(hackathonData, user) ? (
+            <button className="btn btn-disabled">
+              Inscrito en otro equipo
+            </button>
+          ) : (
+            <button
+              disabled={disabledButton.disable}
+              className={`btn ${
+                isDark ? "btn-accent" : "btn-primary"
+              } hover:btn-success`}
+              onClick={JoinTeam(userToken, teamId, setDisabledButton)}
+            >
+              {disabledButton.message || "Unirse al equipo"}
+            </button>
+          )}
+        </div>
       </div>
       <AddMemberModal
         team={teamData}
