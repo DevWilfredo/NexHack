@@ -24,13 +24,13 @@ import EditHackathonModal from "../EditHackathonModal";
 import JudgesModalComponent from "../JudgesModal";
 import WarningModalComponent from "../warningmodal";
 const HackatonsComponent = ({ hackathonId }) => {
-  const [hackathon, setHackathon] = useState(null);
   const { user, userToken } = useAuth();
   const [equipos, setEquipos] = useState([]);
-  const { globalUsers, allhackathons } = useApp();
+  const { globalUsers, allHackathons, loadingAllHackathons } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [dbTags, setDbTagas] = useState([]);
   const [showWarningModal, setShowWarningModal] = useState("");
+  const [hackathon, setHackathon] = useState(null);
 
   const handleWarningModal = (type) => {
     setShowWarningModal(type);
@@ -38,19 +38,24 @@ const HackatonsComponent = ({ hackathonId }) => {
     document.activeElement?.blur();
     document.getElementById("warningmodal")?.showModal();
   };
+
   const handleModal = () => setShowModal((prev) => !prev);
   const updateData = async () => {
-    const data = await fetchSingleHackathon(hackathonId, userToken);
-    setHackathon(data);
-    setEquipos(data.teams);
+    hackathon = allHackathons.find((h) => h.id === hackathonId);
+    setEquipos(hackathon.teams);
     GetTags().then((data) => setDbTagas(data));
   };
 
   useEffect(() => {
-    if (!hackathonId || !userToken) return;
-
-    updateData();
-  }, [hackathonId]);
+    if (!loadingAllHackathons) {
+      const found = allHackathons.find(
+        (h) => String(h.id) === String(hackathonId)
+      );
+      setHackathon(found || null);
+      setEquipos(found?.teams || []);
+      GetTags().then((data) => setDbTagas(data));
+    }
+  }, [loadingAllHackathons, allHackathons, hackathonId]);
 
   const handleUpdate = (updatedData) => setHackathon(updatedData);
   //Si no explota, no sacar.
@@ -141,31 +146,37 @@ const HackatonsComponent = ({ hackathonId }) => {
                     <CalendarIcon />
                     Fecha de finalización
                   </h2>
-                  <div className="dropdown dropdown-end self-center mt-2 rounded-box btn-primary">
-                    <div tabIndex={-1} role="button" className="btn btn-sm">
-                      <WarningModalComponent
-                        hackathon={hackathon}
-                        newState={showWarningModal}
-                      />
-                      Finalizar
+                  {user.id === hackathon.creator_id ||
+                  user.role === "moderator" ? (
+                    // 🔧 FIX: El div estaba mal cerrado causando error de sintaxis
+                    <div className="dropdown dropdown-end self-center mt-2 rounded-box btn-primary">
+                      <div tabIndex={-1} role="button" className="btn btn-sm">
+                        <WarningModalComponent
+                          hackathon={hackathon}
+                          newState={showWarningModal}
+                        />
+                        Finalizar
+                      </div>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+                      >
+                        <li>
+                          <a onClick={() => handleWarningModal("finalized")}>
+                            <Trophy className="text-warning" />
+                            Finalizar hackathon
+                          </a>
+                        </li>
+                        <li>
+                          <a onClick={() => handleWarningModal("closed")}>
+                            <Frown className="text-error" /> Suspender hackathon
+                          </a>
+                        </li>
+                      </ul>
                     </div>
-                    <ul
-                      tabIndex={0}
-                      className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
-                    >
-                      <li>
-                        <a onClick={() => handleWarningModal("finalized")}>
-                          <Trophy className="text-warning" />
-                          Finalizar hackathon
-                        </a>
-                      </li>
-                      <li>
-                        <a onClick={() => handleWarningModal("closed")}>
-                          <Frown className="text-error" /> Suspender hackathon
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div>
                   <p>{formatDateToISOShort(hackathon.end_date)}</p>

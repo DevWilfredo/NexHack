@@ -23,14 +23,14 @@ const cardData = [
   {
     icon: Activity,
     title: "Actividad reciente",
-    description: "Tu equipo subió un nuevo commit hace 2 horas",
+    description: "Un juez te dejo su feedback",
     buttonText: "Ver historial",
   },
   {
     icon: Users,
-    title: "231 participantes",
-    description: "Aumentó un 8% esta semana",
-    buttonText: "Ver estadísticas",
+    title: "Tus posiciones",
+    description: "Esta semana participaste en un hackathon",
+    buttonText: "Ver resultados",
   },
 ];
 
@@ -59,9 +59,7 @@ const DashboardComponent = () => {
   const hackathonsToShow =
     activeTagId === "all"
       ? allHackathons
-      : allHackathons.filter((h) =>
-          h.tags?.some((t) => t.id === activeTagId)
-        );
+      : allHackathons.filter((h) => h.tags?.some((t) => t.id === activeTagId));
 
   return (
     <div className="flex flex-col lg:flex-row">
