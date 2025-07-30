@@ -34,12 +34,12 @@ const CardComponent = ({ userArray, sizeToview = "" }) => {
         <div className="card-body  bg-base-300">
           <h2 className="card-title self-center">{userArray.firstname}</h2>
           <div className="flex gap-2 aling-items-center">
-            <Trophy size={20} className="text-warning" />
-            <h4 className="text-md">
-              {userArray?.points || "Aqui van puntos"}
+            <Trophy size={25} className="text-warning" />
+            <h4 className="text-lg">
+              {userArray?.points + "pts" || 0 + "  pts"}
             </h4>
           </div>
-          <p>{userArray.bio}</p>
+          <p>{""}</p>
           <div className="card-actions justify-end">
             <NavLink to={`/profile/${userArray.id}`}>
               <button

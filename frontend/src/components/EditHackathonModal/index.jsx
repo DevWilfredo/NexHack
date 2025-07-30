@@ -80,11 +80,22 @@ function EditHackathonModal({
       return;
     }
 
-    const start = new Date(formData.start_date).toISOString();
-    const end = new Date(formData.end_date).toISOString();
+    const startDate = new Date(formData.start_date);
+    const endDate = new Date(formData.end_date);
 
-    if (start > end) {
+    // Validación de orden
+    if (startDate > endDate) {
       toast.error("La fecha de inicio no puede ser posterior a la de fin.");
+      return;
+    }
+
+    // Validación de que no sea una fecha pasada
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
+      toast.error("La fecha de inicio no puede ser una fecha pasada.");
       return;
     }
 

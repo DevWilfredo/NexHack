@@ -7,17 +7,18 @@ import UserToJudgesComponent from "../UserToJudges";
 import { addJudge } from "../../services";
 import toast from "react-hot-toast";
 
-function JudgesModalComponent({ hackathon, onHackathonUpdated }) {
+function JudgesModalComponent({ hackathon }) {
   const { userToken } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const { globalUsers } = useApp();
+  const { globalUsers, fetchAllHackathons } = useApp();
 
   const handleInvitation = async (toUserId) => {
     const loadingToast = toast.loading("Agregando juez");
     addJudge({ hackathonId: hackathon.id, token: userToken, userId: toUserId })
       .then(() => {
         toast.success("Juez agregado con éxito!", { id: loadingToast });
-        onHackathonUpdated?.(); // Evita error si no se pasa el prop
+
+        fetchAllHackathons(); // Evita error si no se pasa el prop
       })
       .catch((err) => {
         toast.error("Error al añadir juez", { id: loadingToast });
