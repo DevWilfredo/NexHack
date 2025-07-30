@@ -10,6 +10,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   ExternalLink,
+  Frown,
   Github,
   MessageSquareText,
   UserPlus,
@@ -33,44 +34,6 @@ import { NavLink } from "react-router";
 import TestimonialCarousel from "../TestimonialCarrousel";
 import EvaluationModalComponent from "../EvaluationModal";
 
-const testimonials = [
-  {
-    name: "Lucía Fernández",
-    role: "Ingeniera de Software",
-    image: "https://i.pravatar.cc/150?img=12",
-    quote:
-      "Participar en este hackathon me impulsó a salir de mi zona de confort. Fue una experiencia increíblemente enriquecedora.",
-  },
-  {
-    name: "Martín Rojas",
-    role: "Estudiante de Informática",
-    image: "https://i.pravatar.cc/150?img=33",
-    quote:
-      "Aprendí más en un fin de semana que en varias semanas de clase. La energía y colaboración del evento fue única.",
-  },
-  {
-    name: "Camila Díaz",
-    role: "Diseñadora UX/UI",
-    image: "https://i.pravatar.cc/150?img=5",
-    quote:
-      "El trabajo en equipo fue lo mejor. Conocí personas con mucho talento y compartimos ideas muy creativas.",
-  },
-  {
-    name: "Santiago Morales",
-    role: "Desarrollador Frontend",
-    image: "https://i.pravatar.cc/150?img=18",
-    quote:
-      "Los desafíos eran reales y muy interesantes. Me encantó tener la oportunidad de resolver problemas concretos.",
-  },
-  {
-    name: "Valentina Romero",
-    role: "Data Scientist",
-    image: "https://i.pravatar.cc/150?img=25",
-    quote:
-      "Pude aplicar mis conocimientos en un entorno práctico y competitivo. ¡Definitivamente repetiría!",
-  },
-];
-
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
   const [teamData, setTeamData] = useState(null);
@@ -78,7 +41,7 @@ function TeamsComponent({ hackathonId, teamId }) {
   const [activeSection, setActiveSection] = useState("miembros"); //
   const [activeModal, setActiveModal] = useState(null);
   const { isDark } = useTheme();
-  const { fetchRequests, allhackathons, allScores } = useApp();
+  const { fetchRequests, allhackathons, allScores, requests } = useApp();
   const [disabledButton, setDisabledButton] = useState({
     disable: false,
     message: "Solicitar unirse",
@@ -171,6 +134,12 @@ function TeamsComponent({ hackathonId, teamId }) {
 
   const isMember = teamData.members.some((m) => m.user?.id === user.id);
   const isFull = teamData.members.length >= hackathonData.max_team_members;
+  const PendingInv = requests.some(
+    (req) =>
+      req.status === "pending" &&
+      req.type === "invitation" &&
+      req.team_id === teamData.id
+  );
 
   const creatorName =
     teamData.members.find((member) => member.user?.id === teamData.creator_id)
@@ -199,7 +168,7 @@ function TeamsComponent({ hackathonId, teamId }) {
         );
     }
   }
-  console.log(isAJudge);
+
   //copia del services
   function AcceptorReject(userToken) {
     return (action, requestID) => {
@@ -407,6 +376,9 @@ function TeamsComponent({ hackathonId, teamId }) {
                     usersArray={teamMembers}
                     initialSlide={0}
                     cardsPerSlide={2}
+                    viewport="small"
+                    hackathonStatus={hackathonData.status}
+                    teamData={teamData}
                   />
                 </div>
               </div>
@@ -457,63 +429,70 @@ function TeamsComponent({ hackathonId, teamId }) {
 
                 {/* Lista filtrada */}
                 <div className="overflow-y-auto max-h-60 ps-6">
-                  {(tipoSolicitudActivo === "solicitudes"
-                    ? solicitudesPendientes
-                    : invitacionesPendientes
-                  )
-                    .filter((req) => {
-                      const nombreCompleto =
-                        `${req.requested_by.firstname} ${req.requested_by.lastname}`.toLowerCase();
-                      return nombreCompleto.includes(filtro.toLowerCase());
-                    })
-                    .map((request) => {
-                      // mapeamos el cancelar aca para que se actualice el estado del padre y sepa que ID hay que borrar
+                  {(() => {
+                    const listaPendiente =
+                      tipoSolicitudActivo === "solicitudes"
+                        ? solicitudesPendientes
+                        : invitacionesPendientes;
 
-                      return (
-                        <UserToListcomponent
-                          key={request.id}
-                          index={request.id}
-                          us={
-                            tipoSolicitudActivo === "solicitudes"
-                              ? request.requested_by
-                              : request.user
-                          }
-                          viewport={
-                            tipoSolicitudActivo === "solicitudes"
-                              ? "solicitud"
-                              : "invitacion"
-                          }
-                          HandleAccept={
-                            tipoSolicitudActivo === "solicitudes"
-                              ? AcceptorReject(userToken, refreshTeamData)
-                              : undefined
-                          }
-                          HandleCancelInvitation={
-                            tipoSolicitudActivo === "invitaciones"
-                              ? () =>
-                                  HandleCancelInvitation(
-                                    userToken,
-                                    refreshTeamData
-                                  )(request.id)
-                              : undefined
-                          }
-                        />
-                      );
-                    })}
+                    const getNombreCompleto = (req) => {
+                      const persona =
+                        tipoSolicitudActivo === "solicitudes"
+                          ? req.requested_by
+                          : req.user;
+                      return `${persona.firstname} ${persona.lastname}`.toLowerCase();
+                    };
 
-                  {/* Si no hay resultados */}
-                  {(tipoSolicitudActivo === "solicitudes"
-                    ? solicitudesPendientes
-                    : invitacionesPendientes
-                  ).filter((req) => {
-                    const nombreCompleto =
-                      `${req.user.firstname} ${req.user.lastname}`.toLowerCase();
-                    return nombreCompleto.includes(filtro.toLowerCase());
-                  }).length === 0 && (
-                    <p className="text-center text-sm text-gray-400 mt-2">
-                      No hay {tipoSolicitudActivo} pendientes.
-                    </p>
-                  )}
+                    const listaFiltrada = listaPendiente.filter((req) =>
+                      getNombreCompleto(req).includes(filtro.toLowerCase())
+                    );
+
+                    return (
+                      <>
+                        {listaFiltrada.map((request) => (
+                          <UserToListcomponent
+                            key={request.id}
+                            index={request.id}
+                            us={
+                              tipoSolicitudActivo === "solicitudes"
+                                ? request.requested_by
+                                : request.user
+                            }
+                            viewport={
+                              tipoSolicitudActivo === "solicitudes"
+                                ? "solicitud"
+                                : "invitacion"
+                            }
+                            HandleAccept={
+                              tipoSolicitudActivo === "solicitudes"
+                                ? AcceptorReject(userToken, refreshTeamData)
+                                : undefined
+                            }
+                            HandleCancelInvitation={
+                              tipoSolicitudActivo === "invitaciones"
+                                ? () =>
+                                    HandleCancelInvitation(
+                                      userToken,
+                                      refreshTeamData
+                                    )(request.id)
+                                : undefined
+                            }
+                          />
+                        ))}
+
+                        {listaFiltrada.length === 0 && (
+                          <div className="flex flex-col items-center justify-center text-gray-400 mt-4 space-y-2">
+                            <Frown className="w-6 h-6" />
+                            <p className="text-sm text-center">
+                              {filtro.trim() !== ""
+                                ? "No se ha encontrado al usuario :("
+                                : `No hay ${tipoSolicitudActivo} pendientes.`}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -565,6 +544,10 @@ function TeamsComponent({ hackathonId, teamId }) {
             <button className="btn btn-disabled">Equipo lleno</button>
           ) : hasPendingRequest ? (
             <button className="btn btn-disabled">Esperando respuesta</button>
+          ) : PendingInv ? (
+            <button className="btn btn-disabled">
+              Tienes una invitacion pendiente
+            </button>
           ) : isInHackathon(hackathonData, user) ? (
             <button className="btn btn-disabled">
               Inscrito en otro equipo

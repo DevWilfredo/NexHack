@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import SearchBar from "../searchBar";
-import { X } from "lucide-react";
+import { Frown, X } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import UserToJudgesComponent from "../UserToJudges";
 import { addJudge } from "../../services";
@@ -73,14 +73,33 @@ function JudgesModalComponent({ hackathon }) {
               />
             </div>
             <div className="overflow-y-auto max-h-70 flex flex-col items-center">
-              {elegibleUsers.map((us, index) => (
-                <UserToJudgesComponent
-                  key={us.id}
-                  index={index}
-                  us={us}
-                  handleInvitation={handleInvitation}
-                />
-              ))}
+              {(() => {
+                const usuariosFiltrados = elegibleUsers.filter((us) => {
+                  const fullName =
+                    `${us.firstname} ${us.lastname}`.toLowerCase();
+                  return fullName.includes(searchQuery.toLowerCase());
+                });
+
+                if (usuariosFiltrados.length > 0) {
+                  return usuariosFiltrados.map((us, index) => (
+                    <UserToJudgesComponent
+                      key={us.id}
+                      index={index}
+                      us={us}
+                      handleInvitation={handleInvitation}
+                    />
+                  ));
+                } else {
+                  return (
+                    <div className="flex flex-col items-center mt-4 text-gray-400 space-y-2">
+                      <Frown className="w-6 h-6" />
+                      <p className="text-sm text-center">
+                        No se encontro usuarios con ese nombre
+                      </p>
+                    </div>
+                  );
+                }
+              })()}
             </div>
           </div>
         </div>

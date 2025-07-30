@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { Navigate, NavLink } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import AvatarGroupComponent from "../../components/AvatarGroup";
 import { useEffect, useState } from "react";
@@ -444,6 +444,12 @@ const HackatonsComponent = ({ hackathonId }) => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex justify-start">
+        <NavLink to={`/dashboard`}>
+          {" "}
+          <button className="btn btn-primary "> volver atras</button>
+        </NavLink>
       </div>
     </div>
   );

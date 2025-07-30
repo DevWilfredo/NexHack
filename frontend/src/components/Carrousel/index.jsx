@@ -10,7 +10,10 @@ const CardCarousel = ({
   initialSlide = 0,
   cardsPerSlide = 2,
   viewport = "small",
+  hackathonStatus = "",
+  teamData = null, // <-- valor por defecto
 }) => {
+  const showButtons = hackathonStatus === "finished";
   const totalSlides = Math.ceil(usersArray.length / cardsPerSlide);
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
 
@@ -38,9 +41,12 @@ const CardCarousel = ({
         <div className="flex justify-center  gap-5 p-4 bg-base-300 rounded-box">
           {getSlideItems().map((users, index) => (
             <CardComponent
-              userArray={users ? users : null}
+              userArray={users}
               key={index}
               sizeToview={viewport}
+              showLikeButton={showButtons}
+              showCommentButton={showButtons}
+              teamData={teamData}
             />
           ))}
         </div>

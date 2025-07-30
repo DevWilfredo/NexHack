@@ -641,3 +641,77 @@ export async function GetAllWinners(token) {
 
   return await response.json();
 }
+
+
+//Likes version toggle
+export async function LikeToggle(hackathonId, toUserId, teamId, token) {
+  const response = await fetch(`${API_URL}/users/likes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+    to_user_id: toUserId,
+    team_id: teamId,
+    hackathon_id: hackathonId
+  }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al dar like");
+  }
+  
+ 
+  return await response.json();
+}
+
+export async function SendFeedback(toUserId, teamId, hackathonId, feedback, rating, token) {
+  console.log("al usuario", toUserId, "del equipo", teamId, "del hackathon", hackathonId, "feedback", feedback, "rating", rating);
+  const response = await fetch(`${API_URL}/users/testimonials`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      to_user_id: toUserId,
+      team_id: teamId,
+      hackathon_id: hackathonId,
+      message: feedback,
+      rating: rating
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al enviar feedback");
+  }
+
+  return await response.json();
+  
+}
+
+export async function GetLikesFromUser(userId, token) {
+  const response = await fetch(`${API_URL}/users/likes/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Error al obtener likes del usuario");
+  }
+  return await response.json();
+}
+
+export async function GetFeddbackFromUser(userId, token) {
+  const response = await fetch(`${API_URL}/users/testimonials/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Error al obtener testimonios del usuario");
+  }
+  return await response.json(); 
+  
+}

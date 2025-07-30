@@ -80,18 +80,7 @@ with app.app_context():
         users.append(user)
     db.session.commit()
 
-    # Crear notificaciones
-    types = ['hackathon_start', 'invitation', 'evaluation', 'general']
-    for user in users:
-        for _ in range(5):
-            note = Notification(
-                user_id=user.id,
-                type=random.choice(types),
-                message=faker.sentence(),
-                data=None
-            )
-            db.session.add(note)
-    db.session.commit()
+  
 
     # Crear hackathones
     TITLES = [

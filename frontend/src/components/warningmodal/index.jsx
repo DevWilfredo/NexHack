@@ -64,7 +64,7 @@ function WarningModalComponent({ hackathon, newState }) {
         <h1 className="font-bold text-xl text-start">{action}</h1>
         <p className="py-4 text-lg text-start">
           {message}
-          <span className="text-info font-bold">{hackathon.title}</span>?
+          <span className="text-info font-bold">{hackathon.title || ""}</span>?
         </p>
         <div className="flex justify-end gap-4 mt-4">
           <form method="dialog" className="space-x-5">
