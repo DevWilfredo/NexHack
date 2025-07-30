@@ -27,23 +27,26 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
     setNewData({ ...team });
   }, [team]);
 
-  // 🔵 Traer datos iniciales de hackathon y filtrar usuarios válidos
   useEffect(() => {
     if (!userToken || !team?.hackathon_id) return;
 
     fetchSingleHackathon(team.hackathon_id, userToken).then((data) => {
-      //lo guardo por si acaso, pero no es que lo use mas alla de revisar los teams
+      // Verificamos si no son jueces con esta data y tenemos data de los temas tambien
       setHackathon(data);
 
       getUsers(userToken).then((allUsers) => {
         const filteredUsers = allUsers.filter((u) => {
-          // 1. Ya está en un equipo del hackathon?
+          // Es juez del hackathon?
+          const isJudge = data.judges?.some((judge) => judge.id === u.id);
+          if (isJudge) return false;
+
+          // Ya está en un equipo del hackathon?
           const isInTeam = data.teams?.some((team) =>
             team.members?.some((member) => member.user.id === u.id)
           );
           if (isInTeam) return false;
 
-          // 2. Tiene solicitud pendiente en este equipo?
+          // Tiene solicitud pendiente en este equipo?
           const hasPendingRequest = team.requests?.some((request) => {
             return (
               (request.status === "pending" && request.user?.id === u.id) ||

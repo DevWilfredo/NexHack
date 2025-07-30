@@ -227,7 +227,7 @@ def evaluate_team():
         hackathon_id=hackathon_id, judge_id=user_id
     ).first()
     if not is_judge:
-        return jsonify({'error': 'You are not a judge for this hackathon'}), 403
+        return jsonify({'error': 'No eres un juez de este hackathon'}), 403
 
     # Verifica que el juez no haya evaluado ya este equipo
     existing_score = TeamScore.query.filter_by(
@@ -237,7 +237,7 @@ def evaluate_team():
     ).first()
 
     if existing_score:
-        return jsonify({'error': 'You already evaluated this team'}), 400
+        return jsonify({'error': 'Ya has evaluado este equipo'}), 400
 
     try:
         new_score = TeamScore(
@@ -368,4 +368,15 @@ def finalize_hackathon(hackathon_id):
 
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+#--- conseguir todos los winners de hackathon---#
+@hackathon_bp.route('/winners', methods=['GET'])
+@jwt_required()    
+def get_hackathon_winners():
+    try:
+        winners = HackathonWinner.query.all()
+        return jsonify([w.to_dict() for w in winners]), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import { useApp } from "@context/AppContext";
 function CreateTeamModal({ userToken, hackathon }) {
   const { isDark } = useTheme();
-  const { fetchMyHackathons } = useApp();
+  const { fetchMyHackathons, fetchAllHackathons } = useApp();
   const [loading, setLoading] = useState(false);
   const [newData, setNewData] = useState({
     name: "",
@@ -62,6 +62,8 @@ function CreateTeamModal({ userToken, hackathon }) {
         duration: 2000,
       });
       fetchMyHackathons();
+      fetchAllHackathons();
+
       // Esperar 2 segundos y redirigir
       setTimeout(() => {
         navigate(`/hackathons/${hackathon.id}/teams/${result.id}`);

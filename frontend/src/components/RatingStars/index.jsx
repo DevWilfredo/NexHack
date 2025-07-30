@@ -4,7 +4,7 @@ function RaitingStarsComponent({ value, onChange }) {
   const handleChange = (e) => {
     const stars = parseFloat(e.target.getAttribute("aria-label")); // e.g. "2.5 star"
     onChange(stars * 2);
-    console.log(stars * 2); // convierte a base 10
+    // convierte a base 10
   };
 
   return (

@@ -5,7 +5,7 @@ from app.models.team import Team,TeamMember,TeamRequest
 from app.models.user import User
 from app.models.hackathon import Hackathon, HackathonJudge
 from app.utils.notifications import create_notification
-
+from app.models.evaluation import TeamScore
 team_bp = Blueprint('teams', __name__)
 
 @team_bp.route('/<int:hackathon_id>', methods=['POST'])
@@ -394,3 +394,26 @@ def get_all_my_requests():
     applications = TeamRequest.query.filter_by(requested_by_id=current_user_id).all()
     all_requests = {r.id: r for r in invitations + applications}
     return jsonify([r.to_dict() for r in all_requests.values()])
+
+
+#--- conseguir los puntos de un team ---#
+@team_bp.route('/<int:team_id>/scores', methods=['GET'])
+@jwt_required()
+def get_team_scores(team_id):
+    try:
+        team = Team.query.get_or_404(team_id)
+        scores = TeamScore.query.filter_by(team_id=team.id).all()
+        return jsonify([score.to_dict() for score in scores]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+    #-- conseguir todos los scores, para un contexto de admin --#
+@team_bp.route('/scores', methods=['GET'])
+@jwt_required()
+def get_all_team_scores():
+    try:
+        scores = TeamScore.query.all()
+        return jsonify([score.to_dict() for score in scores]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

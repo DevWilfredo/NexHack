@@ -1,11 +1,17 @@
 import { Dot, Scale, X } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import RaitingStarsComponent from "../RatingStars";
+import { useAuth } from "@context/AuthContext";
+import { EvaluateHackathon } from "../../services";
+import { toast } from "react-hot-toast";
+import { useApp } from "@context/AppContext";
 
 function EvaluationModalComponent({ showModal, onClose, team }) {
   const dialogRef = useRef(null);
-  const [rating, setRating] = useState(3); // default = 1.5 estrellas * 2
+  const [rating, setRating] = useState(3);
   const [comment, setComment] = useState("");
+  const { userToken } = useAuth();
+  const { fetchAllHackathons, fetchScores } = useApp();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -31,17 +37,30 @@ function EvaluationModalComponent({ showModal, onClose, team }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      score: rating, // flotante en base 10
-      comment,
-    };
-    console.log("Enviando evaluación:", payload);
 
-    // Aquí haces el POST o lógica de guardado
+    const toastId = toast.loading("Enviando evaluación...");
 
-    onClose();
+    try {
+      await EvaluateHackathon(
+        team.hackathon_id,
+        team.id,
+        {
+          score: rating,
+          feedback: comment,
+        },
+        userToken
+      );
+      toast.success("¡Evaluación enviada con éxito!", { id: toastId });
+      fetchAllHackathons();
+      fetchScores();
+      onClose();
+    } catch (err) {
+      toast.error(err.message || "Ocurrió un error al enviar la evaluación", {
+        id: toastId,
+      });
+    }
   };
 
   return (

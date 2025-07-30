@@ -6,7 +6,7 @@ import {
   HandleInvitation,
 } from "@services";
 import { useAuth } from "./AuthContext";
-import { GetHackathons } from "../services";
+import { GetAllWinners, GetHackathons, GetScores } from "../services";
 
 const AppContext = createContext();
 
@@ -22,6 +22,12 @@ export const AppProvider = ({ children }) => {
 
   const [allHackathons, setAllHackathons] = useState([]);
   const [loadingAllHackathons, setLoadingAllHackathons] = useState(false);
+
+  const [allScores, setScores] = useState([]);
+  const [loadingScores, setLoadingScores] = useState(false);
+
+  const [allWinners, setAllWinners] = useState([]);
+  const [loadingWinners, setLoadingWinners] = useState(false);
 
   const { userToken, user } = useAuth();
 
@@ -58,6 +64,24 @@ export const AppProvider = ({ children }) => {
     setLoadingAllHackathons(false);
   };
 
+  const fetchScores = async () => {
+    if (!userToken) return;
+    setLoadingScores(true);
+    const data = await GetScores(userToken);
+    if (data) setScores(data);
+    console.log("Scores fetched:", data);
+    setLoadingScores(false);
+  };
+
+  const fetchAllWinners = async () => {
+    if (!userToken) return;
+    setLoadingWinners(true);
+    const data = await GetAllWinners(userToken);
+    if (data) setAllWinners(data);
+    console.log("Winners fetched:", data);
+    setLoadingWinners(false);
+  };
+
   const handleInvitation = async (requestID, action) => {
     if (!userToken) return;
     try {
@@ -75,6 +99,8 @@ export const AppProvider = ({ children }) => {
     fetchMyHackathons();
     fetchRequests();
     fetchAllHackathons();
+    fetchScores();
+    fetchAllWinners();
   }, [userToken, user]);
 
   return (
@@ -94,6 +120,12 @@ export const AppProvider = ({ children }) => {
         allHackathons,
         fetchAllHackathons,
         loadingAllHackathons,
+        allScores,
+        fetchScores,
+        loadingScores,
+        allWinners,
+        fetchAllWinners,
+        loadingWinners,
       }}
     >
       {children}

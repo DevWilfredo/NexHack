@@ -1,38 +1,41 @@
 import { X } from "lucide-react";
-
 import { useAuth } from "@context/AuthContext";
 import { finalizeHackathon, suspendHackathon } from "../../services";
 import { useApp } from "@context/AppContext";
+import { toast } from "react-hot-toast"; // ✅ Importar react-hot-toast
 
 function WarningModalComponent({ hackathon, newState }) {
   const { userToken } = useAuth();
   const { fetchAllHackathons } = useApp();
 
-  const handleFinalize = () => {
-    const response = finalizeHackathon(hackathon.id, userToken);
+  const handleFinalize = async () => {
+    const toastId = toast.loading("Finalizando hackathon...");
     try {
-      response.then((data) => {
-        console.log(data);
-      });
+      const data = await finalizeHackathon(hackathon.id, userToken);
+      console.log(data);
+      toast.success("Hackathon finalizado", { id: toastId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error("Error al finalizar el hackathon", { id: toastId });
     } finally {
       fetchAllHackathons();
     }
   };
 
-  const handleSuspended = () => {
-    const response = suspendHackathon(hackathon.id, userToken);
+  const handleSuspended = async () => {
+    const toastId = toast.loading("Suspendiendo hackathon...");
     try {
-      response.then((data) => {
-        console.log(data);
-      });
+      const data = await suspendHackathon(hackathon.id, userToken);
+      console.log(data);
+      toast.success("Hackathon suspendido", { id: toastId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error("Error al suspender el hackathon", { id: toastId });
     } finally {
       fetchAllHackathons();
     }
   };
+
   const getContent = () => {
     let message = "";
     let action = "";
@@ -52,12 +55,12 @@ function WarningModalComponent({ hackathon, newState }) {
     }
 
     return (
-      <div className="modal-box bg-base-300">
+      <div className="modal-box bg-base-300 text-base-content">
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             <X />
           </button>
-        </form>{" "}
+        </form>
         <h1 className="font-bold text-xl text-start">{action}</h1>
         <p className="py-4 text-lg text-start">
           {message}
@@ -66,13 +69,14 @@ function WarningModalComponent({ hackathon, newState }) {
         <div className="flex justify-end gap-4 mt-4">
           <form method="dialog" className="space-x-5">
             <button
+              type="button"
               className="btn btn-primary"
               onClick={() =>
                 newState === "finalized"
                   ? handleFinalize()
                   : newState === "closed"
                   ? handleSuspended()
-                  : console.log("fallo el state del modal")
+                  : toast.error("Acción no válida")
               }
             >
               Aceptar

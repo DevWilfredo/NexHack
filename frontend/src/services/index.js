@@ -533,7 +533,7 @@ export const suspendHackathon = async (hackathonId, token) => {
   return data;
 }
 
-// @services/feedbackServices.js (o donde prefieras)
+
 
 // Obtener likes recibidos por un usuario
 export async function GetUserLikes(userId, token) {
@@ -560,6 +560,83 @@ export async function GetUserTestimonials(userId, token) {
 
   if (!response.ok) {
     throw new Error("Error al obtener testimonios del usuario");
+  }
+
+  return await response.json();
+}
+
+
+// Evaluar un Hackathon siendo Juez
+export async function EvaluateHackathon(hackathonId, teamId, data, userToken) {
+  const toSend = {
+    hackathon_id: hackathonId,
+    team_id: teamId,
+    score: data.score,
+    feedback: data.feedback,
+  };
+  console.log(toSend);
+  try {
+    const response = await fetch(`${API_URL}/hackathons/evaluate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: JSON.stringify(toSend),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    if (!response.ok) {
+      throw new Error(result.error || "Error al enviar evaluación");
+    }
+
+    return result; // contiene { message: ..., evaluation: ... }
+  } catch (error) {
+    console.error("Error al evaluar:", error);
+    throw error;
+  }
+}
+
+//conseguir teamscore de un team especifico
+export async function GetTeamScore(teamId, token) {
+  const response = await fetch(`${API_URL}/teams/${teamId}/scores`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener el score del equipo");
+  }
+
+  return await response.json();
+}
+
+export async function GetScores(token) {
+  const response = await fetch(`${API_URL}/teams/scores`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener los scores");
+  }
+
+  return await response.json();
+}
+
+export async function GetAllWinners(token) {
+  const response = await fetch(`${API_URL}/hackathons/winners`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });  
+
+  if (!response.ok) {
+    console.log("Error al obtener los ganadores");
+    throw new Error("Error al obtener los ganadores");
   }
 
   return await response.json();
