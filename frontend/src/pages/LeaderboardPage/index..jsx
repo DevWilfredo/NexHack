@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDebounce } from "react-use";
 import { Search, SearchX } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,8 +8,19 @@ import { NavLink } from "react-router";
 function LeaderboardPage() {
   const { globalUsers } = useApp();
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Debounce del valor ingresado
+  useDebounce(
+    () => {
+      setDebouncedSearch(search);
+      setCurrentPage(1); // reseteamos la paginación al filtrar
+    },
+    500,
+    [search]
+  );
 
   const rankedUsers = [...globalUsers]
     .sort((a, b) => b.points - a.points)
@@ -16,15 +28,15 @@ function LeaderboardPage() {
 
   const filtered = rankedUsers.filter(
     (user) =>
-      user.firstname.toLowerCase().includes(search.toLowerCase()) ||
-      user.lastname.toLowerCase().includes(search.toLowerCase())
+      user.firstname.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      user.lastname.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginated = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const getRankStyle = (index) => {
     switch (index) {
@@ -83,10 +95,7 @@ function LeaderboardPage() {
           placeholder="Buscar por nombre o username"
           className="input input-bordered w-full"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
