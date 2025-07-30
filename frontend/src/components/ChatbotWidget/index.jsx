@@ -100,10 +100,8 @@ export default function ChatWidget() {
               <MoveDiagonal2 size={16} className="text-white opacity-80" />
             </div>
 
-            {/* Título desplazado */}
             <span className="ml-8 font-semibold">Asistente IA NexHack</span>
 
-            {/* Botón de cerrar */}
             <button
               className="btn btn-xs btn-circle btn-ghost text-white"
               onClick={toggleChat}
@@ -112,7 +110,6 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {/* Mensajes */}
           <div className="flex-1 p-3 overflow-y-auto space-y-2">
             {messages.map((msg, index) => (
               <div
