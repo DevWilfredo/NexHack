@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { sendMessageToAI } from "../../services";
 import { useAuth } from "../../context/AuthContext";
+import { MoveDiagonal2 } from "lucide-react";
 
 export default function ChatWidget() {
   const { user } = useAuth();
@@ -18,6 +19,10 @@ export default function ChatWidget() {
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [size, setSize] = useState({ width: 400, height: 400 });
+  const [resizing, setResizing] = useState(false);
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [startSize, setStartSize] = useState({ width: 400, height: 400 });
   const messagesEndRef = useRef(null);
 
   const toggleChat = () => {
@@ -42,6 +47,37 @@ export default function ChatWidget() {
     localStorage.setItem(storageKey, JSON.stringify(finalMessages));
   };
 
+  const handleMouseDown = (e) => {
+    e.stopPropagation();
+    setResizing(true);
+    setStartPos({ x: e.clientX, y: e.clientY });
+    setStartSize({ width: size.width, height: size.height });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (resizing) {
+        const deltaX = startPos.x - e.clientX;
+        const deltaY = startPos.y - e.clientY;
+        setSize({
+          width: Math.max(300, startSize.width + deltaX),
+          height: Math.max(300, startSize.height + deltaY),
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (resizing) setResizing(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [resizing, startPos, startSize]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -49,17 +85,34 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {isOpen ? (
-        <div className="w-80 h-96 bg-white rounded-xl shadow-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="bg-primary text-white px-4 py-2 flex justify-between items-center">
-            <span className="font-semibold">Asistente IA NexHack</span>
+        <div
+          className="bg-white rounded-xl shadow-xl border border-gray-200 flex flex-col relative"
+          style={{ width: `${size.width}px`, height: `${size.height}px` }}
+        >
+          {/* Header */}
+          <div className="bg-primary text-white px-4 py-2 flex items-center justify-between rounded-t-xl relative">
+            {/* Handle de resize */}
+            <div
+              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-nwse-resize p-1 rounded hover:bg-primary-focus flex items-center justify-center"
+              onMouseDown={handleMouseDown}
+              title="Redimensionar ventana"
+            >
+              <MoveDiagonal2 size={16} className="text-white opacity-80" />
+            </div>
+
+            {/* Título desplazado */}
+            <span className="ml-8 font-semibold">Asistente IA NexHack</span>
+
+            {/* Botón de cerrar */}
             <button
-              className="btn btn-xs btn-circle btn-ghost"
+              className="btn btn-xs btn-circle btn-ghost text-white"
               onClick={toggleChat}
             >
               ✕
             </button>
           </div>
 
+          {/* Mensajes */}
           <div className="flex-1 p-3 overflow-y-auto space-y-2">
             {messages.map((msg, index) => (
               <div
@@ -90,10 +143,11 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Input */}
           <div className="p-2 border-t bg-base-200">
             <div className="flex gap-2">
               <input
-                className="input input-sm w-full"
+                className="input input-md w-full"
                 type="text"
                 placeholder="Escribe aquí..."
                 value={input}
@@ -101,7 +155,7 @@ export default function ChatWidget() {
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
               />
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-md btn-primary"
                 onClick={handleSend}
                 disabled={isLoading}
               >
@@ -117,7 +171,7 @@ export default function ChatWidget() {
       ) : (
         <button
           onClick={toggleChat}
-          className="btn btn-circle btn-primary animate-bounce"
+          className="btn btn-circle btn-primary animate-bounce w-[5rem] h-[5rem] text-3xl"
           title="Abrir chat"
         >
           💬
