@@ -6,7 +6,14 @@ import {
   fetchSingleHackathon,
 } from "../../services";
 import { useAuth } from "@context/AuthContext";
-import { BriefcaseBusiness, FileSliders, Github, Users, X } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  FileSliders,
+  Frown,
+  Github,
+  Users,
+  X,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import SearchBar from "../searchBar";
 import UserToListcomponent from "../UserToList";
@@ -132,22 +139,35 @@ function AddMemberModal({ team, toState, onTeamUpdated }) {
             Lista de usuarios aparecerá aquí...
           </p>
         ) : (
-          <div className="overflow-y-auto max-h-70 flex flex-col items-center">
-            {user
-              .filter((us) => {
-                const fullName = `${us.firstname} ${us.lastname}`.toLowerCase();
-                return fullName.includes(searchQuery.toLowerCase());
-              })
-              .map((us, index) => (
-                <UserToListcomponent
-                  key={us.id}
-                  index={index}
-                  us={us}
-                  viewport="addMember"
-                  HandleInvitation={HandleInvitation}
-                />
-              ))}
-          </div>
+          (() => {
+            const usuariosFiltrados = user.filter((us) => {
+              const fullName = `${us.firstname} ${us.lastname}`.toLowerCase();
+              return fullName.includes(searchQuery.toLowerCase());
+            });
+
+            return (
+              <div className="overflow-y-auto max-h-70 flex flex-col items-center">
+                {usuariosFiltrados.length > 0 ? (
+                  usuariosFiltrados.map((us, index) => (
+                    <UserToListcomponent
+                      key={us.id}
+                      index={index}
+                      us={us}
+                      viewport="addMember"
+                      HandleInvitation={HandleInvitation}
+                    />
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center mt-4 text-gray-400 space-y-2">
+                    <Frown className="w-6 h-6" />
+                    <p className="text-sm text-center">
+                      No se encontro usuarios con ese nombre
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()
         )}
       </div>
     </>

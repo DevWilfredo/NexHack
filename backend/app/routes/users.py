@@ -228,45 +228,47 @@ def get_user_hackathons(user_id):
 
 @user_bp.route('/likes', methods=['POST'])
 @jwt_required()
-def give_like():
-    from_user = get_jwt_identity()
+def toggle_like():
+    from_user = int(get_jwt_identity())
     data = request.get_json()
-    to_user = data.get('to_user_id')
+    to_user = int(data.get('to_user_id'))
     team_id = data.get('team_id')
     hackathon_id = data.get('hackathon_id')
 
     if from_user == to_user:
         return jsonify({'error': 'No puedes darte like a ti mismo.'}), 400
 
-    # Validación de existencia de equipo y usuarios
     team = Team.query.filter_by(id=team_id, hackathon_id=hackathon_id).first()
     if not team:
         return jsonify({'error': 'El equipo no pertenece al hackathon especificado.'}), 400
 
     user_ids_in_team = [member.user_id for member in team.members]
-    print(f"Usuarios en el equipo: {user_ids_in_team}")
-    if int(from_user) not in user_ids_in_team or to_user not in user_ids_in_team:
+    if int(from_user) not in user_ids_in_team or int(to_user) not in user_ids_in_team:
         return jsonify({'error': 'Ambos usuarios deben haber sido miembros del mismo equipo en este hackathon.'}), 403
 
-    # 💡 Verificamos si ya existe un like entre estos dos usuarios (en cualquier hackathon)
     existing_like = UserTeamLike.query.filter_by(
         from_user_id=int(from_user),
-        to_user_id=to_user
+        to_user_id=int(to_user),
+        hackathon_id=hackathon_id
     ).first()
 
-    if existing_like:
-        return jsonify({'error': 'Ya diste like a este usuario anteriormente.'}), 409
-
     try:
+        if existing_like:
+            # 👉 Eliminar el like (toggle off)
+            db.session.delete(existing_like)
+            db.session.commit()
+            return jsonify({'message': 'Like eliminado.'}), 200
+
+        # 👉 Crear nuevo like (toggle on)
         like = UserTeamLike(
             from_user_id=int(from_user),
-            to_user_id=to_user,
+            to_user_id=int(to_user),
             team_id=team_id,
             hackathon_id=hackathon_id
         )
         db.session.add(like)
 
-        # 🔔 Crear notificación para el usuario que recibió el like
+        # Notificación
         from_user_obj = User.query.get(from_user)
         message = f"{from_user_obj.firstname} te dio un like en el equipo del hackathon."
 
@@ -293,10 +295,11 @@ def give_like():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
-
+        
 @user_bp.route('/testimonials', methods=['POST'])
 @jwt_required()
 def give_testimonial():
+    
     data = request.get_json()
     from_user = get_jwt_identity()
     to_user = data.get('to_user_id')
