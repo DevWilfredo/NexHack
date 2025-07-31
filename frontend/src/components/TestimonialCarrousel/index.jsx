@@ -35,7 +35,6 @@ const TestimonialCarousel = ({
         {getSlideItems().map((testimonial, index) => {
           const firstLetter =
             testimonial.judge?.firstname?.charAt(0)?.toUpperCase() || "U";
-          console.log(testimonial.judge);
           return (
             <JudgesReviewComponent
               key={index}

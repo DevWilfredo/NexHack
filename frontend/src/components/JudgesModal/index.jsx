@@ -47,7 +47,6 @@ function JudgesModalComponent({ hackathon }) {
       .sort((a, b) => (b.points || 0) - (a.points || 0));
   };
   const elegibleUsers = getEligibleUsers(globalUsers, hackathon, searchQuery);
-  console.log(hackathon);
 
   return (
     <>

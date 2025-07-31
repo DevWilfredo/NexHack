@@ -9,7 +9,6 @@ export function AcceptorReject(userToken, refreshTeamData) {
     HandleInvitation(userToken, requestID, action)
     .then((data) => {
       refreshTeamData();
-      console.log(data)
       if (action.trim().toLowerCase() === "accept") {
         toast.success("Invitación aceptada");
       } else {
@@ -66,7 +65,6 @@ export function JoinTeam(userToken, teamId, setDisabledButton) {
   return () => {
     SendRequest(userToken, teamId)
       .then((data) => {
-        console.log(data)
         fetchRequests()
         toast.success("Solicitud enviada");
         setDisabledButton((prev) => ({

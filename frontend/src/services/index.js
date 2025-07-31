@@ -213,7 +213,6 @@ export const SendInvitation = async (userToken, teamId, toUserId, teamName) => {
 
     });
     const data = await response.json();
-    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
 
     return data;
@@ -298,7 +297,6 @@ export const SendRequest = async (userToken, teamId) => {
       },
     });
     const data = await response.json();
-    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
@@ -320,7 +318,6 @@ export const HandleInvitation = async (userToken, requestID, action) => {
       }),
     });
     const data = await response.json();
-    console.log(data);
     if (!response.ok) throw new Error("Error al enviar invitación");
     return data;
   }
@@ -390,7 +387,6 @@ export const updateHackathon = async ({ hackathonId, token, updatedFields }) => 
   });
 
   const data = await res.json();
-  console.log(data);
   if (!res.ok) {
     throw new Error(data.error || "Error al actualizar el hackathon");
   }
@@ -410,7 +406,6 @@ export const addJudge = async ({ hackathonId, token, userId }) => {
   });
 
   const data = await res.json();
-  console.log(data);
   if (!res.ok) {
     throw new Error(data.error || "Error al actualizar el hackathon");
   }
@@ -503,7 +498,6 @@ export const finalizeHackathon = async (hackathonId, token) => {
   });
 
   const data = await res.json();
-  console.log(data);
   if (!res.ok) {
     throw new Error(data.error || "Error al actualizar el hackathon");
   }
@@ -513,8 +507,6 @@ export const finalizeHackathon = async (hackathonId, token) => {
 
 //suspender hackathon
 export const suspendHackathon = async (hackathonId, token) => {
-  console.log("hackathonId", hackathonId);
-  console.log("token", token);
   const res = await fetch(`${import.meta.env.VITE_API_URL}/hackathons/${hackathonId}`, {
     method: "PUT",
     headers: {
@@ -525,7 +517,6 @@ export const suspendHackathon = async (hackathonId, token) => {
   });
 
   const data = await res.json();
-  console.log(data);
   if (!res.ok) {
     throw new Error(data.error || "Error al actualizar el hackathon");
   }
@@ -574,7 +565,6 @@ export async function EvaluateHackathon(hackathonId, teamId, data, userToken) {
     score: data.score,
     feedback: data.feedback,
   };
-  console.log(toSend);
   try {
     const response = await fetch(`${API_URL}/hackathons/evaluate`, {
       method: "POST",
@@ -586,7 +576,6 @@ export async function EvaluateHackathon(hackathonId, teamId, data, userToken) {
     });
 
     const result = await response.json();
-    console.log(result);
     if (!response.ok) {
       throw new Error(result.error || "Error al enviar evaluación");
     }
@@ -635,7 +624,6 @@ export async function GetAllWinners(token) {
   });  
 
   if (!response.ok) {
-    console.log("Error al obtener los ganadores");
     throw new Error("Error al obtener los ganadores");
   }
 
@@ -667,7 +655,6 @@ export async function LikeToggle(hackathonId, toUserId, teamId, token) {
 }
 
 export async function SendFeedback(toUserId, teamId, hackathonId, feedback, rating, token) {
-  console.log("al usuario", toUserId, "del equipo", teamId, "del hackathon", hackathonId, "feedback", feedback, "rating", rating);
   const response = await fetch(`${API_URL}/users/testimonials`, {
     method: "POST",
     headers: {

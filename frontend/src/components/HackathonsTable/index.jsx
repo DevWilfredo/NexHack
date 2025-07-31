@@ -109,12 +109,14 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
                         className={`badge badge-outline ${
                           hackathon.status === "pending"
                             ? "badge-warning"
-                            : hackathon.status === "closed"
+                            : hackathon.status === "cancelled"
                             ? "badge-error"
                             : "badge-success"
                         }`}
                       >
-                        {hackathon.status}
+                        {hackathon.status === "pending"
+                          ? "Pendiente" : hackathon.status === "cancelled"
+                          ? "Cancelado" : "Finalizado"}
                       </span>
                     </td>
                   </tr>
