@@ -59,7 +59,6 @@ const CardComponent = ({
   useEffect(() => {
     GetLikesFromUser(userArray.id, userToken).then((data) => {
       setListofLikes(data);
-      console.log("Estos son mis likes", data);
       setIsLiked(
         data.some((like) => {
           return (
@@ -69,11 +68,9 @@ const CardComponent = ({
           );
         })
       );
-      console.log(isLiked);
     });
     GetFeddbackFromUser(userArray.id, userToken).then((data) => {
       setListOfFeedback(data);
-      console.log("estos son mis feedbacks", data);
       setShowFeedbackButton(
         data.some((feedback) => {
           return (
@@ -83,11 +80,9 @@ const CardComponent = ({
           );
         })
       );
-      console.log("ya me dio feedback el que esta viendo?", showFeedbackButton);
     });
   }, [userArray]);
 
-  console.log("soy yo?", isMe);
   return (
     <div
       key={userArray.id}

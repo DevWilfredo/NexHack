@@ -129,9 +129,6 @@ const HackatonsComponent = ({ hackathonId }) => {
     return a.id - b.id; // fallback por team_id
   });
 
-  console.log("equiposOrdenados", equiposOrdenados);
-  console.log("Winners", allWinners);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}

@@ -42,7 +42,11 @@ const fadeInUp = {
 
 const fadeInRight = {
   hidden: { opacity: 0, x: 20 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4, ease: "easeOut", delay: 0.1 },
+  },
 };
 
 const RequestsPage = () => {
@@ -63,14 +67,6 @@ const RequestsPage = () => {
       setMapHackathons(mapa);
     });
   }, []);
-
-  const handleAccept = async (request) => {
-    console.log("Aceptar solicitud", request.id);
-  };
-
-  const handleReject = async (request) => {
-    console.log("Rechazar solicitud", request.id);
-  };
 
   return (
     <div className="flex flex-col lg:flex-row">
@@ -95,8 +91,6 @@ const RequestsPage = () => {
           <RequestsTable
             requests={requests}
             loading={loadingRequests}
-            onAccept={handleAccept}
-            onReject={handleReject}
             statusFilter={statusFilter}
           />
         </motion.div>
