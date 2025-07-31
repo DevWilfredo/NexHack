@@ -1,10 +1,9 @@
-import { NavLink } from "react-router";
-
-const DashboardCards = ({ cardData }) => {
+const RequestsCards = ({ cardData, onCardClick }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       {cardData.map((card, idx) => {
         const Icon = card.icon;
+
         return (
           <div
             key={idx}
@@ -17,11 +16,12 @@ const DashboardCards = ({ cardData }) => {
               </div>
               <p className="text-sm text-gray-500">{card.description}</p>
               <div className="card-actions justify-start mt-4">
-                <NavLink to={card.href} className="w-full">
-                  <button className={`btn btn-primary btn-sm`}>
-                    {card.buttonText}
-                  </button>
-                </NavLink>
+                <button
+                  className={`btn btn-primary btn-sm w-full`}
+                  onClick={() => onCardClick?.(card.status)}
+                >
+                  {card.buttonText}
+                </button>
               </div>
             </div>
           </div>
@@ -31,4 +31,4 @@ const DashboardCards = ({ cardData }) => {
   );
 };
 
-export default DashboardCards;
+export default RequestsCards;

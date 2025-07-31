@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { ExternalLink, Rocket, Github, CalendarDays } from "lucide-react";
+import { ExternalLink, Rocket, Github, CalendarDays, SearchX } from "lucide-react";
 import { useAuth } from "@context/AuthContext";
+import { motion } from "framer-motion";
 
 function HackathonHistory({ hackathons = [], search, setSearch }) {
   const { user } = useAuth();
@@ -20,8 +21,20 @@ function HackathonHistory({ hackathons = [], search, setSearch }) {
     });
   }, [search, hackathons, user]);
 
+  const normalizeUrl = (url) => {
+    if (!url) return null;
+    return url.startsWith("http://") || url.startsWith("https://")
+      ? url
+      : `https://${url}`;
+  };
+
   return (
-    <>
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
         <input
           type="text"
@@ -33,21 +46,30 @@ function HackathonHistory({ hackathons = [], search, setSearch }) {
       </div>
 
       {filteredHackathons.length === 0 ? (
-        <p className="text-center text-sm text-muted-foreground italic">
-          No se encontraron hackathons con ese criterio.
-        </p>
+        <div className="flex flex-col items-center justify-center text-center py-10 text-muted-foreground">
+    <SearchX className="w-10 h-10 mb-2 text-primary" />
+    <p className="text-md font-medium">No hay hackathones que mostrar</p>
+    <p className="text-sm">Aún no has participado o no hay coincidencias con tu búsqueda.</p>
+  </div>
       ) : (
         <ul className="grid grid-cols-1 gap-6">
           {filteredHackathons.map((hack, index) => {
-            // Encuentra el equipo del usuario actual
             const userTeam = hack.teams?.find((team) =>
               team.members?.some((m) => m.user?.id === user?.id)
             );
 
             return (
-              <li
+              <motion.li
                 key={index}
-                className="rounded-xl bg-base-200 p-4 shadow-lg/30 shadow-primary hover:scale-[1.02] transition-all"
+                className="rounded-xl bg-base-200 p-4 shadow-lg/30 shadow-primary "
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: index * 0.05,
+                  duration: 0.4,
+                  ease: "easeOut",
+                }}
+                whileHover={{ scale: 1.02 }}
               >
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-bold">
@@ -93,7 +115,7 @@ function HackathonHistory({ hackathons = [], search, setSearch }) {
                 <div className="flex flex-wrap gap-2 mt-4">
                   {userTeam?.github_url ? (
                     <a
-                      href={userTeam.github_url}
+                      href={normalizeUrl(userTeam.github_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm border border-gray-600"
@@ -108,7 +130,7 @@ function HackathonHistory({ hackathons = [], search, setSearch }) {
 
                   {userTeam?.live_preview_url ? (
                     <a
-                      href={userTeam.live_preview_url}
+                      href={normalizeUrl(userTeam.live_preview_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm btn-primary"
@@ -136,12 +158,12 @@ function HackathonHistory({ hackathons = [], search, setSearch }) {
                     </span>
                   )}
                 </div>
-              </li>
+              </motion.li>
             );
           })}
         </ul>
       )}
-    </>
+    </motion.div>
   );
 }
 

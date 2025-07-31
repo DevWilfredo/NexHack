@@ -10,6 +10,7 @@ import { GetTags, CreateHackathon } from "@services";
 import ButtonPrimary from "../ButtonPrimary";
 import { useAuth } from "@context/AuthContext";
 import { useApp } from "@context/AppContext";
+import { useNavigate } from "react-router";
 
 function formatDate(date) {
   return date?.toISOString().split("T")[0];
@@ -17,12 +18,13 @@ function formatDate(date) {
 
 export default function CrearHackathonModal() {
   const { user, userToken } = useAuth();
-  const { fetchAllHackathons } = useApp();
+  const { fetchAllHackathons, fetchMyHackathons } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [tags, setTags] = useState([]);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const tomorrow = new Date();
+  const navigate = useNavigate();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const {
@@ -72,14 +74,20 @@ export default function CrearHackathonModal() {
     };
 
     try {
-      await CreateHackathon(payload, userToken);
+      const createdHackathon = await CreateHackathon(payload, userToken);
+
       await fetchAllHackathons();
+      await fetchMyHackathons();
       reset();
-      setIsOpen(false);
-      toast.success("✅ Hackathon creado correctamente");
+      setIsOpen(false); // Cierra el modal inmediatamente
+
+      toast.success("Hackathon creado correctamente");
+
+      // Redirige inmediatamente después del toast y cierre del modal
+      navigate(`/hackathons/${createdHackathon.id}`);
     } catch (err) {
       console.error("Error al crear hackathon:", err.message);
-      toast.error("❌ Hubo un error al crear el hackathon");
+      toast.error("Hubo un error al crear el hackathon");
     }
   };
 
@@ -100,10 +108,18 @@ export default function CrearHackathonModal() {
                 <input
                   type="text"
                   placeholder="Título"
-                  {...register("title", { required: "El título es obligatorio" })}
-                  className={`input input-bordered w-full ${errors.title ? "input-error" : ""}`}
+                  {...register("title", {
+                    required: "El título es obligatorio",
+                  })}
+                  className={`input input-bordered w-full ${
+                    errors.title ? "input-error" : ""
+                  }`}
                 />
-                {errors.title && <p className="text-error text-sm mt-1">{errors.title.message}</p>}
+                {errors.title && (
+                  <p className="text-error text-sm mt-1">
+                    {errors.title.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -122,12 +138,18 @@ export default function CrearHackathonModal() {
                   rules={{ required: "La fecha de inicio es obligatoria" }}
                   render={({ field }) => (
                     <div className="w-full relative">
-                      <label className="block text-sm font-medium mb-1">Fecha de inicio</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Fecha de inicio
+                      </label>
                       <input
                         readOnly
-                        value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
                         onClick={() => setShowStartPicker(!showStartPicker)}
-                        className={`input input-bordered w-full ${errors.start_date ? "input-error" : ""}`}
+                        className={`input input-bordered w-full ${
+                          errors.start_date ? "input-error" : ""
+                        }`}
                         placeholder="Selecciona fecha"
                       />
                       {showStartPicker && (
@@ -144,7 +166,11 @@ export default function CrearHackathonModal() {
                           />
                         </div>
                       )}
-                      {errors.start_date && <p className="text-error text-sm mt-1">{errors.start_date.message}</p>}
+                      {errors.start_date && (
+                        <p className="text-error text-sm mt-1">
+                          {errors.start_date.message}
+                        </p>
+                      )}
                     </div>
                   )}
                 />
@@ -156,12 +182,18 @@ export default function CrearHackathonModal() {
                   rules={{ required: "La fecha de cierre es obligatoria" }}
                   render={({ field }) => (
                     <div className="w-full relative">
-                      <label className="block text-sm font-medium mb-1">Fecha de cierre</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Fecha de cierre
+                      </label>
                       <input
                         readOnly
-                        value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
                         onClick={() => setShowEndPicker(!showEndPicker)}
-                        className={`input input-bordered w-full ${errors.end_date ? "input-error" : ""}`}
+                        className={`input input-bordered w-full ${
+                          errors.end_date ? "input-error" : ""
+                        }`}
                         placeholder="Selecciona fecha"
                       />
                       {showEndPicker && (
@@ -174,15 +206,23 @@ export default function CrearHackathonModal() {
                               field.onChange(date);
                               setShowEndPicker(false);
                             }}
-                           disabled={{
-                            before: startDate
-                              ? new Date(new Date(startDate).setDate(new Date(startDate).getDate() + 1))
-                              : tomorrow, 
-                          }}
+                            disabled={{
+                              before: startDate
+                                ? new Date(
+                                    new Date(startDate).setDate(
+                                      new Date(startDate).getDate() + 1
+                                    )
+                                  )
+                                : tomorrow,
+                            }}
                           />
                         </div>
                       )}
-                      {errors.end_date && <p className="text-error text-sm mt-1">{errors.end_date.message}</p>}
+                      {errors.end_date && (
+                        <p className="text-error text-sm mt-1">
+                          {errors.end_date.message}
+                        </p>
+                      )}
                     </div>
                   )}
                 />
@@ -197,10 +237,14 @@ export default function CrearHackathonModal() {
                       required: "Este campo es obligatorio",
                       min: { value: 1, message: "Debe ser al menos 1" },
                     })}
-                    className={`input input-bordered w-full ${errors.max_teams ? "input-error" : ""}`}
+                    className={`input input-bordered w-full ${
+                      errors.max_teams ? "input-error" : ""
+                    }`}
                   />
                   {errors.max_teams && (
-                    <p className="text-error text-sm mt-1">{errors.max_teams.message}</p>
+                    <p className="text-error text-sm mt-1">
+                      {errors.max_teams.message}
+                    </p>
                   )}
                 </div>
 
@@ -212,10 +256,14 @@ export default function CrearHackathonModal() {
                       required: "Este campo es obligatorio",
                       min: { value: 1, message: "Debe ser al menos 1" },
                     })}
-                    className={`input input-bordered w-full ${errors.max_team_members ? "input-error" : ""}`}
+                    className={`input input-bordered w-full ${
+                      errors.max_team_members ? "input-error" : ""
+                    }`}
                   />
                   {errors.max_team_members && (
-                    <p className="text-error text-sm mt-1">{errors.max_team_members.message}</p>
+                    <p className="text-error text-sm mt-1">
+                      {errors.max_team_members.message}
+                    </p>
                   )}
                 </div>
               </div>

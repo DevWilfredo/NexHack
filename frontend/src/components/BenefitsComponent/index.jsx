@@ -3,6 +3,7 @@ import { benefits } from "@data/benefits";
 import ButtonPrimary from "../ButtonPrimary";
 import AnimatedSection from "../AnimatedSection";
 import { motion } from "framer-motion";
+import { NavLink } from "react-router";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 60 },
@@ -76,10 +77,12 @@ const BenefitsSection = () => {
           </div>
 
           <AnimatedSection delay={0.6}>
-            <ButtonPrimary
-              title="Explorar Desafíos"
-              className="flex mx-auto mt-16 px-8 text-lg"
-            />
+            <NavLink to={"/register"}>
+              <ButtonPrimary
+                title="Explorar Desafíos"
+                className="flex mx-auto mt-16 px-8 text-lg"
+              />
+            </NavLink>
           </AnimatedSection>
         </div>
       </AnimatedSection>

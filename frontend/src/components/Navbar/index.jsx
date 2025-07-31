@@ -7,30 +7,48 @@ import { useAuth } from "@context/AuthContext";
 import nexhackLogo from "@assets/nexhack.png";
 import nechackBlue from "@assets/nexhackBlue.png";
 import NotificationBell from "@components/NotificationBell";
+import { useApp } from "@context/AppContext";
 import {
   LayoutDashboard,
   CircleUserRound,
   Trophy,
   Mails,
   Menu,
+  Home as HomeIcon,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
-
+import HackathonsDropdown from "../HackathonsDropdown";
 
 const Navbar = () => {
   const { isDark } = useTheme();
   const { user } = useAuth();
   const location = useLocation();
-  const links = [
+
+  const publicLinks = [{ icon: HomeIcon, text: "Home", to: "/" }];
+  const privateLinks = [
     { icon: LayoutDashboard, text: "Dashboard", to: "/dashboard" },
     { icon: CircleUserRound, text: "Perfil", to: `/profile/${user?.id}` },
     { icon: Trophy, text: "Leaderboard", to: "/leaderboard" },
     { icon: Mails, text: "Solicitudes", to: "/requests" },
   ];
 
+  const authLinks = [
+    { icon: LogIn, text: "Login", to: "/login" },
+    { icon: UserPlus, text: "Registro", to: "/register" },
+  ];
+
+  const linkText = "text-base-content";
+  const linkHover =
+    "hover:bg-primary/50 hover:text-base-content hover:font-semibold";
+  const activeLink = "bg-primary text-white font-semibold";
+
+  const links = user
+    ? [...publicLinks, ...privateLinks]
+    : [...publicLinks, ...authLinks];
+
   const getBtnClass = (isActive) =>
-    isActive
-      ? `btn btn-sm ${isDark ? "btn-accent" : "btn-primary"}`
-      : "btn btn-ghost btn-sm";
+    isActive ? `btn btn-sm btn-primary` : "btn btn-ghost btn-sm";
 
   useEffect(() => {
     const drawerCheckbox = document.getElementById("my-drawer-3");
@@ -41,9 +59,7 @@ const Navbar = () => {
 
   return (
     <div
-      className={`navbar ${
-        isDark ? "bg-slate-900/80" : "bg-base-300/30"
-      } shadow-sm sticky top-0 z-20 backdrop-blur-lg`}
+      className={`navbar bg-base-200 shadow-sm sticky top-0 z-20 backdrop-blur-lg`}
     >
       <div className="navbar-start flex items-center gap-2">
         <div className="drawer">
@@ -70,7 +86,7 @@ const Navbar = () => {
               aria-label="close sidebar"
               className="drawer-overlay"
             ></label>
-            <ul className="menu bg-base-200 min-h-full w-64 p-4 space-y-2">
+            <ul className="menu bg-base-200 min-h-full w-72 p-4 space-y-2">
               {links.map(({ icon: Icon, text, to }) => (
                 <NavLink
                   key={to}
@@ -95,33 +111,17 @@ const Navbar = () => {
                 </NavLink>
               ))}
 
-              <li>
-                <NavLink
-                  to="/"
-                  className={({ isActive }) => getBtnClass(isActive)}
-                >
-                  Inicio
-                </NavLink>
-              </li>
-
-              {!user && (
+              {/* 👇 Solo mostrar si está logueado */}
+              {user && (
                 <>
-                  <li>
-                    <NavLink
-                      to="/login"
-                      className={({ isActive }) => getBtnClass(isActive)}
-                    >
-                      Login
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/register"
-                      className={({ isActive }) => getBtnClass(isActive)}
-                    >
-                      Registro
-                    </NavLink>
-                  </li>
+                  <div className="divider" />
+
+                  {/* Mis Hackathons Dropdown */}
+                  <HackathonsDropdown
+                    linkText={linkText}
+                    linkHover={linkHover}
+                    activeLink={activeLink}
+                  />
                 </>
               )}
             </ul>
@@ -146,6 +146,7 @@ const Navbar = () => {
                 `hidden md:inline-flex ${getBtnClass(isActive)}`
               }
             >
+              <LogIn className="w-4 h-4 mr-1" />
               Login
             </NavLink>
             <NavLink
@@ -154,6 +155,7 @@ const Navbar = () => {
                 `hidden md:inline-flex ${getBtnClass(isActive)}`
               }
             >
+              <UserPlus className="w-4 h-4 mr-1" />
               Registro
             </NavLink>
           </>

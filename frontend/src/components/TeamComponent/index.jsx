@@ -33,6 +33,7 @@ import { useApp } from "@context/AppContext";
 import { NavLink } from "react-router";
 import TestimonialCarousel from "../TestimonialCarrousel";
 import EvaluationModalComponent from "../EvaluationModal";
+import { motion, AnimatePresence } from "framer-motion";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -194,7 +195,11 @@ function TeamsComponent({ hackathonId, teamId }) {
   const actualStatus = hackathonData.status;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.5 }}
       className={`rounded-xl p-6 w-full mx-auto space-y-6 bg-base-200 shadow-xl/20 ${
         isDark ? "shadow-accent" : "shadow-primary"
       } border border-info/10`}
@@ -341,161 +346,164 @@ function TeamsComponent({ hackathonId, teamId }) {
                     />
                   </div>
                 )}
-            {activeSection === "miembros" ? (
-              <div className="card bg-base-300 text-neutral-content  p-4">
-                <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-                  <div className=" flex gap-2 align-baseline ">
-                    <h2 className="text-xl font-semibold card-title">
-                      <Users /> Miembros del equipo
-                    </h2>
-                    {actualStatus === "cancelled" || actualStatus === "finished"
-                      ? ""
-                      : user.id === teamData.creator_id && (
-                          <label
-                            onClick={() => setActiveModal("AddingMembers")}
-                            htmlFor="addMemberModal"
-                            className={`btn btn-sm card-title${
-                              isDark ? "btn-accent" : "btn-primary"
-                            }   hover:btn-success ${
-                              isFull ? "btn-disabled" : ""
-                            }`}
-                          >
-                            <UserPlus /> Agregar miembros
-                          </label>
-                        )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">
-                      {`${teamData.members.length} / ${hackathonData.max_team_members}`}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="">
-                  <CardCarousel
-                    usersArray={teamMembers}
-                    initialSlide={0}
-                    cardsPerSlide={2}
-                    viewport="small"
-                    hackathonStatus={hackathonData.status}
-                    teamData={teamData}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="card bg-base-300 text-neutral-content p-4 ">
-                <div className="flex justify-between">
-                  <h2 className="text-xl font-semibold mb-4">Solicitudes</h2>
-
-                  {/* Tabs internas */}
-                  <div className="tabs tabs-boxed mb-4 ">
-                    <div className="flex gap-2 mb-4 mr-2 items-center pb-2 ">
-                      <button
-                        className={`btn btn-xs rounded-full  ${
-                          tipoSolicitudActivo === "solicitudes"
-                            ? isDark
-                              ? "btn-accent"
-                              : "btn-primary"
-                            : "btn-outline"
-                        } hover:scale-103 transition-all`}
-                        onClick={() => setTipoSolicitudActivo("solicitudes")}
-                      >
-                        Solicitudes
-                      </button>
-
-                      <button
-                        className={`btn btn-xs rounded-full  ${
-                          tipoSolicitudActivo === "invitaciones"
-                            ? isDark
-                              ? "btn-accent"
-                              : "btn-primary"
-                            : "btn-outline"
-                        } hover:scale-103 transition-all`}
-                        onClick={() => setTipoSolicitudActivo("invitaciones")}
-                      >
-                        Invitaciones
-                      </button>
+            <AnimatePresence exitBeforeEnter>
+              {activeSection === "miembros" ? (
+                <div className="card bg-base-300 text-neutral-content  p-4">
+                  <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <div className=" flex gap-2 align-baseline ">
+                      <h2 className="text-xl font-semibold card-title">
+                        <Users /> Miembros del equipo
+                      </h2>
+                      {actualStatus === "cancelled" ||
+                      actualStatus === "finished"
+                        ? ""
+                        : user.id === teamData.creator_id && (
+                            <label
+                              onClick={() => setActiveModal("AddingMembers")}
+                              htmlFor="addMemberModal"
+                              className={`btn btn-sm card-title${
+                                isDark ? "btn-accent" : "btn-primary"
+                              }   hover:btn-success ${
+                                isFull ? "btn-disabled" : ""
+                              }`}
+                            >
+                              <UserPlus /> Agregar miembros
+                            </label>
+                          )}
                     </div>
-
-                    <div className="mb-4">
-                      <SearchBar
-                        onSearch={setFiltro}
-                        placeholder="Buscar"
-                        spacing="xs"
-                      />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">
+                        {`${teamData.members.length} / ${hackathonData.max_team_members}`}
+                      </span>
                     </div>
                   </div>
+
+                  <div className="">
+                    <CardCarousel
+                      usersArray={teamMembers}
+                      initialSlide={0}
+                      cardsPerSlide={2}
+                      viewport="small"
+                      hackathonStatus={hackathonData.status}
+                      teamData={teamData}
+                    />
+                  </div>
                 </div>
+              ) : (
+                <div className="card bg-base-300 text-neutral-content p-4 ">
+                  <div className="flex justify-between">
+                    <h2 className="text-xl font-semibold mb-4">Solicitudes</h2>
 
-                {/* Lista filtrada */}
-                <div className="overflow-y-auto max-h-60 ps-6">
-                  {(() => {
-                    const listaPendiente =
-                      tipoSolicitudActivo === "solicitudes"
-                        ? solicitudesPendientes
-                        : invitacionesPendientes;
+                    {/* Tabs internas */}
+                    <div className="tabs tabs-boxed mb-4 ">
+                      <div className="flex gap-2 mb-4 mr-2 items-center pb-2 ">
+                        <button
+                          className={`btn btn-xs rounded-full  ${
+                            tipoSolicitudActivo === "solicitudes"
+                              ? isDark
+                                ? "btn-accent"
+                                : "btn-primary"
+                              : "btn-outline"
+                          } hover:scale-103 transition-all`}
+                          onClick={() => setTipoSolicitudActivo("solicitudes")}
+                        >
+                          Solicitudes
+                        </button>
 
-                    const getNombreCompleto = (req) => {
-                      const persona =
+                        <button
+                          className={`btn btn-xs rounded-full  ${
+                            tipoSolicitudActivo === "invitaciones"
+                              ? isDark
+                                ? "btn-accent"
+                                : "btn-primary"
+                              : "btn-outline"
+                          } hover:scale-103 transition-all`}
+                          onClick={() => setTipoSolicitudActivo("invitaciones")}
+                        >
+                          Invitaciones
+                        </button>
+                      </div>
+
+                      <div className="mb-4">
+                        <SearchBar
+                          onSearch={setFiltro}
+                          placeholder="Buscar"
+                          spacing="xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lista filtrada */}
+                  <div className="overflow-y-auto max-h-60 ps-6">
+                    {(() => {
+                      const listaPendiente =
                         tipoSolicitudActivo === "solicitudes"
-                          ? req.requested_by
-                          : req.user;
-                      return `${persona.firstname} ${persona.lastname}`.toLowerCase();
-                    };
+                          ? solicitudesPendientes
+                          : invitacionesPendientes;
 
-                    const listaFiltrada = listaPendiente.filter((req) =>
-                      getNombreCompleto(req).includes(filtro.toLowerCase())
-                    );
+                      const getNombreCompleto = (req) => {
+                        const persona =
+                          tipoSolicitudActivo === "solicitudes"
+                            ? req.requested_by
+                            : req.user;
+                        return `${persona.firstname} ${persona.lastname}`.toLowerCase();
+                      };
 
-                    return (
-                      <>
-                        {listaFiltrada.map((request) => (
-                          <UserToListcomponent
-                            key={request.id}
-                            index={request.id}
-                            us={
-                              tipoSolicitudActivo === "solicitudes"
-                                ? request.requested_by
-                                : request.user
-                            }
-                            viewport={
-                              tipoSolicitudActivo === "solicitudes"
-                                ? "solicitud"
-                                : "invitacion"
-                            }
-                            HandleAccept={
-                              tipoSolicitudActivo === "solicitudes"
-                                ? AcceptorReject(userToken, refreshTeamData)
-                                : undefined
-                            }
-                            HandleCancelInvitation={
-                              tipoSolicitudActivo === "invitaciones"
-                                ? () =>
-                                    HandleCancelInvitation(
-                                      userToken,
-                                      refreshTeamData
-                                    )(request.id)
-                                : undefined
-                            }
-                          />
-                        ))}
+                      const listaFiltrada = listaPendiente.filter((req) =>
+                        getNombreCompleto(req).includes(filtro.toLowerCase())
+                      );
 
-                        {listaFiltrada.length === 0 && (
-                          <div className="flex flex-col items-center justify-center text-gray-400 mt-4 space-y-2">
-                            <Frown className="w-6 h-6" />
-                            <p className="text-sm text-center">
-                              {filtro.trim() !== ""
-                                ? "No se ha encontrado al usuario :("
-                                : `No hay ${tipoSolicitudActivo} pendientes.`}
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
+                      return (
+                        <>
+                          {listaFiltrada.map((request) => (
+                            <UserToListcomponent
+                              key={request.id}
+                              index={request.id}
+                              us={
+                                tipoSolicitudActivo === "solicitudes"
+                                  ? request.requested_by
+                                  : request.user
+                              }
+                              viewport={
+                                tipoSolicitudActivo === "solicitudes"
+                                  ? "solicitud"
+                                  : "invitacion"
+                              }
+                              HandleAccept={
+                                tipoSolicitudActivo === "solicitudes"
+                                  ? AcceptorReject(userToken, refreshTeamData)
+                                  : undefined
+                              }
+                              HandleCancelInvitation={
+                                tipoSolicitudActivo === "invitaciones"
+                                  ? () =>
+                                      HandleCancelInvitation(
+                                        userToken,
+                                        refreshTeamData
+                                      )(request.id)
+                                  : undefined
+                              }
+                            />
+                          ))}
+
+                          {listaFiltrada.length === 0 && (
+                            <div className="flex flex-col items-center justify-center text-gray-400 mt-4 space-y-2">
+                              <Frown className="w-6 h-6" />
+                              <p className="text-sm text-center">
+                                {filtro.trim() !== ""
+                                  ? "No se ha encontrado al usuario :("
+                                  : `No hay ${tipoSolicitudActivo} pendientes.`}
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -570,7 +578,7 @@ function TeamsComponent({ hackathonId, teamId }) {
         toState={activeModal}
         onTeamUpdated={refreshTeamData}
       />
-    </div>
+    </motion.div>
   );
 }
 

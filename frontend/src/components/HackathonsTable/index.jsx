@@ -4,9 +4,12 @@ import { useTheme } from "@context/ThemeContext";
 import { Search } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import CrearHackathonModal from "../CrearHackathon";
+import { useDebounce } from "react-use";
 
 const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
+  const [inputValue, setInputValue] = useState("");
   const [search, setSearch] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { isDark } = useTheme();
@@ -22,31 +25,33 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
     currentPage * itemsPerPage
   );
 
+  useDebounce(
+    () => {
+      setSearch(inputValue);
+      setCurrentPage(1);
+    },
+    400,
+    [inputValue]
+  );
+
   return (
     <div
-      className={`${
-        isDark ? "bg-slate-900/80" : "bg-base-200"
-      } rounded-2xl p-6 shadow-lg border border-info/20`}
+      className={`border-base-200 rounded-2xl p-6 shadow-lg border`}
     >
-        {/* Header con buscador */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Search className="text-base-content" size={20} />
-            <input
-              type="text"
-              placeholder="Buscar hackathon..."
-              className={`input input-sm input-bordered w-64 ${
-                isDark ? "bg-slate-900/80" : ""
-              }`}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-          <CrearHackathonModal />
+      {/* Header con buscador */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Search className="text-base-content" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar hackathon..."
+            className={`input input-sm input-bordered w-64`}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
         </div>
+        <CrearHackathonModal />
+      </div>
 
       {/* Tabla */}
       <div className={`overflow-x-auto rounded-xl ${isDark ? "" : "bg-white"}`}>
@@ -84,7 +89,13 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
                       </NavLink>
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      {hackathon.creator?.name || "Desconocido"}
+                      <NavLink
+                        to={`/profile/${hackathon.creator.id}`}
+                        className={`link link-hover link-base-content`}
+                      >
+                        {`${hackathon.creator?.firstname} ${hackathon.creator?.lastname}` ||
+                          "Desconocido"}
+                      </NavLink>
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {formatoFecha(hackathon.start_date)}

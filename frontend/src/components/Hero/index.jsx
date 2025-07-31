@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import AnimatedSection from "@components/AnimatedSection";
 import nexhackDark from "@assets/nexhackDark.webp";
 import nexhackBlueDashboard from "@assets/nexhackBlueDashboard.webp";
+import {NavLink} from 'react-router'
 
 const Hero = () => {
   const { isDark } = useTheme();
@@ -45,16 +46,20 @@ const Hero = () => {
             </p>
 
             <div className="mb-4 space-x-0 md:space-x-2 md:mb-8 mt-4">
-              <ButtonPrimary
-                title="Empieza Ahora"
-                icon={ChevronRight}
-                className="w-full sm:w-auto mb-2 sm:mb-0"
-              />
-              <ButtonSecondary
-                title="Saber Mas"
-                icon={Newspaper}
-                className="w-full sm:w-auto mb-2 sm:mb-0"
-              />
+              <NavLink to={'/login'}>
+                <ButtonPrimary
+                  title="Empieza Ahora"
+                  icon={ChevronRight}
+                  className="w-full sm:w-auto mb-2 sm:mb-0"
+                />
+              </NavLink>
+              <NavLink to={'/register'}>
+                <ButtonSecondary
+                  title="Registrarse"
+                  icon={Newspaper}
+                  className="w-full sm:w-auto mb-2 sm:mb-0"
+                />
+              </NavLink>
             </div>
           </motion.div>
         </AnimatedSection>

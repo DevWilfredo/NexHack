@@ -19,6 +19,8 @@ class Hackathon(db.Model):
     # Relaciones
     rules = db.relationship("HackathonRule", backref="hackathon", cascade="all, delete-orphan")
     tags = db.relationship("Tag", secondary="hackathon_tags", backref="hackathons")
+    creator = db.relationship("User", backref="hackathons_created", foreign_keys=[creator_id])
+
     
 
     def to_dict(self):
@@ -38,6 +40,8 @@ class Hackathon(db.Model):
             "tags": [tag.to_dict() for tag in self.tags],
             "teams": self.get_teams(),
             "judges": [j.judge.to_dict() for j in self.judgeships],
+            "creator": self.creator.to_dict() if self.creator else None,
+
         }
 
     def add_rule(self, text):

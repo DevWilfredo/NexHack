@@ -1,6 +1,6 @@
 import React from "react";
 import { useTheme } from "@context/ThemeContext";
-import { useApp } from "../../context/AppContext"; // Ajusta la ruta
+import { useApp } from "../../context/AppContext";
 import {
   BarChart,
   Bar,
@@ -10,22 +10,21 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Frown } from "lucide-react";
+import { motion } from "framer-motion";
 
 const hackathonStatsStatic = {
   avgPlacement: 4.2,
   top10Percentage: 87,
 };
-import { Frown } from 'lucide-react';
 
 const ChartComponent = () => {
   const { isDark } = useTheme();
   const { myHackathons: hackathons } = useApp();
 
-  // Obtener mes y año actual para poder manejar meses anteriores
   const now = new Date();
   const currentYear = now.getFullYear();
 
-  // Función para contar hackathons del mes pasado con status distinto de pending
   const countLastMonthHackathons = () => {
     if (!hackathons || hackathons.length === 0) return 0;
 
@@ -37,21 +36,21 @@ const ChartComponent = () => {
       if (!h.end_date) return false;
 
       const endDate = new Date(h.end_date);
-      return endDate.getMonth() === lastMonth && endDate.getFullYear() === lastMonthYear;
+      return (
+        endDate.getMonth() === lastMonth &&
+        endDate.getFullYear() === lastMonthYear
+      );
     }).length;
   };
 
-  // Crear array con 12 meses para mostrar en el gráfico
   const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
 
-  // Generar data para el gráfico de los últimos 7 meses (o los meses que quieras)
   const generateParticipationData = () => {
     if (!hackathons) return [];
 
-    // Preparamos un contador por mes-año (clave: YYYY-MM)
     const counts = {};
 
     hackathons.forEach((h) => {
@@ -59,13 +58,12 @@ const ChartComponent = () => {
 
       const endDate = new Date(h.end_date);
       const year = endDate.getFullYear();
-      const month = endDate.getMonth(); // 0-11
+      const month = endDate.getMonth();
       const key = `${year}-${month}`;
 
       counts[key] = (counts[key] || 0) + 1;
     });
 
-    // Queremos datos para últimos 7 meses (puedes ajustar)
     const data = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -83,7 +81,12 @@ const ChartComponent = () => {
   const totalHackathonsLastMonth = countLastMonthHackathons();
 
   return (
-    <div className="mt-8 p-6 bg-base-200 rounded-xl shadow space-y-6">
+    <motion.div
+      className="mt-8 p-6 bg-base-200 rounded-xl shadow space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       <h2 className="text-xl font-bold">Estadísticas Mensuales</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -108,25 +111,24 @@ const ChartComponent = () => {
       <div style={{ height: "300px", width: "100%", position: "relative" }}>
         {participationData.every((d) => d.hackathons === 0) ? (
           <div
-  style={{
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    color: isDark ? "#ccc" : "#666",
-    fontSize: "1.2rem",
-    fontWeight: "500",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    gap: "0.5rem",
-  }}
->
-  <Frown className="w-10 h-10" />
-  No hubo participación
-</div>
-
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              color: isDark ? "#ccc" : "#666",
+              fontSize: "1.2rem",
+              fontWeight: "500",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <Frown className="w-10 h-10" />
+            No hubo participación
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={participationData}>
@@ -143,7 +145,7 @@ const ChartComponent = () => {
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

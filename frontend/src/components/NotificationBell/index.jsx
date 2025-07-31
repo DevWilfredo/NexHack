@@ -63,7 +63,9 @@ const NotificationBell = () => {
         {unreadNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center text-base-content opacity-70">
             <Frown className="w-8 h-8 mb-2 text-gray-400" />
-            <p className="text-sm font-medium">No tienes notificaciones nuevas</p>
+            <p className="text-sm font-medium">
+              No tienes notificaciones nuevas
+            </p>
           </div>
         ) : (
           unreadNotifications.map((n, idx) => {
@@ -89,9 +91,14 @@ const NotificationBell = () => {
               ? `${fromUser.firstname} ${fromUser.lastname}`
               : "Sistema";
             const firstLetter = fromUser?.firstname?.[0] || "U";
-            const avatar = fromUser?.profile_picture
-              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${fromUser.profile_picture}`
-              : `https://placehold.co/400x400?text=${firstLetter}`;
+            const avatar =
+              n.type === "hackathon_finished"
+                ? "public/FaviconRed.png"
+                : fromUser?.profile_picture
+                ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
+                    fromUser.profile_picture
+                  }`
+                : `https://placehold.co/400x400?text=${firstLetter}`;
 
             return (
               <motion.div
