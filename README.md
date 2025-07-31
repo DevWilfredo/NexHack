@@ -149,7 +149,7 @@ Este proyecto está licenciado bajo los términos del archivo [`LICENSE`](./LICE
 | Nombre | GitHub |
 |--------|--------|
 | 🧑‍💻 Wilfredo Pinto | [@wilfredodev](https://github.com/DevWilfredo) |
-| 👩‍💻 Luis Perez | [@luisperez](https://github.com/Ghostskoll) |
+| 👩‍💻 Luis Perez | [@luisperez](https://github.com/Luper95) |
 | 🧑‍💻 Tomas Roch | [@tomasroch](https://github.com/waloleitor) |
 
 > 🎓 Proyecto desarrollado en el Bootcamp Fullstack de 4geeksAcademy.
