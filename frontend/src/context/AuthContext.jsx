@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }) => {
         })
         .catch((err) => {
           console.error("Error al verificar token:", err);
-          logout();
+          toast.error("Sesión expirada, por favor inicia sesión nuevamente");
+          localStorage.removeItem("token");
         })
         .finally(() => {
           setLoading(false);
