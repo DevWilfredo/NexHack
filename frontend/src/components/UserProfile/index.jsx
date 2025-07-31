@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useLocation, useNavigate } from "react-router";
 import ChartComponent from "@components/chartComponent";
 import { useAuth } from "@context/AuthContext";
 import ModalUserUpdateComponent from "../ModalUserUpdate";
@@ -8,13 +9,22 @@ import TestimonialsSection from "../TestimonialsSection";
 import HackathonHistory from "../HackathonsHistory";
 import LikesSection from "../LikesSection";
 import { ThumbsUp, Trophy, BarChart } from "lucide-react";
-import { useParams } from "react-router";
-import { GetUserProfile, GetUserHackathons, GetUserLikes, GetUserTestimonials } from "@services";
+import {
+  GetUserProfile,
+  GetUserHackathons,
+  GetUserLikes,
+  GetUserTestimonials,
+} from "@services";
 import SpinnerLoader from "../SpinnerLoader";
+import { motion } from "framer-motion";
 
 function UserProfileComponent() {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user: authUser, setUser } = useAuth();
+  const { isDark } = useTheme();
+
   const [profileData, setProfileData] = useState(null);
   const [userHackathons, setUserHackathons] = useState([]);
   const [userLikes, setUserLikes] = useState([]);
@@ -22,7 +32,6 @@ function UserProfileComponent() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("global");
-  const { isDark } = useTheme();
   const [search, setSearch] = useState("");
 
   const tabs = [
@@ -31,79 +40,79 @@ function UserProfileComponent() {
     { key: "followers", label: "Likes", icon: ThumbsUp },
   ];
 
-  const [followers] = useState([
-    {
-      username: "devAlice",
-      fullName: "Alice Johnson",
-      profile_picture: null,
-      bio: "Frontend dev @Tesla",
-      points: 1420,
-      likedAt: "2024-06-15",
-    },
-    {
-      username: "devAlice",
-      fullName: "Pedro Ramirez",
-      profile_picture: null,
-      bio: "Backend dev @OpenAI",
-      points: 4530,
-      likedAt: "2024-03-20",
-    },
-  ]);
-
-  const [hacksWins] = useState([
-    { hackname: "Angular solodev", timeLimit: "24 hours", ranked: "1st place" },
-    { hackname: "devDiana", timeLimit: "48 hours", ranked: "2nd place" },
-  ]);
-
   const handleModal = () => setShowModal((prev) => !prev);
   const handleUpdate = (updatedData) => {
     setProfileData(updatedData);
-    setUser(updatedData); // Actualiza el usuario en el contexto
+    setUser(updatedData);
   };
 
-  // Obtener perfil cuando cambia el ID de la URL
   useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
 
-      const [profile, hackathons, likes, testimonials] = await Promise.all([
-        GetUserProfile(id, token),
-        GetUserHackathons(id, token),
-        GetUserLikes(id, token),
-        GetUserTestimonials(id, token),
-      ]);
+        const [profile, hackathons, likes, testimonials] = await Promise.all([
+          GetUserProfile(id, token),
+          GetUserHackathons(id, token),
+          GetUserLikes(id, token),
+          GetUserTestimonials(id, token),
+        ]);
 
-      setProfileData(profile);
-      setUserHackathons(hackathons);
-      setUserLikes(likes);
-      setUserTestimonials(testimonials);
-    } catch (error) {
-      console.error("Error al obtener datos del perfil:", error);
-    } finally {
-      setTimeout(() => setLoading(false), 800);
+        setProfileData(profile);
+        setUserHackathons(hackathons);
+        setUserLikes(likes);
+        setUserTestimonials(testimonials);
+      } catch (error) {
+        console.error("Error al obtener datos del perfil:", error);
+      } finally {
+        setTimeout(() => setLoading(false), 800);
+      }
+    };
+
+    fetchProfile();
+  }, [id]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+    if (tabParam && tabs.some((t) => t.key === tabParam)) {
+      setActiveTab(tabParam);
+    } else {
+      setActiveTab("global");
     }
+  }, [location.search]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("tab", key);
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
-
-  fetchProfile();
-}, [id]);
-
 
   if (loading || !profileData) {
     return <SpinnerLoader />;
   }
 
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
     <div className="flex flex-wrap gap-8 p-6">
       {/* Profile section */}
-      <div className="w-full md:w-72 flex flex-col items-center gap-4 bg-base-200 p-6 rounded-lg shadow-lg ">
+      <motion.div
+        className="w-full md:w-72 flex flex-col items-center gap-4 bg-base-200 p-6 rounded-lg shadow-lg"
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        transition={{ duration: 0.5 }}
+      >
         <img
           src={
             profileData?.profile_picture
-              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
-                  profileData.profile_picture
-                }`
+              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${profileData.profile_picture}`
               : `https://placehold.co/400x400?text=${
                   profileData?.firstname?.charAt(0)?.toUpperCase() || "U"
                 }`
@@ -120,9 +129,7 @@ function UserProfileComponent() {
 
           {authUser?.id === profileData?.id && (
             <button
-              className={`btn ${
-                isDark ? "btn-accent" : "btn-primary"
-              } btn-sm mt-2`}
+              className={`btn ${isDark ? "btn-accent" : "btn-primary"} btn-sm mt-2`}
               onClick={handleModal}
             >
               Editar Perfil
@@ -132,55 +139,48 @@ function UserProfileComponent() {
 
         <div className="mt-4 flex gap-6">
           <span className="flex items-center gap-1 text-sm text-base-content">
-            <Trophy className="text-yellow-400" /> {profileData.points || 0}{" "}
-            Points
+            <Trophy className="text-yellow-400" /> {profileData.points || 0} Points
           </span>
           <span className="flex items-center gap-1 text-sm text-base-content">
-            <ThumbsUp className="text-success" /> {profileData.likes || 0} Likes
+            <ThumbsUp className="text-success" /> {userLikes.length || 0} Likes
           </span>
         </div>
 
         <div className="divider my-1" />
-        <h3 className="text-2xl font-semibold text-base-content">
-          Redes Sociales
-        </h3>
+        <h3 className="text-2xl font-semibold text-base-content">Redes Sociales</h3>
 
         <div className="flex flex-col gap-4 w-full">
           <SocialLinkDisplay
             type="email"
-            value={
-              profileData.email || "Aún no has agregado tu correo electrónico"
-            }
+            value={profileData.email || "Aún no has agregado tu correo electrónico"}
             isMissing={!profileData.email}
           />
           <SocialLinkDisplay
             type="website"
-            value={
-              profileData.website_url || "Aún no has agregado tu sitio web"
-            }
+            value={profileData.website_url || "Aún no has agregado tu sitio web"}
             isMissing={!profileData.website_url}
           />
           <SocialLinkDisplay
             type="github"
-            value={
-              profileData.github_url ||
-              "Aún no has agregado tu cuenta de GitHub"
-            }
+            value={profileData.github_url || "Aún no has agregado tu cuenta de GitHub"}
             isMissing={!profileData.github_url}
           />
           <SocialLinkDisplay
             type="linkedin"
-            value={
-              profileData.linkedin_url ||
-              "Aún no has agregado tu perfil de LinkedIn"
-            }
+            value={profileData.linkedin_url || "Aún no has agregado tu perfil de LinkedIn"}
             isMissing={!profileData.linkedin_url}
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* Main content */}
-      <div className="flex-1 max-w-full space-y-6">
+      <motion.div
+        className="flex-1 max-w-full space-y-6"
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <div className="flex flex-wrap gap-4 border-b pb-2">
           {tabs.map(({ key, label, icon: Icon }) => (
             <button
@@ -188,7 +188,7 @@ function UserProfileComponent() {
               className={`btn btn-ghost btn-sm flex items-center gap-1 ${
                 activeTab === key ? "btn-active btn-primary" : ""
               }`}
-              onClick={() => setActiveTab(key)}
+              onClick={() => handleTabChange(key)}
             >
               <Icon size={16} />
               {label}
@@ -198,7 +198,6 @@ function UserProfileComponent() {
 
         <div>
           {activeTab === "global" && <ChartComponent />}
-
           {activeTab === "hackathons" && (
             <HackathonHistory
               hackathons={userHackathons}
@@ -206,25 +205,10 @@ function UserProfileComponent() {
               setSearch={setSearch}
             />
           )}
-
           {activeTab === "followers" && <LikesSection likes={userLikes} />}
-
-          {activeTab === "hacksWins" && (
-            <ul className="space-y-2">
-              {hacksWins.map((f, i) => (
-                <div key={i} className="p-4 border rounded-box bg-base-200">
-                  <h2 className="font-semibold">{f.hackname}</h2>
-                  <p className="text-sm text-gray-400">
-                    Time Limit: {f.timeLimit} — Ranked: {f.ranked}
-                  </p>
-                </div>
-              ))}
-            </ul>
-          )}
-
-          <TestimonialsSection  testimonials={userTestimonials} />
+          <TestimonialsSection testimonials={userTestimonials} />
         </div>
-      </div>
+      </motion.div>
 
       {authUser?.id === profileData?.id && (
         <ModalUserUpdateComponent

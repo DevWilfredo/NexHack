@@ -83,30 +83,33 @@ const Sidebar = () => {
                   className="mt-2 space-y-1 overflow-hidden"
                 >
                   {hackathons.length === 0 ? (
-                    <li className="text-sm text-muted-foreground italic px-2">
-                      Aún no te has inscrito en ningún hackathon
-                    </li>
-                  ) : (
-                    hackathons.map((hackathon) => (
-                      <li key={hackathon.id}>
-                        <NavLink
-                          to={`/hackathons/${hackathon.id}`}
-                          className={`px-3 py-2 rounded-md transition-all flex justify-between items-center ${linkText} ${linkHover}`}
-                        >
-                          <span className="truncate text-sm font-medium">
-                            {hackathon.title}
-                          </span>
-                          <span
-                            className={`ml-2 text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
-                              roleColors[hackathon.role] || "bg-gray-200 text-gray-800"
-                            }`}
-                          >
-                            {hackathon.role}
-                          </span>
-                        </NavLink>
-                      </li>
-                    ))
-                  )}
+  <li className="text-sm text-muted-foreground italic px-2">
+    Aún no te has inscrito en ningún hackathon
+  </li>
+) : (
+  hackathons
+    .filter(h => h.status !== "finished")
+    .map((hackathon) => (
+      <li key={hackathon.id}>
+        <NavLink
+          to={`/hackathons/${hackathon.id}`}
+          className={`px-3 py-2 rounded-md transition-all flex justify-between items-center ${linkText} ${linkHover}`}
+        >
+          <span className="truncate text-sm font-medium">
+            {hackathon.title}
+          </span>
+          <span
+            className={`ml-2 text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
+              roleColors[hackathon.role] || "bg-gray-200 text-gray-800"
+            }`}
+          >
+            {hackathon.role}
+          </span>
+        </NavLink>
+      </li>
+    ))
+)}
+
                 </motion.ul>
               )}
             </AnimatePresence>

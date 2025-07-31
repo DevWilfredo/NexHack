@@ -2,15 +2,14 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@context/AuthContext";
-import { useTheme } from "@context/ThemeContext";
 import InputComponent from "@components/InputComponent";
 import CheckboxComponent from "@components/Checkbox";
 import ButtonPrimary from "@components/ButtonPrimary";
 import { Link } from "react-router";
+import { motion } from "framer-motion";
 
 const RegisterFormComponent = () => {
   const { register: registerUser } = useAuth();
-  const { isDark } = useTheme();
 
   const {
     register,
@@ -33,11 +32,13 @@ const RegisterFormComponent = () => {
   };
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit(onSubmit)}
-      className={`${
-        isDark ? "bg-slate-900/80" : "bg-base-200"
-      } p-8 rounded-lg shadow-lg w-full max-w-md`}
+      className="bg-base-200 p-8 rounded-lg shadow-lg w-full max-w-md"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <h2 className="text-2xl font-bold text-center mb-6">
         Registro de usuario
@@ -107,26 +108,22 @@ const RegisterFormComponent = () => {
         }}
       />
 
-      <CheckboxComponent
-        label={
-          <>
-            Acepto los{" "}
-            <a
-              href="#"
-              className={`${
-                isDark ? "text-red-600" : "text-primary"
-              } hover:underline`}
-            >
-              Términos y Condiciones
-            </a>
-          </>
-        }
-        name="terms"
-        register={register}
-        error={errors.terms}
-        rules={{ required: "Debes aceptar los términos" }}
-        isDark={isDark}
-      />
+      <div className="flex items-center mt-3">
+        <CheckboxComponent
+          label={
+            <>
+              Acepto los{" "}
+              <a href="#" className="text-primary hover:underline">
+                Términos y Condiciones
+              </a>
+            </>
+          }
+          name="terms"
+          register={register}
+          error={errors.terms}
+          rules={{ required: "Debes aceptar los términos" }}
+        />
+      </div>
 
       <div className="mt-6">
         <ButtonPrimary title="Registrarse" type="submit" className="w-full" />
@@ -134,16 +131,11 @@ const RegisterFormComponent = () => {
 
       <p className="text-center text-sm text-base-content mt-4">
         ¿Ya tienes Cuenta?{" "}
-        <Link
-          to="/login"
-          className={`${
-            isDark ? "text-red-600" : "text-primary"
-          } font-semibold hover:underline`}
-        >
+        <Link to="/login" className="text-primary font-semibold hover:underline">
           Inicia Sesion
         </Link>
       </p>
-    </form>
+    </motion.form>
   );
 };
 

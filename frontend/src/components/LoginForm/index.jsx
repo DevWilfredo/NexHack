@@ -1,18 +1,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
-import { toast } from "react-hot-toast";
 import { Link } from "react-router";
 import { useAuth } from "@context/AuthContext";
-import { useTheme } from "@context/ThemeContext";
 import ButtonPrimary from "@components/ButtonPrimary";
 import InputComponent from "@components/InputComponent";
 import CheckboxComponent from "@components/Checkbox";
+import { motion } from "framer-motion";
 
 const LoginFormComponent = () => {
   const { login } = useAuth();
-  const { isDark } = useTheme();
-  const navigate = useNavigate();
 
   const {
     register,
@@ -21,18 +17,17 @@ const LoginFormComponent = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    login(
-      data.email,
-      data.password,
-    );
+    login(data.email, data.password);
   };
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit(onSubmit)}
-      className={`${
-        isDark ? "bg-slate-900/80" : "bg-base-200"
-      } p-8 rounded-lg shadow-lg w-full max-w-md`}
+      className="bg-base-200 p-8 rounded-lg shadow-lg w-full max-w-md"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <h2 className="text-3xl font-extrabold text-center mb-6">
         Iniciar sesión
@@ -77,7 +72,6 @@ const LoginFormComponent = () => {
           register={register}
           error={errors.rememberMe}
           rules={{}}
-          isDark={isDark}
         />
       </div>
 
@@ -92,14 +86,12 @@ const LoginFormComponent = () => {
         ¿No tienes cuenta?{" "}
         <Link
           to="/register"
-          className={`${
-            isDark ? "text-red-600" : "text-primary"
-          } font-semibold hover:underline`}
+          className="text-primary font-semibold hover:underline"
         >
           Regístrate
         </Link>
       </p>
-    </form>
+    </motion.form>
   );
 };
 

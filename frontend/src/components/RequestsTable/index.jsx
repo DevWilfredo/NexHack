@@ -6,32 +6,47 @@ import { Search, UserCheck, UserX } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatoFecha } from "@utilities/dateUtils";
 import toast from "react-hot-toast";
+import { DeleteInvitation } from "@utilities/userUtils";
 
-const RequestsTable = ({ requests = [] }) => {
+const RequestsTable = ({ requests = [], refreshTeamData, statusFilter }) => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { isDark } = useTheme();
-  const { handleInvitation } = useApp();
-  const { user: authUser } = useAuth();
+  const { handleInvitation, fetchRequests } = useApp();
+  const { user: authUser, userToken } = useAuth();
+
+  // Traducciones para mostrar en UI
+  const statusLabels = {
+    pending: "Pendiente",
+    accepted: "Aceptada",
+    rejected: "Rechazada",
+  };
+
+  const typeLabels = {
+    invitation: "Invitación",
+    request: "Solicitud",
+  };
 
   const getRequestUserName = (request) => {
     const { user, requested_by } = request;
 
-    // Si yo envié la solicitud → mostrar el target (user)
     if (requested_by.id === authUser.id) {
       return `${user.firstname} ${user.lastname}`;
     }
 
-    // Si yo soy el target → mostrar quién la envió (requested_by)
     return `${requested_by.firstname} ${requested_by.lastname}`;
   };
 
-  const filteredRequests = requests.filter(
-    (r) =>
+  const filteredRequests = requests.filter((r) => {
+    const matchesSearch =
       r.requested_by.firstname.toLowerCase().includes(search.toLowerCase()) ||
-      r.requested_by.lastname.toLowerCase().includes(search.toLowerCase())
-  );
+      r.requested_by.lastname.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus = !statusFilter || r.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
   const paginatedRequests = filteredRequests.slice(
@@ -46,6 +61,16 @@ const RequestsTable = ({ requests = [] }) => {
         action === "accept" ? "Solicitud aceptada" : "Solicitud rechazada",
       error: "Error al procesar la solicitud",
     });
+  };
+
+  const handleCancelSentRequest = async (requestId) => {
+    try {
+      await DeleteInvitation(userToken, requestId);
+      await fetchRequests();
+      refreshTeamData?.();
+    } catch (err) {
+      console.error("Error al cancelar solicitud:", err.message);
+    }
   };
 
   return (
@@ -104,9 +129,7 @@ const RequestsTable = ({ requests = [] }) => {
                       {getRequestUserName(request)}
                     </td>
                     <td className="px-4 py-3 text-sm capitalize">
-                      {request.type === "invitation"
-                        ? "Invitación"
-                        : "Solicitud"}
+                      {typeLabels[request.type] || request.type}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {formatoFecha(request.created_at)}
@@ -121,22 +144,23 @@ const RequestsTable = ({ requests = [] }) => {
                             : "badge-error"
                         }`}
                       >
-                        {request.status}
+                        {statusLabels[request.status] || request.status}
                       </span>
                     </td>
+
                     <td className="px-4 py-3 flex gap-2">
                       {authUser.id === request.requested_by.id ? (
-                        // Yo envié la solicitud → puedo cancelarla
+                        // Yo envié la solicitud → la cancelo (delete)
                         <button
                           className="btn btn-sm btn-error text-white"
-                          onClick={() => handleAction(request, "reject")}
+                          onClick={() => handleCancelSentRequest(request.id)}
                           disabled={request.status !== "pending"}
                         >
                           <UserX className="w-4 h-4 mr-1" />
                           Cancelar
                         </button>
                       ) : (
-                        // Yo soy el target → puedo aceptar o rechazar
+                        // Yo soy el target → acepto o rechazo
                         <>
                           <button
                             className="btn btn-sm btn-success"

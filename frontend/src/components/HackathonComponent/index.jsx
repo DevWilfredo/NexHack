@@ -133,7 +133,12 @@ const HackatonsComponent = ({ hackathonId }) => {
   console.log("Winners", allWinners);
 
   return (
-    <div className=" mx-auto  p-6 bg-base-200 rounded-xl shadow-xl space-y-6 ">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="mx-auto p-6 bg-base-200 rounded-xl shadow-xl space-y-6"
+    >
       <div className="flex justify-between">
         <div className="w-1/2">
           <h1 className="text-4xl font-bold mb-4 card-title">
@@ -175,15 +180,18 @@ const HackatonsComponent = ({ hackathonId }) => {
           </p>
           <div className="flex flex-wrap gap-2 mt-5">
             {hackathon.tags.map((tag, index) => (
-              <span
+              <motion.span
                 key={index}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-md   bg-base-300 text-base-content `}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-md bg-base-300 text-base-content"
               >
                 {tag.icon && (
-                  <DynamicIcon iconName={tag.icon} className="w-5 h-5 " />
+                  <DynamicIcon iconName={tag.icon} className="w-5 h-5" />
                 )}
                 {tag.name}
-              </span>
+              </motion.span>
             ))}
           </div>
         </div>
@@ -194,7 +202,12 @@ const HackatonsComponent = ({ hackathonId }) => {
 
       <div className="flex flex-col lg:flex-row w-full min-h-[400px] gap-6">
         {/* LEFT - Ocupa 2/3 en pantallas grandes */}
-        <div className="left w-full lg:w-2/3 space-y-4 ">
+        <motion.div
+          className="left w-full lg:w-2/3 space-y-4"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <div className="grid bg-base-200 grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="card  bg-base-300 text-neutral-content">
               <div className="card-body ">
@@ -346,10 +359,15 @@ const HackatonsComponent = ({ hackathonId }) => {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* RIGHT - Ocupa 1/3 en pantallas grandes */}
-        <div className="right w-full lg:w-1/3 ">
+        <motion.div
+          className="right w-full lg:w-1/3"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           <div className="card bg-base-300 text-neutral-content  ">
             <div className="header flex justify-between items-center px-5 pt-5">
               <h2 className="text-2xl card-title font-semibold">
@@ -373,9 +391,12 @@ const HackatonsComponent = ({ hackathonId }) => {
                 ? equiposOrdenados.map((equipo, index) => {
                     const { border, medal } = getMedalStyles(equipo.position);
                     return (
-                      <div
+                      <motion.div
                         key={equipo.id}
-                        className={`rounded-box px-3 py-2 group hover:scale-105 transition-all bg-base-200  ${border}`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className={`rounded-box px-3 py-2 group hover:scale-105 transition-all bg-base-200 ${border}`}
                       >
                         <NavLink to={`teams/${equipo.id}`}>
                           <div className="text-lg font-medium flex justify-between items-center">
@@ -399,12 +420,15 @@ const HackatonsComponent = ({ hackathonId }) => {
                             </div>
                           </div>
                         </NavLink>
-                      </div>
+                      </motion.div>
                     );
                   })
                 : equipos.map((equipo) => (
-                    <div
+                    <motion.div
                       key={equipo.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
                       className="bg-base-200 rounded-box px-3 py-2 group hover:bg-primary hover:scale-105 transition-all"
                     >
                       <NavLink to={`teams/${equipo.id}`}>
@@ -421,7 +445,7 @@ const HackatonsComponent = ({ hackathonId }) => {
                           </div>
                         </div>
                       </NavLink>
-                    </div>
+                    </motion.div>
                   ))}
             </div>
             <div className="flex justify-end align-bottom pb-5 pr-5">
@@ -443,15 +467,19 @@ const HackatonsComponent = ({ hackathonId }) => {
               <CreateTeamModal userToken={userToken} hackathon={hackathon} />
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-      <div className="flex justify-start">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="flex justify-start"
+      >
         <NavLink to={`/dashboard`}>
-          {" "}
-          <button className="btn btn-primary "> volver atras</button>
+          <button className="btn btn-primary">volver atrás</button>
         </NavLink>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

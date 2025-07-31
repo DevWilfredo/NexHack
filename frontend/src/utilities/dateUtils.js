@@ -42,36 +42,23 @@ export const crearArrayFechas = (inicio, fin) => {
   return fechas;
 };
 
-//  Junta todas las fechas ocupadas de todos los hackathones
+// Solo fechas de inicio únicas de hackathons
 export const todasLasFechas = (hackathones) => {
-  const fechasOcupadas = [];
+  const fechasInicio = hackathones.map(h => formatDateToISOShort(h.start_date));
 
-  hackathones.forEach((hackathon) => {
-    const fechas = crearArrayFechas(hackathon.start_date, hackathon.end_date);
-    fechasOcupadas.push(...fechas);
-  });
+  const fechasUnicas = [...new Set(fechasInicio)];
 
-  //Convertimos a string (solo el día), usamos Set para quitar duplicados y volvemos a Date
-  const fechasUnicas = [
-    ...new Set(fechasOcupadas.map((fecha) => formatDateToISOShort(fecha))),
-  ].map((fechaStr) => new Date(fechaStr));
-
-  return fechasUnicas;
-
+  return fechasUnicas.map(fechaStr => new Date(fechaStr));
 };
 
-// Devuelve un objeto { "YYYY-MM-DD": [hackathon, hackathon] }
+// Mapear solo por fecha de inicio (no todo el rango)
 export const mapFechasAHackathones = (hackathones) => {
   const mapa = {};
 
   hackathones.forEach((hackathon) => {
-    const fechas = crearArrayFechas(hackathon.start_date, hackathon.end_date);
-
-    fechas.forEach((fecha) => {
-      const clave = formatDateToISOShort(fecha); // ej. "2025-08-01"
-      if (!mapa[clave]) mapa[clave] = [];
-      mapa[clave].push(hackathon);
-    });
+    const clave = formatDateToISOShort(hackathon.start_date);
+    if (!mapa[clave]) mapa[clave] = [];
+    mapa[clave].push(hackathon);
   });
 
   return mapa;

@@ -1,6 +1,7 @@
 import { getTeamByHackathon, SendRequest, HandleInvitation } from "../services";
 import { useApp } from "@context/AppContext";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
+const API_URL = import.meta.env.VITE_API_URL
 
 // ✅ Función para aceptar o rechazar solicitudes o invitaciones
 export function AcceptorReject(userToken, refreshTeamData) {
@@ -42,7 +43,7 @@ export function HandleCancelInvitation(userToken, refreshTeamData) {
 // ✅ Funcion para eliminar una invitacion enviada, luego del PR pasar a services el fetch, cambiar el localhost a ${API_URL}
 export async function DeleteInvitation(userToken, requestID) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/teams/requests/${requestID}`, {
+    const response = await fetch(`${API_URL}/teams/requests/${requestID}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
