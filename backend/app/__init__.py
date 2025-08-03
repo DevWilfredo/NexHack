@@ -1,7 +1,6 @@
 import os
 from flask import Flask
-from flask_cors import CORS
-from .extensions import db, migrate, bcrypt, jwt
+from .extensions import migrate, bcrypt, jwt, cors, db
 from .routes.auth import auth_bp
 from .routes.users import user_bp
 from .routes.hackathons import hackathon_bp
@@ -10,17 +9,16 @@ from .routes.teams import team_bp
 from .config import Config
 from .models import hackathon, user, evaluation, feedback, notification, team
 from app.routes.notifications import notifications_bp
-
+from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)  
-
+    app.config.from_object(Config)
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    cors.init_app(app)
 
     api_prefix = app.config["API_PREFIX"]
     app.register_blueprint(auth_bp, url_prefix=f"{api_prefix}/auth")

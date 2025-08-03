@@ -1,10 +1,7 @@
 from app import create_app
 from app.extensions import db
 from app.models.user import User
-from app.models.hackathon import Hackathon, HackathonRule, Tag
-from app.models.notification import Notification
-from datetime import datetime, timedelta
-import random
+from app.models.hackathon import Tag
 from faker import Faker
 
 faker = Faker()
@@ -14,7 +11,7 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    # Crear Tags con íconos asociados
+    # ✅ Crear Tags con íconos asociados
     tag_names = [
         "React", "Vue", "Angular", "Node", "Python", "Django", "Flask", "Java", "Spring", "Kotlin",
         "Swift", "Go", "Rust", "C#", "Unity", "Unreal", "Php", "Laravel",
@@ -48,85 +45,70 @@ with app.app_context():
         "Svelte":"Svelte"
     }
 
-    missing_icons = []
-    tags = []
     for name in tag_names:
         icon_name = tag_icon_map.get(name)
-        if not icon_name:
-            missing_icons.append(name)
         tag = Tag(name=name, icon=icon_name)
         db.session.add(tag)
-        tags.append(tag)
+
     db.session.commit()
+    print("✅ Tags creadas correctamente.")
 
-    if missing_icons:
-        print("⚠️ Faltan íconos para los siguientes tags, crea los componentes correspondientes:")
-        for missing in missing_icons:
-            print(f" - {missing}")
-
-    # Crear usuarios
-    users = []
-    for i in range(50):
-        role = "moderator" if i < 5 else "user"
+    # ✅ Crear 5 moderadores aleatorios
+    for _ in range(5):
         user = User(
             firstname=faker.first_name(),
             lastname=faker.last_name(),
             email=faker.unique.email(),
-            role=role,
+            role="moderator",
             profile_picture=None
         )
         user.set_password("password123")
         db.session.add(user)
-        users.append(user)
-    db.session.commit()
 
-  
-
-    # Crear hackathones
-    TITLES = [
-        "Reto de Frontend", "Hackathon Express", "Code Challenge", "Weekend Dev Jam",
-        "Interfaz Creativa", "Startup Sprint", "Hack4Good", "CSS Battle", "Open Source Push",
-        "Clean Code Hack"
-    ]
-    DESCRIPTIONS = [
-        "Un reto intensivo para mejorar tus habilidades con frameworks modernos.",
-        "Construye algo increíble en solo 48 horas.",
-        "Participa en esta edición enfocada en buenas prácticas de UI/UX.",
-        "Demuestra tus habilidades técnicas resolviendo problemas reales.",
-        "Crea algo útil, creativo o divertido en un fin de semana."
-    ]
-    RULES_POOL = [
-        "No usar IA generativa",
-        "Tiempo límite de entrega: 48h",
-        "Código debe estar en GitHub",
-        "Presentación obligatoria en video",
-        "Diseño responsivo obligatorio",
-        "Uso de Tailwind recomendado"
+    # ✅ Moderadores específicos
+    specific_moderators = [
+        {
+            "firstname": "Wilfredo",
+            "lastname": "Pinto",
+            "email": "wilfredo@gmail.com",
+            "password": "holahola2"
+        },
+        {
+            "firstname": "Luis",
+            "lastname": "Peres",
+            "email": "luis@gmail.com",
+            "password": "holahola2"
+        },
+        {
+            "firstname": "Tomas",
+            "lastname": "Sarciat Roch",
+            "email": "tomas@gmail.com",
+            "password": "holahola2"
+        }
     ]
 
-    for i in range(25):
-        creator = random.choice(users)
-        title = f"{random.choice(TITLES)} #{i + 1}"
-        description = random.choice(DESCRIPTIONS)
-        start_date = datetime.utcnow() + timedelta(days=random.randint(5, 30))
-        end_date = start_date + timedelta(days=3)
-        hackathon = Hackathon(
-            title=title,
-            description=description,
-            start_date=start_date,
-            end_date=end_date,
-            max_teams=random.randint(5, 15),
-            max_team_members=random.randint(3, 6),
-            creator_id=creator.id
+    for mod in specific_moderators:
+        user = User(
+            firstname=mod["firstname"],
+            lastname=mod["lastname"],
+            email=mod["email"],
+            role="moderator",
+            profile_picture=None
         )
+        user.set_password(mod["password"])
+        db.session.add(user)
 
-        for rule_text in random.sample(RULES_POOL, k=random.randint(2, 3)):
-            hackathon.add_rule(rule_text)
+    # ✅ Crear 50 usuarios normales
+    for _ in range(50):
+        user = User(
+            firstname=faker.first_name(),
+            lastname=faker.last_name(),
+            email=faker.unique.email(),
+            role="user",
+            profile_picture=None
+        )
+        user.set_password("password123")
+        db.session.add(user)
 
-        hackathon.add_tag(random.choice(tags))
-        db.session.add(hackathon)
     db.session.commit()
-
-    
-
-    print("✅ Base de datos poblada con usuarios, notificaciones y hackathones.")
+    print("✅ Usuarios creados: 5 moderadores aleatorios, 3 específicos, 50 usuarios normales.")
