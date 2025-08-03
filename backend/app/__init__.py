@@ -18,7 +18,7 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    cors.init_app(app)
+    cors.init_app(app, origins=[app.config["FRONTEND_URL"],"http://localhost:5173"])
 
     api_prefix = app.config["API_PREFIX"]
     app.register_blueprint(auth_bp, url_prefix=f"{api_prefix}/auth")

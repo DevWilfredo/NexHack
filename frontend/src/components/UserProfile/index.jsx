@@ -66,7 +66,7 @@ function UserProfileComponent() {
       } catch (error) {
         console.error("Error al obtener datos del perfil:", error);
       } finally {
-        setTimeout(() => setLoading(false), 800);
+        setLoading(false);
       }
     };
 
@@ -87,7 +87,9 @@ function UserProfileComponent() {
     setActiveTab(key);
     const searchParams = new URLSearchParams(location.search);
     searchParams.set("tab", key);
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    navigate(`${location.pathname}?${searchParams.toString()}`, {
+      replace: true,
+    });
   };
 
   if (loading || !profileData) {
@@ -112,7 +114,9 @@ function UserProfileComponent() {
         <img
           src={
             profileData?.profile_picture
-              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${profileData.profile_picture}`
+              ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
+                  profileData.profile_picture
+                }`
               : `https://placehold.co/400x400?text=${
                   profileData?.firstname?.charAt(0)?.toUpperCase() || "U"
                 }`
@@ -129,7 +133,9 @@ function UserProfileComponent() {
 
           {authUser?.id === profileData?.id && (
             <button
-              className={`btn ${isDark ? "btn-accent" : "btn-primary"} btn-sm mt-2`}
+              className={`btn ${
+                isDark ? "btn-accent" : "btn-primary"
+              } btn-sm mt-2`}
               onClick={handleModal}
             >
               Editar Perfil
@@ -139,7 +145,8 @@ function UserProfileComponent() {
 
         <div className="mt-4 flex gap-6">
           <span className="flex items-center gap-1 text-sm text-base-content">
-            <Trophy className="text-yellow-400" /> {profileData.points || 0} Points
+            <Trophy className="text-yellow-400" /> {profileData.points || 0}{" "}
+            Points
           </span>
           <span className="flex items-center gap-1 text-sm text-base-content">
             <ThumbsUp className="text-success" /> {userLikes.length || 0} Likes
@@ -147,27 +154,39 @@ function UserProfileComponent() {
         </div>
 
         <div className="divider my-1" />
-        <h3 className="text-2xl font-semibold text-base-content">Redes Sociales</h3>
+        <h3 className="text-2xl font-semibold text-base-content">
+          Redes Sociales
+        </h3>
 
         <div className="flex flex-col gap-4 w-full">
           <SocialLinkDisplay
             type="email"
-            value={profileData.email || "Aún no has agregado tu correo electrónico"}
+            value={
+              profileData.email || "Aún no has agregado tu correo electrónico"
+            }
             isMissing={!profileData.email}
           />
           <SocialLinkDisplay
             type="website"
-            value={profileData.website_url || "Aún no has agregado tu sitio web"}
+            value={
+              profileData.website_url || "Aún no has agregado tu sitio web"
+            }
             isMissing={!profileData.website_url}
           />
           <SocialLinkDisplay
             type="github"
-            value={profileData.github_url || "Aún no has agregado tu cuenta de GitHub"}
+            value={
+              profileData.github_url ||
+              "Aún no has agregado tu cuenta de GitHub"
+            }
             isMissing={!profileData.github_url}
           />
           <SocialLinkDisplay
             type="linkedin"
-            value={profileData.linkedin_url || "Aún no has agregado tu perfil de LinkedIn"}
+            value={
+              profileData.linkedin_url ||
+              "Aún no has agregado tu perfil de LinkedIn"
+            }
             isMissing={!profileData.linkedin_url}
           />
         </div>
