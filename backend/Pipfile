@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 flask-sqlalchemy = "*"
-flask-migrate = "*"
 flask-bcrypt = "*"
 flask-cors = "*"
 marshmallow = "*"
@@ -13,6 +12,9 @@ faker = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
 flask = "*"
+sqlalchemy = "*"
+flask-migrate = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

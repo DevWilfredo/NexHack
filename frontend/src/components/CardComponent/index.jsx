@@ -30,6 +30,7 @@ const CardComponent = ({
   const isMe = user.id === userArray.id;
 
   const handleModal = () => setShowModal((prev) => !prev);
+
   const handleIsLiked = async (toUserId) => {
     const toastId = toast.loading("Procesando like...");
 
@@ -41,15 +42,12 @@ const CardComponent = ({
         userToken
       );
 
-      // Mensaje basado en la respuesta
       const successMessage =
         data.message === "Like eliminado."
           ? "Like eliminado con éxito."
           : "¡Like agregado con éxito!";
 
       toast.success(successMessage, { id: toastId });
-
-      // Solo cambiamos el estado si fue exitoso
       setIsLiked((prev) => !prev);
     } catch (err) {
       toast.error(err.message || "Error al dar like", { id: toastId });
@@ -59,7 +57,6 @@ const CardComponent = ({
   useEffect(() => {
     GetLikesFromUser(userArray.id, userToken).then((data) => {
       setListofLikes(data);
-      console.log("Estos son mis likes", data);
       setIsLiked(
         data.some((like) => {
           return (
@@ -70,9 +67,9 @@ const CardComponent = ({
         })
       );
     });
+
     GetFeddbackFromUser(userArray.id, userToken).then((data) => {
       setListOfFeedback(data);
-
       setShowFeedbackButton(
         data.some((feedback) => {
           return (
@@ -88,6 +85,7 @@ const CardComponent = ({
   const iAmMember = teamData?.members.some(
     (member) => member.user.id === user.id
   );
+
   return (
     <div
       key={userArray.id}
@@ -102,12 +100,8 @@ const CardComponent = ({
           <img
             src={
               userArray.profile_picture
-                ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
-                    userArray.profile_picture
-                  }`
-                : `https://placehold.co/400x400?text=${
-                    userArray?.firstname?.charAt(0)?.toUpperCase() || "U"
-                  }`
+                ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${userArray.profile_picture}`
+                : `https://placehold.co/400x400?text=${userArray?.firstname?.charAt(0)?.toUpperCase() || "U"}`
             }
             alt="profile"
             className={` ${isSmall ? "w-30" : "w-70"} object-cover`}
@@ -132,7 +126,7 @@ const CardComponent = ({
           </div>
           <div className="card-actions justify-end flex flex-col sm:flex-row gap-2">
             <NavLink to={`/profile/${userArray.id}`}>
-              <button className={`btn btn-sm btn-primary hover:btn-info`}>
+              <button className="btn btn-sm btn-primary hover:btn-info">
                 Ver perfil
               </button>
             </NavLink>
@@ -156,4 +150,5 @@ const CardComponent = ({
     </div>
   );
 };
+
 export default CardComponent;

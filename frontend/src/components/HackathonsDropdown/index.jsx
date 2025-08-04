@@ -46,13 +46,13 @@ const HackathonsDropdown = ({
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="mt-2 space-y-1 overflow-hidden"
           >
-            {hackathons.length === 0 ? (
+            {hackathons.filter((h)=>h.status=='pending').length === 0 ? (
               <li className="text-sm text-muted-foreground italic px-2">
-                Aún no te has inscrito en ningún hackathon
+                No tienes Hackathones en curso
               </li>
             ) : (
               hackathons
-                .filter((h) => h.status !== "finished")
+                .filter((h) => h.status == "pending")
                 .map((hackathon) => (
                   <li key={hackathon.id}>
                     <NavLink
@@ -68,7 +68,9 @@ const HackathonsDropdown = ({
                           "bg-gray-200 text-gray-800"
                         }`}
                       >
-                        {hackathon.role}
+                        {hackathon.role === "creator"
+                          ? "Creador" : hackathon.role === "judge"
+                          ? "Juez" : "Participante"}
                       </span>
                     </NavLink>
                   </li>
