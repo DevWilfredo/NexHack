@@ -24,7 +24,6 @@ const TestimonialsSection = ({ testimonials }) => {
 
   const chunkSize = 3;
   const slides = chunkArray(testimonials, chunkSize);
-  console.log(testimonials)
   return (
     <div className="w-full mt-8">
       <h3 className="text-2xl font-semibold text-base-content mb-4">

@@ -12,7 +12,6 @@ function WarningModalComponent({ hackathon, newState }) {
     const toastId = toast.loading("Finalizando hackathon...");
     try {
       const data = await finalizeHackathon(hackathon.id, userToken);
-      console.log(data);
       toast.success("Hackathon finalizado", { id: toastId });
     } catch (error) {
       console.error(error);
@@ -26,7 +25,6 @@ function WarningModalComponent({ hackathon, newState }) {
     const toastId = toast.loading("Suspendiendo hackathon...");
     try {
       const data = await suspendHackathon(hackathon.id, userToken);
-      console.log(data);
       toast.success("Hackathon suspendido", { id: toastId });
     } catch (error) {
       console.error(error);

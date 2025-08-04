@@ -51,7 +51,6 @@ export const AppProvider = ({ children }) => {
     setLoadingRequests(true);
     const data = await fetchUserRequests(userToken);
     if (data) setRequests(data);
-    console.log("Requests fetched:", data);
     setLoadingRequests(false);
   };
 
@@ -60,7 +59,6 @@ export const AppProvider = ({ children }) => {
     setLoadingAllHackathons(true);
     const data = await GetHackathons(userToken);
     if (data) setAllHackathons(data);
-    console.log("all hackathons fetched:", data);
     setLoadingAllHackathons(false);
   };
 
@@ -69,7 +67,6 @@ export const AppProvider = ({ children }) => {
     setLoadingScores(true);
     const data = await GetScores(userToken);
     if (data) setScores(data);
-    console.log("Scores fetched:", data);
     setLoadingScores(false);
   };
 
@@ -78,7 +75,6 @@ export const AppProvider = ({ children }) => {
     setLoadingWinners(true);
     const data = await GetAllWinners(userToken);
     if (data) setAllWinners(data);
-    console.log("Winners fetched:", data);
     setLoadingWinners(false);
   };
 
