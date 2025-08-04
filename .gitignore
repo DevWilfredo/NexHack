@@ -7,15 +7,12 @@ instance/*
 .webassets-cache
 .env
 
-### Uploads Directory ###
-backend/uploads/
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-uploads
 
 # C extensions
 *.so

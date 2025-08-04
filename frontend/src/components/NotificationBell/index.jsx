@@ -58,7 +58,7 @@ const NotificationBell = () => {
 
       <div
         tabIndex={0}
-        className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-80 max-h-96 overflow-y-auto"
+        className="mt-3 z-[1] p-2 shadow dropdown-content bg-base-100 rounded-box w-80 max-h-96 overflow-y-auto flex flex-col gap-2"
       >
         {unreadNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center text-base-content opacity-70">
