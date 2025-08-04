@@ -160,7 +160,7 @@ export const getTeamByHackathon = async ({ teamId, hackathonId, token }) => {
 //intento por el camino largo, primero el hackathon, de ahi la info de teams
 export const fetchSingleHackathon = async (hackathonId, token) => {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/hackathons/${hackathonId}`, {
+    const response = await fetch(`${API_URL}/hackathons/${hackathonId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
