@@ -69,11 +69,10 @@ const CardComponent = ({
           );
         })
       );
-      console.log(isLiked);
     });
     GetFeddbackFromUser(userArray.id, userToken).then((data) => {
       setListOfFeedback(data);
-      console.log("estos son mis feedbacks", data);
+
       setShowFeedbackButton(
         data.some((feedback) => {
           return (
@@ -83,11 +82,12 @@ const CardComponent = ({
           );
         })
       );
-      console.log("ya me dio feedback el que esta viendo?", showFeedbackButton);
     });
   }, [userArray]);
 
-  console.log("soy yo?", isMe);
+  const iAmMember = teamData?.members.some(
+    (member) => member.user.id === user.id
+  );
   return (
     <div
       key={userArray.id}
@@ -116,7 +116,7 @@ const CardComponent = ({
         <div className="card-body bg-base-300">
           <h2 className="card-title self-center">
             {userArray.firstname}{" "}
-            {showLikeButton && !isMe && (
+            {showLikeButton && !isMe && iAmMember && (
               <ThumbsUp
                 size={20}
                 className={`${
@@ -136,7 +136,7 @@ const CardComponent = ({
                 Ver perfil
               </button>
             </NavLink>
-            {showCommentButton && !isMe && !showFeedbackButton && (
+            {showCommentButton && !isMe && !showFeedbackButton && iAmMember && (
               <button
                 className="btn btn-sm btn-outline btn-success"
                 onClick={handleModal}
