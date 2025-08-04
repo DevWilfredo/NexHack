@@ -6,9 +6,9 @@ function UserToJudgesComponent({ us, index, handleInvitation }) {
   return (
     <div
       key={index}
-      className={` card card-xs bg-base-200 rounded-box p-3 mb-3 w-140         
-           shadow-md border-primary border-1 shadow-primary   
-           hover:bg-primary hover:scale-103 transition-all`}
+      className={`card bg-base-200 rounded-box p-3 mb-3 w-full md:w-[560px]
+        shadow-md border-primary border shadow-primary
+        hover:bg-primary hover:scale-[1.03] transition-all`}
     >
       <div className="flex justify-between ">
         <div className="flex items-center space-x-4">

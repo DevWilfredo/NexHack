@@ -8,10 +8,8 @@ import {
 } from "../../services";
 import {
   BookOpen,
-  BriefcaseBusiness,
   ExternalLink,
   Frown,
-  Github,
   MessageSquareText,
   UserPlus,
   Users,
@@ -34,6 +32,8 @@ import { NavLink } from "react-router";
 import TestimonialCarousel from "../TestimonialCarrousel";
 import EvaluationModalComponent from "../EvaluationModal";
 import { motion, AnimatePresence } from "framer-motion";
+import useWindowWidth from "../../utilities/responsiveUtils";
+import SocialLinkDisplay from "../SocialLinksDisplay";
 
 function TeamsComponent({ hackathonId, teamId }) {
   const { user, userToken } = useAuth();
@@ -62,6 +62,11 @@ function TeamsComponent({ hackathonId, teamId }) {
   const handleShowEvaluationModal = () => {
     setShowEvaluationModal((prev) => !prev);
   };
+
+  //responsive de los carrousel
+  const windowWidth = useWindowWidth();
+  const cardsPerSlideMembers = windowWidth < 1200 ? 1 : 2;
+  const cardsPerSlideJudges = windowWidth < 1200 ? 1 : 3;
 
   useEffect(() => {
     if (hackathonId && teamId && userToken) {
@@ -205,30 +210,32 @@ function TeamsComponent({ hackathonId, teamId }) {
       } border border-info/10`}
     >
       {/* Título y hackathon */}
-      <div className="flex justify-between items-start md:items-center">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+        {/* Primera fila: Título + Creador */}
+        <div className="flex flex-col gap-2 md:w-2/3">
           <div className="flex items-center gap-4 flex-wrap align-baseline">
             <h1 className="text-3xl font-bold card-title">
               <UsersRound /> {teamData.name}
             </h1>
-            {actualStatus === "cancelled" || actualStatus === "finished"
-              ? ""
-              : user.id === teamData.creator_id && (
-                  <label
-                    htmlFor="addMemberModal"
-                    className={`btn hover:btn-success  ${
-                      isDark ? "btn-accent" : "btn-primary"
-                    }`}
-                    onClick={() => setActiveModal("EditingTeam")}
-                  >
-                    Editar equipo
-                  </label>
-                )}
+            {actualStatus !== "cancelled" &&
+              actualStatus !== "finished" &&
+              user.id === teamData.creator_id && (
+                <label
+                  htmlFor="addMemberModal"
+                  className={`btn hover:btn-success  ${
+                    isDark ? "btn-accent" : "btn-primary"
+                  }`}
+                  onClick={() => setActiveModal("EditingTeam")}
+                >
+                  Editar equipo
+                </label>
+              )}
           </div>
-          <p className="text-md text-gray-500 mt-1">Creador: {creatorName}</p>
+          <p className="text-md text-gray-500">Creador: {creatorName}</p>
         </div>
 
-        <div className="text-right">
+        {/* Segunda fila: Badge + Fechas + Evaluar */}
+        <div className="flex flex-col items-start md:items-end md:w-1/3">
           <span
             className={`p-3 text-lg ${
               isDark ? "badge badge-accent" : "badge badge-primary "
@@ -241,21 +248,19 @@ function TeamsComponent({ hackathonId, teamId }) {
               hackathonData.start_date
             )} - ${formatDateToISOShort(hackathonData.end_date)}`}
           </p>
-          {actualStatus === "cancelled" || actualStatus === "finished" ? (
-            ""
-          ) : isAJudge ? (
-            <button
-              onClick={handleShowEvaluationModal}
-              className={`btn ${
-                hasVoted ? "btn-disabled" : "btn-primary"
-              } mt-2`}
-              disabled={hasVoted}
-            >
-              {hasVoted ? "Ya evaluaste" : "Evaluar Equipo"}
-            </button>
-          ) : (
-            ""
-          )}
+          {actualStatus !== "cancelled" &&
+            actualStatus !== "finished" &&
+            isAJudge && (
+              <button
+                onClick={handleShowEvaluationModal}
+                className={`btn ${
+                  hasVoted ? "btn-disabled" : "btn-primary"
+                } mt-2`}
+                disabled={hasVoted}
+              >
+                {hasVoted ? "Ya evaluaste" : "Evaluar Equipo"}
+              </button>
+            )}
           <EvaluationModalComponent
             showModal={showEvaluationModal}
             onClose={handleShowEvaluationModal}
@@ -283,33 +288,20 @@ function TeamsComponent({ hackathonId, teamId }) {
               <ExternalLink /> Enlaces del Proyecto
             </h2>
 
-            <div className="mb-4 flex mt- items-center">
-              <Github className="w-8 h-8" />
-              <a
-                href={`https://${teamData.github_url}`}
-                className={`${
-                  isDark ? "text-accent" : "text-primary"
-                } font-bold  text-lg ms-2 break-all hover:text-info`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {teamData.github_url || "No proporcionado"}
-              </a>
-            </div>
-
-            <div className="flex items-center">
-              <BriefcaseBusiness className="w-8 h-8" />
-              <a
-                href={`https://${teamData.live_preview_url}`}
-                className={`${
-                  isDark ? "text-accent" : "text-primary"
-                } font-bold text-lg ms-2 break-all hover:text-info`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {teamData.live_preview_url || "No proporcionado"}
-              </a>
-            </div>
+            <SocialLinkDisplay
+              type="website"
+              value={
+                teamData.live_preview_url || "Aún no has agregado tu sitio web"
+              }
+              isMissing={!teamData.live_preview_url}
+            />
+            <SocialLinkDisplay
+              type="github"
+              value={
+                teamData.github_url || "Aún no has agregado tu cuenta de GitHub"
+              }
+              isMissing={!teamData.github_url}
+            />
           </div>
         </div>
 
@@ -382,7 +374,7 @@ function TeamsComponent({ hackathonId, teamId }) {
                     <CardCarousel
                       usersArray={teamMembers}
                       initialSlide={0}
-                      cardsPerSlide={2}
+                      cardsPerSlide={cardsPerSlideMembers}
                       viewport="small"
                       hackathonStatus={hackathonData.status}
                       teamData={teamData}
@@ -519,7 +511,7 @@ function TeamsComponent({ hackathonId, teamId }) {
           <div>
             <TestimonialCarousel
               testimonials={judgeReviews ? judgeReviews : []}
-              cardsPerSlide={3}
+              cardsPerSlide={cardsPerSlideJudges}
             />
           </div>
         ) : (

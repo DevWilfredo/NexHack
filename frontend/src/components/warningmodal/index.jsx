@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast"; // ✅ Importar react-hot-toast
 
 function WarningModalComponent({ hackathon, newState }) {
   const { userToken } = useAuth();
-  const { fetchAllHackathons } = useApp();
+  const { fetchAllHackathons, fetchAllWinners } = useApp();
 
   const handleFinalize = async () => {
     const toastId = toast.loading("Finalizando hackathon...");
@@ -19,6 +19,7 @@ function WarningModalComponent({ hackathon, newState }) {
       toast.error("Error al finalizar el hackathon", { id: toastId });
     } finally {
       fetchAllHackathons();
+      fetchAllWinners();
     }
   };
 
