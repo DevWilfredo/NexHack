@@ -61,7 +61,7 @@ const HackatonsComponent = ({ hackathonId }) => {
       setEquipos(found?.teams || []);
       GetTags().then((data) => setDbTagas(data));
     }
-  }, [loadingAllHackathons, allHackathons, hackathonId]);
+  }, [loadingAllHackathons, allHackathons, hackathonId, allWinners]);
 
   const handleUpdate = (updatedData) => setHackathon(updatedData);
   //Si no explota, no sacar.
@@ -136,34 +136,13 @@ const HackatonsComponent = ({ hackathonId }) => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="mx-auto p-6 bg-base-200 rounded-xl shadow-xl space-y-6"
     >
-      <div className="flex justify-between">
-        <div className="w-1/2">
-          <h1 className="text-4xl font-bold mb-4 card-title">
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        {/* Izquierda: Título + botón */}
+        <div className="flex flex-wrap items-center gap-4 flex-1 min-w-[200px]">
+          <h1 className="text-3xl md:text-4xl font-bold card-title">
             {hackathon.title}
-            {hackathon.status === "finished" ||
-            hackathon.status === "cancelled" ? (
-              ""
-            ) : user.id === hackathon.creator_id ||
-              user.role === "moderator" ? (
-              <button
-                className="btn btn-primary btn-md ms-5"
-                onClick={handleModal}
-              >
-                Editar Hackathon
-              </button>
-            ) : (
-              ""
-            )}
           </h1>
-          <EditHackathonModal
-            showModal={showModal}
-            onClose={handleModal}
-            userToken={userToken}
-            hackathon={hackathon}
-            onUpdate={handleUpdate}
-            tags={dbTags}
-          />
-          <p className=" text-md ">
+          <p className="text-md">
             Creador del hackathon:
             {` ${
               creator
@@ -171,30 +150,54 @@ const HackatonsComponent = ({ hackathonId }) => {
                 : "Desconocido"
             }`}
           </p>
-          <div className="divider m-0 p-0"></div>
-          <p className="text-lg card-title font-bold">
-            <User /> {hackathon.description}
-          </p>
-          <div className="flex flex-wrap gap-2 mt-5">
-            {hackathon.tags.map((tag, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-md bg-base-300 text-base-content"
+          {hackathon.status !== "finished" &&
+            hackathon.status !== "cancelled" &&
+            (user.id === hackathon.creator_id || user.role === "moderator") && (
+              <button
+                className="btn btn-primary btn-sm md:btn-md"
+                onClick={handleModal}
               >
-                {tag.icon && (
-                  <DynamicIcon iconName={tag.icon} className="w-5 h-5" />
-                )}
-                {tag.name}
-              </motion.span>
-            ))}
-          </div>
+                Editar Hackathon
+              </button>
+            )}
         </div>
-        <div className="flex flex-col ">
+
+        {/* Derecha: Badge */}
+        <div className="shrink-0">
           <BadgeHackathonComponent hackathon={hackathon} />
         </div>
+      </div>
+
+      <EditHackathonModal
+        showModal={showModal}
+        onClose={handleModal}
+        userToken={userToken}
+        hackathon={hackathon}
+        onUpdate={handleUpdate}
+        tags={dbTags}
+      />
+
+      <div className="divider m-0 p-0"></div>
+
+      <p className="text-lg card-title font-bold">
+        <User /> {hackathon.description}
+      </p>
+
+      <div className="flex flex-wrap gap-2 mt-5">
+        {hackathon.tags.map((tag, index) => (
+          <motion.span
+            key={index}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.05 }}
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-md bg-base-300 text-base-content"
+          >
+            {tag.icon && (
+              <DynamicIcon iconName={tag.icon} className="w-5 h-5" />
+            )}
+            {tag.name}
+          </motion.span>
+        ))}
       </div>
 
       <div className="flex flex-col lg:flex-row w-full min-h-[400px] gap-6">
