@@ -130,8 +130,11 @@ const RegisterFormComponent = () => {
       </div>
 
       <p className="text-center text-sm text-base-content mt-4">
-        ¿Ya tienes Cuenta?{" "}
-        <Link to="/login" className="text-primary font-semibold hover:underline">
+        ¿Ya tienes cuenta?{" "}
+        <Link
+          to="/login"
+          className="text-primary font-semibold hover:underline"
+        >
           Inicia Sesion
         </Link>
       </p>
