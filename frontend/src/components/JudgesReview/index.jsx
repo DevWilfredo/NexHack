@@ -17,7 +17,7 @@ function JudgesReviewComponent({ name, points, image, quote, score }) {
           <div className="md:hidden flex flex-col">
             <h5 className="text-lg font-semibold">{name}</h5>
             <div className="mt-1">
-              <StaticStarsComponent value={10} small />
+              <StaticStarsComponent value={score} small />
             </div>
             <label className="badge bg-primary mt-2 w-fit">
               <Trophy className="text-warning" />
