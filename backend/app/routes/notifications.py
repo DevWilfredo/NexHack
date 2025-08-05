@@ -16,6 +16,7 @@ def get_notifications():
     return jsonify([n.to_dict() for n in notifications]), 200
 
 @notifications_bp.route('/notifications/<int:notification_id>/read', methods=['PUT', 'OPTIONS'])
+@cross_origin(origins="http://localhost:5173")
 @jwt_required()
 def mark_as_read(notification_id):
     current_user_id = get_jwt_identity()
