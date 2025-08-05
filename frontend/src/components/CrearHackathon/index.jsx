@@ -130,7 +130,7 @@ export default function CrearHackathonModal() {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 {/* Fecha de inicio */}
                 <Controller
                   control={control}
@@ -146,7 +146,12 @@ export default function CrearHackathonModal() {
                         value={
                           field.value ? format(field.value, "yyyy-MM-dd") : ""
                         }
-                        onClick={() => setShowStartPicker(!showStartPicker)}
+                        onClick={() => {
+                          setShowStartPicker((prev) => {
+                            if (!prev) setShowEndPicker(false);
+                            return !prev;
+                          });
+                        }}
                         className={`input input-bordered w-full ${
                           errors.start_date ? "input-error" : ""
                         }`}
@@ -156,7 +161,6 @@ export default function CrearHackathonModal() {
                         <div className="absolute z-10 mt-2 rounded-md p-4 bg-base-200 shadow-lg shadow-primary/30">
                           <DayPicker
                             mode="single"
-                            animate
                             selected={field.value}
                             onSelect={(date) => {
                               field.onChange(date);
@@ -190,7 +194,19 @@ export default function CrearHackathonModal() {
                         value={
                           field.value ? format(field.value, "yyyy-MM-dd") : ""
                         }
-                        onClick={() => setShowEndPicker(!showEndPicker)}
+                        onClick={() => {
+                          if (!startDate) {
+                            toast.error(
+                              "Primero selecciona la fecha de inicio"
+                            );
+                            return;
+                          }
+
+                          setShowEndPicker((prev) => {
+                            if (!prev) setShowStartPicker(false);
+                            return !prev;
+                          });
+                        }}
                         className={`input input-bordered w-full ${
                           errors.end_date ? "input-error" : ""
                         }`}
@@ -200,7 +216,6 @@ export default function CrearHackathonModal() {
                         <div className="absolute z-10 mt-2 rounded-md p-4 bg-base-200 shadow-lg shadow-primary/30">
                           <DayPicker
                             mode="single"
-                            animate
                             selected={field.value}
                             onSelect={(date) => {
                               field.onChange(date);
