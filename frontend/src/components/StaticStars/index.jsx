@@ -1,7 +1,7 @@
 import React, { useId } from "react";
 
 function StaticStarsComponent({ value, small = false }) {
-  const id = useId(); // <-- genera ID único por instancia
+  const id = useId();
   const ratingSizeClass = small
     ? "rating-sm md:rating-md"
     : "rating-lg md:rating-lg";
@@ -19,7 +19,7 @@ function StaticStarsComponent({ value, small = false }) {
           <input
             key={i}
             type="radio"
-            name={`readonly-stars-${value}-${id}`} // ✅ name único por instancia
+            name={`readonly-stars-${value}-${id}`}
             className={`mask mask-star-2 ${half} bg-warning`}
             aria-label={`${starValue} star`}
             disabled
