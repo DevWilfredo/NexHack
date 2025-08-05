@@ -1,6 +1,7 @@
 import React from "react";
 import { useTheme } from "@context/ThemeContext";
-import { useApp } from "../../context/AppContext";
+import { useApp } from "@context/AppContext";
+import { useAuth } from "@context/AuthContext";
 import {
   BarChart,
   Bar,
@@ -13,40 +14,72 @@ import {
 import { Frown } from "lucide-react";
 import { motion } from "framer-motion";
 
-const hackathonStatsStatic = {
-  avgPlacement: 4.2,
-  top10Percentage: 87,
-};
-
-const ChartComponent = () => {
+const ChartComponent = ({ ProfileUser }) => {
   const { isDark } = useTheme();
-  const { myHackathons: hackathons } = useApp();
+  const { myHackathons: hackathons, allWinners } = useApp();
+  const { user } = useAuth();
 
   const now = new Date();
-  const currentYear = now.getFullYear();
 
-  const countLastMonthHackathons = () => {
+  const countFinishedHackathons = () => {
     if (!hackathons || hackathons.length === 0) return 0;
-
-    const lastMonth = now.getMonth() - 1 < 0 ? 11 : now.getMonth() - 1;
-    const lastMonthYear = lastMonth === 11 ? currentYear - 1 : currentYear;
-
-    return hackathons.filter((h) => {
-      if (h.status === "pending") return false;
-      if (!h.end_date) return false;
-
-      const endDate = new Date(h.end_date);
-      return (
-        endDate.getMonth() === lastMonth &&
-        endDate.getFullYear() === lastMonthYear
-      );
-    }).length;
+    return hackathons.filter((h) => h.status === "finished").length;
   };
 
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+  const calculateTop3Count = (hackathons, winners, user) => {
+    if (!hackathons || !winners || !user) return 0;
+
+    let count = 0;
+
+    hackathons.forEach((hack) => {
+      const myTeam = hack.teams?.find((team) =>
+        team.members?.some((m) => m.user?.id === user.id)
+      );
+
+      if (!myTeam) return;
+
+      const myWinningEntry = winners.find(
+        (w) => w.hackathon_id === hack.id && w.team_id === myTeam.id
+      );
+
+      if (myWinningEntry && myWinningEntry.position <= 3) {
+        count++;
+      }
+    });
+
+    return count;
+  };
+
+  const calculateAveragePlacement = (hackathons, winners, user) => {
+    if (!hackathons || !winners || !user) return null;
+
+    const myPlacements = [];
+
+    hackathons.forEach((hack) => {
+      // Encontrar mi equipo en este hackathon
+      const myTeam = hack.teams?.find((team) =>
+        team.members?.some((m) => m.user?.id === user.id)
+      );
+
+      if (!myTeam) return;
+
+      // Buscar si ese equipo fue ganador
+      const myWinningEntry = winners.find(
+        (w) => w.hackathon_id === hack.id && w.team_id === myTeam.id
+      );
+
+      if (myWinningEntry) {
+        myPlacements.push(myWinningEntry.position);
+      }
+    });
+
+    if (myPlacements.length === 0) return null;
+
+    const total = myPlacements.reduce((sum, pos) => sum + pos, 0);
+    const avg = total / myPlacements.length;
+
+    return avg.toFixed(1);
+  };
 
   const generateParticipationData = () => {
     if (!hackathons) return [];
@@ -64,6 +97,21 @@ const ChartComponent = () => {
       counts[key] = (counts[key] || 0) + 1;
     });
 
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
     const data = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -77,8 +125,14 @@ const ChartComponent = () => {
     return data;
   };
 
+  const totalFinishedHackathons = countFinishedHackathons();
   const participationData = generateParticipationData();
-  const totalHackathonsLastMonth = countLastMonthHackathons();
+  const avgPlacement = calculateAveragePlacement(
+    hackathons,
+    allWinners,
+    ProfileUser
+  );
+  const top3Count = calculateTop3Count(hackathons, allWinners, ProfileUser);
 
   return (
     <motion.div
@@ -87,24 +141,22 @@ const ChartComponent = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <h2 className="text-xl font-bold">Estadísticas Mensuales</h2>
+      <h2 className="text-xl font-bold">Estadísticas</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
         <div className="p-4 bg-base-300 rounded-box shadow">
-          <p className="text-lg font-semibold">{totalHackathonsLastMonth}</p>
-          <p className="text-sm text-muted">Hackathons del mes pasado</p>
+          <p className="text-lg font-semibold">{totalFinishedHackathons}</p>
+          <p className="text-sm text-muted">Hackathons Completados</p>
         </div>
         <div className="p-4 bg-base-300 rounded-box shadow">
           <p className="text-lg font-semibold">
-            #{hackathonStatsStatic.avgPlacement}
+            {avgPlacement != null ? `#${avgPlacement}` : "0"}
           </p>
           <p className="text-sm text-muted">Promedio de Posición</p>
         </div>
         <div className="p-4 bg-base-300 rounded-box shadow">
-          <p className="text-lg font-semibold">
-            {hackathonStatsStatic.top10Percentage}%
-          </p>
-          <p className="text-sm text-muted">Top 10 ranking obtenidos</p>
+          <p className="text-lg font-semibold">{top3Count}</p>
+          <p className="text-sm text-muted">Veces en Top 3</p>
         </div>
       </div>
 
