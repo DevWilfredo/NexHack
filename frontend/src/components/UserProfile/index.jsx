@@ -216,7 +216,7 @@ function UserProfileComponent() {
         </div>
 
         <div>
-          {activeTab === "global" && <ChartComponent />}
+          {activeTab === "global" && <ChartComponent ProfileUser={profileData} />}
           {activeTab === "hackathons" && (
             <HackathonHistory
               hackathons={userHackathons}
