@@ -139,17 +139,23 @@ const HackatonsComponent = ({ hackathonId }) => {
       <div className="flex items-start justify-between flex-wrap gap-4">
         {/* Izquierda: Título + botón */}
         <div className="flex flex-wrap items-center gap-4 flex-1 min-w-[200px]">
-          <h1 className="text-3xl md:text-4xl font-bold card-title">
-            {hackathon.title}
-          </h1>
-          <p className="text-md">
-            Creador del hackathon:
-            {` ${
-              creator
-                ? `${creator.firstname} ${creator.lastname}`
-                : "Desconocido"
-            }`}
-          </p>
+          <div className="flex flex-col">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold card-title">
+                {hackathon.title}
+              </h1>
+            </div>
+            <div>
+              <p className="text-md">
+                Creador del hackathon:
+                {` ${
+                  creator
+                    ? `${creator.firstname} ${creator.lastname}`
+                    : "Desconocido"
+                }`}
+              </p>
+            </div>
+          </div>
           {hackathon.status !== "finished" &&
             hackathon.status !== "cancelled" &&
             (user.id === hackathon.creator_id || user.role === "moderator") && (
@@ -214,7 +220,7 @@ const HackatonsComponent = ({ hackathonId }) => {
                 <div className="card-title flex-justify-between">
                   <h2 className="card-title ">
                     <CalendarIcon />
-                    Fecha de finalización
+                    Fecha de Incio
                   </h2>
                 </div>
                 <div>
