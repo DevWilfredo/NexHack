@@ -90,8 +90,8 @@ function FeedbackUsersComponent({ showModal, onClose, team, toUserId }) {
             <p className="card-title">¿Cuantos puntos le darias?</p>
             <div className="mt-3 ms-10">
               <Rating5StarsComponent
-                value={3}
-                onChange={(val) => console.log("Nuevo rating:", val)}
+                value={rating}
+                onChange={(val) => setRating(val)}
               />
             </div>
             <p className="text-start py-4 mb-0 ms-4">
