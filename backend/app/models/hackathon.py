@@ -12,7 +12,7 @@ class Hackathon(db.Model):
     end_date = db.Column(db.DateTime)
     max_teams = db.Column(db.Integer)
     max_team_members = db.Column(db.Integer)
-    status = db.Column(db.String(20), default='pending')
+    status = db.Column(db.String(20), default='open')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
