@@ -109,13 +109,17 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
                             ? "badge-warning"
                             : hackathon.status === "cancelled"
                             ? "badge-error"
-                            : "badge-success"
+                            : hackathon.status === "open"
+                            ? "badge-success"
+                            : "badge-info"
                         }`}
                       >
                         {hackathon.status === "pending"
                           ? "Pendiente"
                           : hackathon.status === "cancelled"
                           ? "Cancelado"
+                          : hackathon.status === "open"
+                            ? "Abierto"
                           : "Finalizado"}
                       </span>
                     </td>
