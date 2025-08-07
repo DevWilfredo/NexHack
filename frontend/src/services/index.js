@@ -719,3 +719,21 @@ export async function GetFeddbackFromUser(userId, token) {
   return await response.json(); 
   
 }
+
+//funcion que falto para actualizar el status del hackathon cuando se llene de equipos 
+export const updateHackathonStatus = async (hackathonId, body, token) => {
+  const response = await fetch(`${API_URL}/hackathons/${hackathonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // si estás usando auth
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("No se pudo actualizar el estado del hackathon");
+  }
+
+  return await response.json();
+};

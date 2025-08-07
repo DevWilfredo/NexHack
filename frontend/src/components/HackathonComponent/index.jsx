@@ -4,7 +4,11 @@ import AvatarGroupComponent from "../../components/AvatarGroup";
 import { useEffect, useState } from "react";
 import { useAuth } from "@context/AuthContext";
 import { formatDateToISOShort } from "../../utilities/dateUtils";
-import { fetchSingleHackathon, GetTags } from "../../services";
+import {
+  fetchSingleHackathon,
+  GetTags,
+  updateHackathonStatus,
+} from "../../services";
 import CardCarousel from "../Carrousel";
 import CreateTeamModal from "../CreateTeamModal";
 import { isInHackathon } from "../../utilities/userUtils";
@@ -62,6 +66,28 @@ const HackatonsComponent = ({ hackathonId }) => {
       GetTags().then((data) => setDbTagas(data));
     }
   }, [loadingAllHackathons, allHackathons, hackathonId, allWinners]);
+  const sendHackathonStatusUpdate = async (newStatus) => {
+    try {
+      const updated = await updateHackathonStatus(
+        hackathon.id,
+        { status: newStatus },
+        userToken
+      );
+      setHackathon(updated); // Actualiza el estado local
+    } catch (error) {
+      console.error("Error al actualizar el estado del hackathon:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      hackathon &&
+      hackathon.status === "open" &&
+      hackathon.teams.length >= hackathon.max_teams
+    ) {
+      sendHackathonStatusUpdate("pending");
+    }
+  }, [hackathon?.teams.length]); // Solo se ejecuta si cambia la cantidad de equipos
 
   const handleUpdate = (updatedData) => setHackathon(updatedData);
   //Si no explota, no sacar.
@@ -463,6 +489,8 @@ const HackatonsComponent = ({ hackathonId }) => {
                 <button className="btn btn-disabled">
                   Eres juez en este evento
                 </button>
+              ) : hackathon.teams.length == hackathon.max_teams ? (
+                <button className="btn btn-disabled">Hackathon lleno</button>
               ) : !isUserInHackathon ? (
                 <label htmlFor="CreateTeamModal" className="btn btn-primary">
                   Crear equipo
