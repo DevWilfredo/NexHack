@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Trophy, User, ThumbsUp } from "lucide-react";
 import { format } from "date-fns";
+import {NavLink} from 'react-router'
 
 function LikesSection({ likes }) {
   return (
@@ -52,13 +53,13 @@ function LikesSection({ likes }) {
                       {like.from_user.username} te dejó un like el{" "}
                       {format(new Date(like.created_at), "dd MMM yyyy")}
                     </p>
-                    <a
-                      href={`/profile/${like.from_user.id}`}
+                    <NavLink
+                      to={`/profile/${like.from_user.id}`}
                       className="btn btn-sm btn-primary border border-primary/10 mt-4"
                     >
                       <User size={16} className="mr-1" />
                       Ver perfil
-                    </a>
+                    </NavLink>
                   </div>
 
                   <div className="flex flex-col items-end">

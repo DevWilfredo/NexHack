@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 from app.models.notification import Notification
 from app.models.user import User
 from app.extensions import db
+import os
 
 
 notifications_bp = Blueprint('notifications', __name__, url_prefix='/api/v1')
@@ -16,6 +17,7 @@ def get_notifications():
     return jsonify([n.to_dict() for n in notifications]), 200
 
 @notifications_bp.route('/notifications/<int:notification_id>/read', methods=['PUT', 'OPTIONS'])
+@cross_origin(origins=["http://localhost:5173",os.getenv("FRONTEND_URL", "https://nex-hack.vercel.app")])
 @jwt_required()
 def mark_as_read(notification_id):
     current_user_id = get_jwt_identity()

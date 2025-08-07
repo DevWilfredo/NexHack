@@ -35,17 +35,15 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
   );
 
   return (
-    <div
-      className={`border-base-200 rounded-2xl p-6 shadow-lg border`}
-    >
+    <div className={`border-base-200 rounded-2xl p-6 shadow-lg border`}>
       {/* Header con buscador */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
           <Search className="text-base-content" size={20} />
           <input
             type="text"
             placeholder="Buscar hackathon..."
-            className={`input input-sm input-bordered w-64`}
+            className="input input-sm input-bordered w-full sm:w-64"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
@@ -111,12 +109,18 @@ const HackathonTable = ({ hackathons = [], formatoFecha, calcularHoras }) => {
                             ? "badge-warning"
                             : hackathon.status === "cancelled"
                             ? "badge-error"
-                            : "badge-success"
+                            : hackathon.status === "open"
+                            ? "badge-success"
+                            : "badge-info"
                         }`}
                       >
                         {hackathon.status === "pending"
-                          ? "Pendiente" : hackathon.status === "cancelled"
-                          ? "Cancelado" : "Finalizado"}
+                          ? "Pendiente"
+                          : hackathon.status === "cancelled"
+                          ? "Cancelado"
+                          : hackathon.status === "open"
+                            ? "Abierto"
+                          : "Finalizado"}
                       </span>
                     </td>
                   </tr>

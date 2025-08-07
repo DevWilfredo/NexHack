@@ -93,7 +93,7 @@ const NotificationBell = () => {
             const firstLetter = fromUser?.firstname?.[0] || "U";
             const avatar =
               n.type === "hackathon_finished"
-                ? "public/FaviconRed.png"
+                ? "/FaviconRed.png"
                 : fromUser?.profile_picture
                 ? `${import.meta.env.VITE_API_URL}/users/profile_pictures/${
                     fromUser.profile_picture
